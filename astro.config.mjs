@@ -15,6 +15,7 @@ export default defineConfig({
 			favicon: '/favicon.svg',
 			components: {
 				ThemeSelect: './src/components/EmptyThemeSelect.astro',
+				Head: './src/components/Head.astro',
 			},
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/your-org/kotauth' },
