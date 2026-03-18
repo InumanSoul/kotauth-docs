@@ -76,11 +76,19 @@ docker run -d \
 
 | Property | Value |
 |---|---|
-| Base image | `eclipse-temurin:17-jre-alpine` |
-| Runtime size | ~120 MB |
-| Build | Multi-stage (Gradle fat JAR) |
+| Runtime base | `eclipse-temurin:17-jre` |
+| Runtime size | ~85 MB |
+| Build | 3-stage multi-stage |
 | Port | `8080` |
 | Startup time | ~3–5 seconds |
+
+The image is built in three stages to keep the runtime lean:
+
+**Stage 1 — CSS compilation (`node:20-slim`).** Installs `lightningcss-cli` via npm and compiles two CSS bundles — `kotauth-admin.css` (admin console, fixed dark theme) and `kotauth-auth.css` (auth pages, no `:root` defaults — token values are injected by `TenantTheme` at runtime). Node.js is not present in the final image.
+
+**Stage 2 — Kotlin build (`gradle:8-jdk17`).** Copies the compiled CSS bundles from Stage 1 into `src/main/resources/static/` and runs `gradle buildFatJar`, skipping the CSS Gradle tasks since the output already exists. Gradle and the JDK are not present in the final image.
+
+**Stage 3 — Runtime (`eclipse-temurin:17-jre`).** Copies only the fat JAR from Stage 2. Adds `curl` for the health check probe. No build tools, no Node.js, no source code.
 
 ## Health checks
 

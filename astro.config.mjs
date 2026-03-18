@@ -70,6 +70,13 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Customization',
+					items: [
+						{ label: 'Webhooks', slug: 'customization/webhooks' },
+						{ label: 'White-label Theming', slug: 'customization/theming' },
+					],
+				},
+				{
 					label: 'Deployment',
 					items: [
 						{ label: 'Environment Variables', slug: 'deployment/environment-variables' },

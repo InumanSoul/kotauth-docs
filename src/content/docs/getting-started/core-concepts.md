@@ -77,6 +77,14 @@ Kotauth issues three types of tokens:
 
 API keys authenticate machine-to-machine calls to the REST API. They are created in the admin console per workspace and carry a set of **scopes** (e.g. `users:read`, `roles:write`) that define which operations the key may perform. Keys are prefixed with `kauth_<slug>_` for easy identification in logs.
 
+## Workspace Theme
+
+Each workspace carries an optional `TenantTheme` — a set of CSS custom property values that Kotauth injects into every auth page at render time. The nine configurable tokens cover brand colors, backgrounds, borders, text, and corner radius. Two additional fields accept a logo URL and a favicon URL.
+
+Three built-in presets exist: `DEFAULT` (Kotauth's dark theme), `LIGHT` (clean white), and `SIMPLE` (light with 8 px rounded corners). You can override any individual token from the admin console or via the REST API without touching code or triggering a rebuild.
+
+Theme values affect **only the auth pages** (login, registration, MFA). The admin console always uses Kotauth's fixed dark theme, regardless of workspace settings.
+
 ## How it fits together
 
 ```
