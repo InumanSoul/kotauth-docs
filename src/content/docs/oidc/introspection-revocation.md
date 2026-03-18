@@ -1,0 +1,102 @@
+---
+title: Introspection & Revocation
+description: Check token validity and revoke tokens via the RFC 7662 and RFC 7009 endpoints.
+sidebar:
+  order: 6
+---
+
+## Token Introspection (RFC 7662)
+
+The introspection endpoint lets a resource server check whether a token is currently active and retrieve its metadata. This is a server-to-server call — never make it from a browser.
+
+```
+POST /t/{slug}/protocol/openid-connect/introspect
+Authorization: Basic base64(client_id:client_secret)
+Content-Type: application/x-www-form-urlencoded
+
+token=ACCESS_OR_REFRESH_TOKEN&token_type_hint=access_token
+```
+
+**Authentication required** — use HTTP Basic auth with a confidential client's `client_id` and `client_secret`.
+
+### Parameters
+
+| Parameter | Required | Description |
+|---|---|---|
+| `token` | Yes | The token to inspect |
+| `token_type_hint` | No | `access_token` or `refresh_token`. Helps Kotauth search efficiently. |
+
+### Active token response
+
+```json
+{
+  "active": true,
+  "sub": "42",
+  "username": "alice",
+  "email": "alice@example.com",
+  "scope": "openid profile email",
+  "client_id": "my-spa",
+  "exp": 1735689600,
+  "iat": 1735689300,
+  "iss": "https://auth.yourdomain.com/t/my-app"
+}
+```
+
+### Inactive token response
+
+```json
+{
+  "active": false
+}
+```
+
+An `active: false` response means the token is expired, revoked, or never existed. The response body contains no other claims.
+
+### When to use introspection
+
+Introspection is a network call to Kotauth per request — avoid it in high-throughput paths. Prefer local JWT verification using the JWKS endpoint.
+
+Use introspection when:
+
+- You need real-time revocation information (a user was disabled after a token was issued)
+- Your resource server cannot or does not want to handle JWT verification
+- You need to inspect a refresh token (which is opaque)
+
+---
+
+## Token Revocation (RFC 7009)
+
+The revocation endpoint immediately invalidates a token. Once revoked, the token cannot be used for any purpose.
+
+```
+POST /t/{slug}/protocol/openid-connect/revoke
+Authorization: Basic base64(client_id:client_secret)
+Content-Type: application/x-www-form-urlencoded
+
+token=TOKEN_TO_REVOKE&token_type_hint=refresh_token
+```
+
+**Authentication required** — same as introspection.
+
+### Parameters
+
+| Parameter | Required | Description |
+|---|---|---|
+| `token` | Yes | The token to revoke |
+| `token_type_hint` | No | `access_token` or `refresh_token` |
+
+### Response
+
+Always returns `200 OK`, even if the token was already revoked or never existed. Per RFC 7009, the server must not reveal whether a token existed.
+
+```http
+HTTP/1.1 200 OK
+```
+
+### Access token revocation
+
+Revoking an access token marks it as revoked in the database. However, resource servers that verify tokens locally (via JWKS) will not be aware of the revocation until the token expires. If immediate revocation is required, use a short access token TTL or check revocation via introspection.
+
+### Refresh token revocation
+
+Revoking a refresh token invalidates the entire session — the session record is removed and no new access tokens can be issued for that session. This is the preferred method for logging out from a server-side application.

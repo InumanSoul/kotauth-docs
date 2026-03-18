@@ -1,40 +1,40 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: Kotauth Documentation
+description: Identity infrastructure for modern applications. Self-hosted, container-native, developer-first.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
+  title: Identity infrastructure for modern apps
+  tagline: Self-hosted OAuth2 / OIDC provider built for Docker and cloud architectures. Open source. Up in minutes.
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Quickstart
+      link: /getting-started/quickstart/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/your-org/kotauth
       icon: external
-      variant: minimal
+      variant: secondary
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
-
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
-	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
-	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
-	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
-	</Card>
+  <Card title="OAuth2 / OIDC Compliant" icon="star">
+    Authorization Code + PKCE, Client Credentials, refresh token rotation, token introspection and revocation. Fully spec-compliant.
+  </Card>
+  <Card title="Multi-Tenant" icon="puzzle">
+    Isolated workspaces — each with their own users, applications, signing keys, and SMTP config. One instance, many products.
+  </Card>
+  <Card title="REST API" icon="document">
+    30+ endpoints for managing users, roles, groups, sessions, and audit logs. API key authentication with fine-grained scopes.
+  </Card>
+  <Card title="Docker Native" icon="rocket">
+    Single container, auto-migrations, minimal config. Run locally in under two minutes. Production-ready behind a reverse proxy.
+  </Card>
+  <Card title="RBAC + Groups" icon="setting">
+    Roles, hierarchical groups, composite role inheritance. JWT claims include `realm_access` and `resource_access` out of the box.
+  </Card>
+  <Card title="MFA & Social Login" icon="approve-check-circle">
+    TOTP (RFC 6238) with recovery codes and per-tenant policy. Google and GitHub social login with automatic account linking.
+  </Card>
 </CardGrid>

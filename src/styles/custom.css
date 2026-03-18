@@ -1,0 +1,287 @@
+/* ==========================================================================
+   Kotauth Documentation — Brand Theme Override for Astro Starlight
+   ========================================================================== */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* --------------------------------------------------------------------------
+   Kotauth Dark Theme Variables
+   Applied to both :root and [data-theme='light'] so OS light-mode preference
+   never overrides the brand. The ThemeSelect component is replaced with an
+   empty component, so no toggle is visible — dark is the only mode.
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme='light'] {
+	/* Accent — Kotauth primary blue */
+	--sl-color-accent-low:    #003d5c;
+	--sl-color-accent:        #0077A8;
+	--sl-color-accent-high:   #58d2ff;
+
+	/* Backgrounds */
+	--sl-color-black:         #0A0F14;
+	--sl-color-bg:            #0A0F14;
+	--sl-color-bg-nav:        #0D131A;
+	--sl-color-bg-sidebar:    #0D131A;
+	--sl-color-bg-inline-code:#0D1117;
+
+	/* Grays — Kotauth surface/text hierarchy */
+	--sl-color-gray-1:        #F0F4F8;
+	--sl-color-gray-2:        #94A3B8;
+	--sl-color-gray-3:        #64748B;
+	--sl-color-gray-4:        #22303D;
+	--sl-color-gray-5:        #1C2733;
+	--sl-color-gray-6:        #161F28;
+	--sl-color-gray-7:        #111820;
+
+	/* Text */
+	--sl-color-text:          var(--sl-color-gray-1);
+	--sl-color-text-accent:   var(--sl-color-accent-high);
+	--sl-color-white:         var(--sl-color-gray-1);
+	--sl-color-text-invert:   var(--sl-color-gray-7);
+
+	/* Borders */
+	--sl-color-hairline:          var(--sl-color-gray-5);
+	--sl-color-hairline-light:    var(--sl-color-gray-6);
+	--sl-color-hairline-shade:    var(--sl-color-gray-7);
+
+	/* Fonts */
+	--sl-font:                'Inter', system-ui, sans-serif;
+	--sl-font-mono:           'Inconsolata', monospace;
+	--sl-font-system:         'Inter', system-ui, sans-serif;
+	--sl-font-system-mono:    'Inconsolata', monospace;
+}
+
+
+/* --------------------------------------------------------------------------
+   Typography — monospace headings to match the website
+   -------------------------------------------------------------------------- */
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+.sl-markdown-content h5,
+.sl-markdown-content h6,
+.page-title,
+.hero h1,
+h1 {
+	font-family: 'Inconsolata', monospace !important;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+/* Body text */
+body, .sl-markdown-content p, .sl-markdown-content li {
+	font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Sharp corners — zero border-radius across the board
+   -------------------------------------------------------------------------- */
+:root {
+	--sl-border-radius: 0px;
+}
+
+.sl-markdown-content code,
+.expressive-code .frame,
+.expressive-code pre,
+.card,
+.sl-badge,
+[data-has-sidebar] .sidebar-pane {
+	border-radius: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Nav & Sidebar refinements
+   -------------------------------------------------------------------------- */
+nav.astro-sidebar-nav a[aria-current='page'],
+nav.astro-sidebar-nav a[aria-current='true'] {
+	color: var(--sl-color-accent-high);
+	border-inline-start-color: var(--sl-color-accent);
+	background-color: rgba(0, 119, 168, 0.08);
+}
+
+/* Group labels */
+.group-label span {
+	font-family: 'Inconsolata', monospace;
+	font-size: 0.7rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--sl-color-accent-high);
+}
+
+/* --------------------------------------------------------------------------
+   Code blocks — match kotauth-website's github-dark style
+   -------------------------------------------------------------------------- */
+.expressive-code .frame {
+	background: var(--sl-color-bg-inline-code) !important;
+	border: 1px solid #1C2733;
+}
+
+.expressive-code .header {
+	background: #111820 !important;
+	border-bottom: 1px solid #1C2733;
+}
+
+/* Inline code */
+:not(pre) > code {
+	background-color: var(--sl-color-bg-inline-code) !important;
+	border: 1px solid #1C2733;
+	color: var(--sl-color-accent-high);
+	font-family: 'Inconsolata', monospace;
+	font-size: 0.88em;
+	padding: 0.1em 0.4em;
+	border-radius: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Callouts / Admonitions — branded colors
+   -------------------------------------------------------------------------- */
+.starlight-aside--note {
+	--sl-color-asides-border: #0077A8;
+	background-color: rgba(0, 119, 168, 0.06);
+}
+
+.starlight-aside--tip {
+	--sl-color-asides-border: #10B981;
+	background-color: rgba(16, 185, 129, 0.06);
+}
+
+.starlight-aside--caution {
+	--sl-color-asides-border: #F59E0B;
+	background-color: rgba(245, 158, 11, 0.06);
+}
+
+.starlight-aside--danger {
+	--sl-color-asides-border: #EF4444;
+	background-color: rgba(239, 68, 68, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   -------------------------------------------------------------------------- */
+.sl-markdown-content table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.sl-markdown-content th {
+	background-color: #111820;
+	border: 1px solid #1C2733;
+	font-family: 'Inconsolata', monospace;
+	font-size: 0.8rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--sl-color-accent-high);
+	padding: 0.6rem 1rem;
+}
+
+.sl-markdown-content td {
+	border: 1px solid #1C2733;
+	padding: 0.6rem 1rem;
+}
+
+.sl-markdown-content tr:hover td {
+	background-color: rgba(0, 119, 168, 0.04);
+}
+
+/* --------------------------------------------------------------------------
+   Hero (homepage)
+   -------------------------------------------------------------------------- */
+.hero {
+	padding-block: 4rem;
+}
+
+.hero > img,
+.hero > .hero-html {
+	order: 2;
+}
+
+.hero h1 {
+	font-size: clamp(1.8rem, 5vw, 3rem);
+	line-height: 1.15;
+}
+
+.hero .tagline {
+	font-size: 1.1rem;
+	color: var(--sl-color-gray-2);
+	max-width: 520px;
+}
+
+/* Action buttons — primary button in brand blue */
+.hero .action.primary {
+	background-color: var(--sl-color-accent) !important;
+	border-color: var(--sl-color-accent) !important;
+	color: #fff !important;
+	border-radius: 0 !important;
+	font-family: 'Inconsolata', monospace;
+	font-size: 0.95rem;
+}
+
+.hero .action.primary:hover {
+	background-color: var(--sl-color-accent-high) !important;
+	border-color: var(--sl-color-accent-high) !important;
+}
+
+.hero .action.secondary {
+	border-radius: 0 !important;
+	font-family: 'Inconsolata', monospace;
+	border-color: #1C2733 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Card grid (homepage feature cards)
+   -------------------------------------------------------------------------- */
+.card {
+	background-color: #0D131A !important;
+	border-color: #1C2733 !important;
+	transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+	border-color: rgba(0, 119, 168, 0.4) !important;
+	transform: translateY(-2px);
+}
+
+.card .title {
+	font-family: 'Inconsolata', monospace;
+}
+
+/* --------------------------------------------------------------------------
+   Top nav header
+   -------------------------------------------------------------------------- */
+header.header {
+	border-bottom: 1px solid #1C2733;
+	background-color: rgba(13, 19, 26, 0.85);
+	backdrop-filter: blur(8px);
+}
+
+/* --------------------------------------------------------------------------
+   Method badges for API reference — custom pill styles
+   -------------------------------------------------------------------------- */
+.method-badge {
+	display: inline-block;
+	padding: 0.15em 0.5em;
+	font-family: 'Inconsolata', monospace;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	border-radius: 0;
+	line-height: 1.4;
+}
+
+.method-get    { background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.method-post   { background: rgba(0, 119, 168, 0.15);  color: var(--sl-color-text-accent); border: 1px solid rgba(0, 119, 168, 0.3); }
+.method-put    { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+.method-delete { background: rgba(239, 68, 68, 0.15);  color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* --------------------------------------------------------------------------
+   Scrollbar
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+::-webkit-scrollbar-track { background: #0A0F14; }
+::-webkit-scrollbar-thumb { background: #22303D; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #0077A8; }

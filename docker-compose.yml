@@ -1,0 +1,9 @@
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kotauth-docs:latest
+    ports:
+      - ${PORT:-80}
+    restart: unless-stopped
