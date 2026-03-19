@@ -20,10 +20,8 @@ No repo clone required. Pull the image directly from GitHub Container Registry.
 
    ```bash
    mkdir kotauth && cd kotauth
-   curl --create-dirs -o docker/docker-compose.yml \
-     https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
-   curl -o .env.example \
-     https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
+   curl https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
+   curl https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
    cp .env.example .env
    ```
 
