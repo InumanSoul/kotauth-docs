@@ -11,17 +11,68 @@ import { Aside } from '@astrojs/starlight/components';
 
 **Minimum hardware:** 512 MB RAM, 1 vCPU.
 
-**PostgreSQL 14 or newer** is required. Kotauth manages its own schema via Flyway migrations.
+**PostgreSQL 14 or newer** is required. Kotauth manages its own schema via Flyway migrations — no manual DDL needed.
 
 **TLS is mandatory.** Kotauth does not handle TLS directly — it expects a reverse proxy to terminate it. Set `KAUTH_ENV=production` and ensure `KAUTH_BASE_URL` starts with `https://`. The server refuses to start otherwise.
 
 ---
 
-## Reverse proxy setup
+## Docker Compose production stack
 
-### Caddy (recommended)
+The fastest path to a production deployment is the bundled `docker/docker-compose.prod.yml`, which adds a [Caddy](https://caddyserver.com/) sidecar to the base stack. Caddy handles automatic TLS certificate provisioning and renewal via Let's Encrypt — no manual certificate management required.
 
-Caddy handles TLS automatically via Let's Encrypt:
+**Prerequisites:** a domain pointing to your server and ports 80/443 open on the host firewall.
+
+**1. Get the files**
+
+```bash
+mkdir kotauth && cd kotauth
+
+curl --create-dirs -o docker/docker-compose.yml \
+  https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
+curl --create-dirs -o docker/docker-compose.prod.yml \
+  https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.prod.yml
+curl --create-dirs -o docker/Caddyfile \
+  https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/Caddyfile
+curl -o .env.example \
+  https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
+cp .env.example .env
+```
+
+**2. Fill in `.env` for production**
+
+```env
+KAUTH_BASE_URL=https://auth.yourdomain.com
+KAUTH_ENV=production
+KAUTH_SECRET_KEY=        # openssl rand -hex 32
+
+DB_NAME=kotauth_db
+DB_USER=kotauth
+DB_PASSWORD=             # strong unique password
+
+DOMAIN=auth.yourdomain.com
+ACME_EMAIL=you@yourdomain.com
+```
+
+**3. Start**
+
+```bash
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+```
+
+This brings up three services: `db` (PostgreSQL with a persistent volume), `app` (Kotauth from GHCR), and `caddy` (automatic TLS). Caddy obtains the certificate on first startup — this requires port 80 to be reachable for the ACME HTTP-01 challenge.
+
+<Aside type="tip">
+Block port 8080 on the host firewall after starting — only Caddy should handle inbound traffic. For example: `ufw deny 8080`.
+</Aside>
+
+---
+
+## Manual reverse proxy setup
+
+If you already have a reverse proxy running on the host, skip the Caddy overlay and proxy to port 8080 directly.
+
+### Caddy (standalone)
 
 ```
 auth.yourdomain.com {
@@ -29,7 +80,7 @@ auth.yourdomain.com {
 }
 ```
 
-That's the entire Caddyfile configuration. Caddy provisions and renews the certificate automatically.
+That's the entire Caddyfile. Caddy provisions and renews the certificate automatically.
 
 ### nginx
 
@@ -54,7 +105,7 @@ server {
 ### Traefik
 
 ```yaml
-# docker-compose.yml labels
+# Add these labels to the app service in your compose file
 labels:
   - "traefik.enable=true"
   - "traefik.http.routers.kotauth.rule=Host(`auth.yourdomain.com`)"
@@ -71,9 +122,10 @@ Before starting in production, verify:
 
 - `KAUTH_ENV=production`
 - `KAUTH_BASE_URL` starts with `https://`
-- `KAUTH_SECRET_KEY` is set to a securely generated 32+ byte hex string (`openssl rand -hex 32`)
+- `KAUTH_SECRET_KEY` is a freshly generated 32+ byte hex string (`openssl rand -hex 32`)
 - `DB_URL`, `DB_USER`, `DB_PASSWORD` point to your production PostgreSQL instance
-- Database user has `CREATE`, `SELECT`, `INSERT`, `UPDATE`, `DELETE` permissions (needed for Flyway migrations on first boot)
+- Database user has `CREATE`, `SELECT`, `INSERT`, `UPDATE`, `DELETE` permissions (required for Flyway migrations on first boot)
+- Port 5432 is blocked on the host firewall — the database should never be publicly reachable
 
 ---
 
@@ -83,9 +135,9 @@ After startup, complete these steps in the admin console:
 
 **Change the master workspace admin password.** Default credentials are printed in the startup log on first boot and must be rotated immediately.
 
-**Configure SMTP.** Kotauth requires SMTP for email verification and password resets. Without it, users cannot verify their email or reset forgotten passwords. Set this up under **Settings → SMTP** in each workspace.
+**Configure SMTP.** Required for email verification and password resets. Without it, users cannot verify their email or reset forgotten passwords. Set this up under **Settings → SMTP** in each workspace.
 
-**Review password policy.** The default policy (minimum 8 characters) may not meet your requirements. Tighten it under **Settings → Security**.
+**Review password policy.** The default (minimum 8 characters) may not meet your requirements. Tighten it under **Settings → Security**.
 
 **Set the MFA policy.** Decide whether MFA should be `optional`, `required`, or `required_for_admins`. For sensitive workspaces, `required` is the safe default.
 
@@ -93,12 +145,44 @@ After startup, complete these steps in the admin console:
 
 ---
 
-## Database backup
+## Upgrading
 
-Kotauth's entire state lives in PostgreSQL. Back up the database regularly using standard PostgreSQL tools:
+Kotauth uses Flyway for schema migrations. Upgrades are handled automatically on startup — pull the new image and restart:
 
 ```bash
-pg_dump -h your-db-host -U kotauth kotauth_db > backup.sql
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml pull
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+```
+
+Flyway runs any pending migrations before the server begins accepting traffic. Always back up the database before upgrading between major versions.
+
+To pin to a specific version rather than tracking `latest`, edit `docker/docker-compose.yml`:
+
+```yaml
+# change:
+image: ghcr.io/inumansoul/kotauth:latest
+# to:
+image: ghcr.io/inumansoul/kotauth:1.0.1
+```
+
+---
+
+## Database backup
+
+Kotauth's entire state lives in PostgreSQL. Back up regularly using standard PostgreSQL tools:
+
+```bash
+# Docker Compose stack
+docker exec kotauth-db pg_dump -U kotauth kotauth_db > backup_$(date +%Y%m%d).sql
+
+# External database
+pg_dump -h your-db-host -U kotauth kotauth_db > backup_$(date +%Y%m%d).sql
+```
+
+Restore:
+
+```bash
+cat backup_20260101.sql | docker exec -i kotauth-db psql -U kotauth -d kotauth_db
 ```
 
 There is no Kotauth-specific backup procedure — standard PostgreSQL backup and restore works fully.

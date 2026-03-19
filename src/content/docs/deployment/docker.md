@@ -5,59 +5,72 @@ sidebar:
   order: 2
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Kotauth ships as a single Docker image. It requires a PostgreSQL database — everything else is self-contained.
+Kotauth ships as a single Docker image published to GitHub Container Registry. It requires a PostgreSQL database — everything else is self-contained.
 
-## Docker Compose (recommended for local dev)
+## Available images
 
-The repository includes a `docker-compose.yml` that starts Kotauth and PostgreSQL together:
+Images are published on every tagged release. Use a pinned tag in production — never `latest` in a long-running deployment.
 
-```yaml
-services:
-  kotauth:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      KAUTH_BASE_URL: http://localhost:8080
-      KAUTH_SECRET_KEY: ${KAUTH_SECRET_KEY}
-      DB_URL: jdbc:postgresql://db:5432/kotauth_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-    depends_on:
-      db:
-        condition: service_healthy
+| Tag | Description |
+|---|---|
+| `ghcr.io/inumansoul/kotauth:latest` | Latest stable release |
+| `ghcr.io/inumansoul/kotauth:1` | Latest patch in the `1.x` line |
+| `ghcr.io/inumansoul/kotauth:1.0` | Latest patch in `1.0.x` |
+| `ghcr.io/inumansoul/kotauth:1.0.1` | Exact version pin |
 
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: kotauth_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - kotauth_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  kotauth_data:
-```
-
-Start with:
+Pre-release tags (e.g. `1.0.1-rc1`) are published but do not move the `latest` or major/minor tags.
 
 ```bash
-docker compose up
+docker pull ghcr.io/inumansoul/kotauth:latest
 ```
 
-Database migrations run automatically on first boot via Flyway. No manual setup needed.
+---
+
+## Docker Compose
+
+The repository ships three compose files inside the `docker/` folder, each covering a different use case.
+
+### Pre-built image (recommended)
+
+`docker/docker-compose.yml` — uses the GHCR image, no build step. This is the recommended path for running Kotauth without cloning the repo.
+
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+
+The compose file pulls `ghcr.io/inumansoul/kotauth:latest`, starts PostgreSQL 15, and wires them together. All configuration comes from `.env` at the project root.
+
+### Build from source
+
+`docker/docker-compose.dev.yml` — builds the image from the local `Dockerfile`. Used by contributors and anyone iterating on the source code.
+
+```bash
+# via Makefile (recommended)
+make up
+
+# or directly
+docker compose -f docker/docker-compose.dev.yml up -d --build
+```
+
+The build context is the repo root, so Gradle and Node.js have access to the full source tree.
+
+### Production with Caddy TLS
+
+`docker/docker-compose.prod.yml` — an overlay that adds a Caddy sidecar for automatic Let's Encrypt TLS. Stack on top of the pre-built compose file:
+
+```bash
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+```
+
+See [Production Checklist](/deployment/production/) for the full setup.
+
+---
 
 ## Running the image directly
 
-If you already have a PostgreSQL database:
+If you already have a PostgreSQL database and prefer `docker run`:
 
 ```bash
 docker run -d \
@@ -69,8 +82,10 @@ docker run -d \
   -e DB_URL=jdbc:postgresql://your-db-host:5432/kotauth_db \
   -e DB_USER=kotauth \
   -e DB_PASSWORD=your-password \
-  ghcr.io/your-org/kotauth:latest
+  ghcr.io/inumansoul/kotauth:latest
 ```
+
+---
 
 ## Image details
 
@@ -84,11 +99,13 @@ docker run -d \
 
 The image is built in three stages to keep the runtime lean:
 
-**Stage 1 — CSS compilation (`node:20-slim`).** Installs `lightningcss-cli` via npm and compiles two CSS bundles — `kotauth-admin.css` (admin console, fixed dark theme) and `kotauth-auth.css` (auth pages, no `:root` defaults — token values are injected by `TenantTheme` at runtime). Node.js is not present in the final image.
+**Stage 1 — CSS compilation (`node:20-slim`).** Installs `lightningcss-cli` via npm and compiles two CSS bundles — `kotauth-admin.css` and `kotauth-auth.css`. Node.js is not present in the final image.
 
-**Stage 2 — Kotlin build (`gradle:8-jdk17`).** Copies the compiled CSS bundles from Stage 1 into `src/main/resources/static/` and runs `gradle buildFatJar`, skipping the CSS Gradle tasks since the output already exists. Gradle and the JDK are not present in the final image.
+**Stage 2 — Kotlin build (`gradle:8-jdk17`).** Copies the compiled CSS bundles from Stage 1 and runs `gradle buildFatJar`. Gradle and the JDK are not present in the final image.
 
-**Stage 3 — Runtime (`eclipse-temurin:17-jre`).** Copies only the fat JAR from Stage 2. Adds `curl` for the health check probe. No build tools, no Node.js, no source code.
+**Stage 3 — Runtime (`eclipse-temurin:17-jre`).** Copies only the fat JAR. Adds `curl` for the health check probe. No build tools, no source code.
+
+---
 
 ## Health checks
 
@@ -99,18 +116,18 @@ Kotauth exposes two health endpoints for container orchestration:
 | `GET /health` | Liveness — is the process running? |
 | `GET /health/ready` | Readiness — is the database connected and migrations applied? |
 
-Configure your orchestrator to use `/health/ready` for readiness probes and `/health` for liveness probes.
-
-**Docker health check:**
+Use `/health/ready` for readiness probes and `/health` for liveness probes.
 
 ```yaml
 healthcheck:
-  test: ["CMD", "wget", "-qO-", "http://localhost:8080/health/ready"]
+  test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ready || exit 1"]
   interval: 10s
   timeout: 5s
-  retries: 3
-  start_period: 15s
+  retries: 6
+  start_period: 30s
 ```
+
+---
 
 ## Kubernetes deployment
 
@@ -133,7 +150,7 @@ spec:
     spec:
       containers:
         - name: kotauth
-          image: ghcr.io/your-org/kotauth:latest
+          image: ghcr.io/inumansoul/kotauth:1
           ports:
             - containerPort: 8080
           env:

@@ -18,7 +18,7 @@ export default defineConfig({
 				Head: './src/components/Head.astro',
 			},
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/your-org/kotauth' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/inumansoul/kotauth' },
 			],
 			customCss: ['./src/styles/custom.css'],
 			defaultLocale: 'en',
@@ -82,6 +82,7 @@ export default defineConfig({
 						{ label: 'Environment Variables', slug: 'deployment/environment-variables' },
 						{ label: 'Docker', slug: 'deployment/docker' },
 						{ label: 'Production Checklist', slug: 'deployment/production' },
+						{ label: 'External Databases', slug: 'deployment/external-database' },
 					],
 				},
 			],

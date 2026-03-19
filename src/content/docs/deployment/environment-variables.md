@@ -53,35 +53,90 @@ KAUTH_ENV=production
 
 A 32+ character hex string used for AES-256-GCM encryption of SMTP passwords stored in the database and HMAC-SHA256 signing of short-lived cookies (MFA pending, PKCE verifier, portal session).
 
-```
-KAUTH_SECRET_KEY=a2c35a1bfe82492eb087c5a29b28fc2b1fc2505da2a6f5dd37201c2bf4df39b3
-```
-
-Generate one with:
-
 ```bash
+# Generate a key:
 openssl rand -hex 32
 ```
 
+```
+KAUTH_SECRET_KEY=<paste output here>
+```
+
 <Aside type="caution">
-If not set: SMTP configuration cannot be saved, and sessions use a random key generated at startup — sessions do not survive a container restart. A warning is printed but the server still starts.
+If not set: SMTP configuration cannot be saved, and sessions use a random key generated at startup — sessions do not survive a container restart. Never skip this in production.
+</Aside>
+
+<Aside type="danger">
+If this key is rotated or lost: all existing SMTP configurations must be re-entered and all active sessions will be invalidated. Store it securely alongside your database credentials.
 </Aside>
 
 ---
 
 ## Database
 
+Kotauth connects to PostgreSQL using a standard JDBC URL. You can either provide the full URL directly via `DB_URL`, or let the compose stack construct it from the individual component variables.
+
 ### `DB_URL`
 
-**Required.**
+**Optional override.**
 
-PostgreSQL JDBC connection URL.
+Full PostgreSQL JDBC connection URL. When set, takes full precedence — `DB_HOST`, `DB_PORT`, and `DB_NAME` are ignored entirely.
+
+Use this to connect to an external or managed database, or whenever you need to append JDBC parameters such as SSL mode:
 
 ```
-DB_URL=jdbc:postgresql://db:5432/kotauth_db
+DB_URL=jdbc:postgresql://your-host:5432/kotauth_db?sslmode=require
 ```
 
-Kotauth runs Flyway migrations on startup. The database and schema are created automatically — only the server, database name, and credentials need to exist beforehand.
+When `DB_URL` is not set, the bundled compose stack constructs it automatically from `DB_HOST`, `DB_PORT`, and `DB_NAME`.
+
+See [External Databases](/deployment/external-database/) for provider-specific connection strings.
+
+---
+
+### `DB_HOST`
+
+**Optional.** Default (in Docker Compose): `db`
+
+Hostname of the PostgreSQL server. Used to construct the JDBC URL when `DB_URL` is not set.
+
+```
+# Bundled db service (default for local / Docker Compose)
+DB_HOST=db
+
+# External server
+DB_HOST=xxx.rds.amazonaws.com
+```
+
+---
+
+### `DB_PORT`
+
+**Optional.** Default: `5432`
+
+Port of the PostgreSQL server. Used to construct the JDBC URL when `DB_URL` is not set.
+
+```
+DB_PORT=5432
+```
+
+Common non-default ports: `6432` for PgBouncer, `5433` for a non-standard local instance.
+
+<Aside type="caution">
+If using PgBouncer in transaction pooling mode, Flyway migrations will fail — Flyway requires a persistent session connection. Use session pooling mode, or connect directly to PostgreSQL for migrations.
+</Aside>
+
+---
+
+### `DB_NAME`
+
+**Optional.** Default (in Docker Compose): `kotauth_db`
+
+Database name. Used to construct the JDBC URL when `DB_URL` is not set, and to initialize the bundled `db` service.
+
+```
+DB_NAME=kotauth_db
+```
 
 ---
 
@@ -89,8 +144,10 @@ Kotauth runs Flyway migrations on startup. The database and schema are created a
 
 **Required.**
 
+PostgreSQL username.
+
 ```
-DB_USER=postgres
+DB_USER=kotauth
 ```
 
 ---
@@ -99,8 +156,36 @@ DB_USER=postgres
 
 **Required.**
 
+PostgreSQL password.
+
 ```
-DB_PASSWORD=changeme
+DB_PASSWORD=<strong password>
+```
+
+---
+
+## Docker production stack
+
+These variables are only used when running `docker/docker-compose.prod.yml` (the Caddy TLS overlay). They are not read by Kotauth itself.
+
+### `DOMAIN`
+
+**Required by `docker-compose.prod.yml`.**
+
+The public domain Caddy will serve and obtain a TLS certificate for.
+
+```
+DOMAIN=auth.yourdomain.com
+```
+
+### `ACME_EMAIL`
+
+**Required by `docker-compose.prod.yml`.**
+
+Email address sent to Let's Encrypt for certificate notifications.
+
+```
+ACME_EMAIL=you@yourdomain.com
 ```
 
 ---
@@ -147,17 +232,44 @@ These are not environment variables — they are configured per workspace throug
 
 ```env
 KAUTH_BASE_URL=http://localhost:8080
-KAUTH_SECRET_KEY=a2c35a1bfe82492eb087c5a29b28fc2b1fc2505da2a6f5dd37201c2bf4df39b3
-# DB is injected by docker-compose — no need to set here
+KAUTH_ENV=development
+KAUTH_SECRET_KEY=        # openssl rand -hex 32
+
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=kotauth_db
+DB_USER=kotauth
+DB_PASSWORD=changeme
 ```
 
-### Production
+### Production — bundled PostgreSQL
 
 ```env
 KAUTH_BASE_URL=https://auth.yourdomain.com
 KAUTH_ENV=production
-KAUTH_SECRET_KEY=<openssl rand -hex 32>
-DB_URL=jdbc:postgresql://your-db-host:5432/kotauth_db
+KAUTH_SECRET_KEY=        # openssl rand -hex 32
+
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=kotauth_db
 DB_USER=kotauth
-DB_PASSWORD=<strong password>
+DB_PASSWORD=             # strong unique password
+
+DOMAIN=auth.yourdomain.com
+ACME_EMAIL=you@yourdomain.com
 ```
+
+### Production — external managed database
+
+```env
+KAUTH_BASE_URL=https://auth.yourdomain.com
+KAUTH_ENV=production
+KAUTH_SECRET_KEY=        # openssl rand -hex 32
+
+# DB_URL overrides DB_HOST / DB_PORT / DB_NAME
+DB_URL=jdbc:postgresql://your-managed-host:5432/kotauth_db?sslmode=require
+DB_USER=kotauth
+DB_PASSWORD=             # strong unique password
+```
+
+See [External Databases](/deployment/external-database/) for provider-specific examples.

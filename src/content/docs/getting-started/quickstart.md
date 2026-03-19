@@ -5,39 +5,48 @@ sidebar:
   order: 2
 ---
 
-import { Steps, Aside } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
 You need **Docker** and **Docker Compose**. Nothing else. No JDK, no database client, no external dependencies.
 
+<Tabs>
+<TabItem label="Pre-built image (fastest)">
+
+No repo clone required. Pull the image directly from GitHub Container Registry.
+
 <Steps>
 
-1. **Clone the repository**
+1. **Grab the compose file and env template**
 
    ```bash
-   git clone https://github.com/your-org/kotauth.git
-   cd kotauth
-   ```
-
-2. **Create your `.env` file**
-
-   ```bash
+   mkdir kotauth && cd kotauth
+   curl --create-dirs -o docker/docker-compose.yml \
+     https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
+   curl -o .env.example \
+     https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
    cp .env.example .env
    ```
 
-   The defaults work for local development. Optionally set a persistent secret key so sessions survive container restarts:
+2. **Set your secret key and base URL**
+
+   Open `.env` and fill in the two required values:
 
    ```bash
-   echo "KAUTH_SECRET_KEY=$(openssl rand -hex 32)" >> .env
-   echo "KAUTH_BASE_URL=http://localhost:8080" >> .env
+   KAUTH_BASE_URL=http://localhost:8080
+   KAUTH_SECRET_KEY=        # paste output of: openssl rand -hex 32
    ```
+
+   <Aside type="caution">
+   Do not skip `KAUTH_SECRET_KEY`. Without it, SMTP configuration cannot be saved and sessions will be lost on every container restart.
+   </Aside>
 
 3. **Start the stack**
 
    ```bash
-   docker compose up
+   docker compose -f docker/docker-compose.yml up -d
    ```
 
-   Kotauth starts on port `8080`. Flyway runs all database migrations automatically on first boot — no manual schema setup needed.
+   Kotauth pulls from GHCR and starts on port `8080`. PostgreSQL is bundled — no external database needed. Flyway runs all migrations automatically on first boot.
 
 4. **Open the admin console**
 
@@ -45,10 +54,10 @@ You need **Docker** and **Docker Compose**. Nothing else. No JDK, no database cl
    http://localhost:8080/admin
    ```
 
-   On first run, the master workspace admin credentials are printed to the startup log. Find them with:
+   On first run, master workspace admin credentials are printed to the startup log. Find them with:
 
    ```bash
-   docker compose logs kotauth | grep "Admin credentials"
+   docker compose -f docker/docker-compose.yml logs kotauth | grep "Admin credentials"
    ```
 
    <Aside type="caution">Change the master workspace admin password immediately after first login.</Aside>
@@ -69,9 +78,72 @@ You need **Docker** and **Docker Compose**. Nothing else. No JDK, no database cl
 
 </Steps>
 
+</TabItem>
+<TabItem label="Build from source">
+
+For contributors or anyone iterating on the source code.
+
+<Steps>
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/inumansoul/kotauth.git
+   cd kotauth
+   ```
+
+2. **Create your `.env` file**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Open `.env` and set `KAUTH_SECRET_KEY`:
+
+   ```bash
+   KAUTH_SECRET_KEY=        # paste output of: openssl rand -hex 32
+   ```
+
+3. **Build and start**
+
+   ```bash
+   make up
+   ```
+
+   This builds the image from the local Dockerfile via `docker/docker-compose.dev.yml` and starts the full stack. Flyway runs all migrations on first boot.
+
+4. **Open the admin console**
+
+   ```
+   http://localhost:8080/admin
+   ```
+
+   Find your initial admin credentials:
+
+   ```bash
+   docker compose -f docker/docker-compose.dev.yml logs kotauth | grep "Admin credentials"
+   ```
+
+   <Aside type="caution">Change the master workspace admin password immediately after first login.</Aside>
+
+5. **Create a workspace and verify OIDC**
+
+   Same as the pre-built path — create a workspace in the admin console, then visit:
+
+   ```
+   http://localhost:8080/t/my-app/.well-known/openid-configuration
+   ```
+
+</Steps>
+
+</TabItem>
+</Tabs>
+
+---
+
 ## What's running
 
-After `docker compose up` you have:
+After startup you have:
 
 | URL | Description |
 |-----|-------------|
