@@ -17,8 +17,8 @@ Images are published on every tagged release. Use a pinned tag in production —
 |---|---|
 | `ghcr.io/inumansoul/kotauth:latest` | Latest stable release |
 | `ghcr.io/inumansoul/kotauth:1` | Latest patch in the `1.x` line |
-| `ghcr.io/inumansoul/kotauth:1.0` | Latest patch in `1.0.x` |
-| `ghcr.io/inumansoul/kotauth:1.0.1` | Exact version pin |
+| `ghcr.io/inumansoul/kotauth:1.1` | Latest patch in `1.1.x` |
+| `ghcr.io/inumansoul/kotauth:1.1.1` | Exact version pin |
 
 Pre-release tags (e.g. `1.0.1-rc1`) are published but do not move the `latest` or major/minor tags.
 
@@ -99,7 +99,7 @@ docker run -d \
 
 The image is built in three stages to keep the runtime lean:
 
-**Stage 1 — CSS compilation (`node:20-slim`).** Installs `lightningcss-cli` via npm and compiles two CSS bundles — `kotauth-admin.css` and `kotauth-auth.css`. Node.js is not present in the final image.
+**Stage 1 — CSS compilation (`node:20-slim`).** Installs `lightningcss-cli` via npm and compiles four CSS bundles — `kotauth-admin.css`, `kotauth-auth.css`, `kotauth-portal-sidenav.css`, and `kotauth-portal-tabnav.css`. Node.js is not present in the final image.
 
 **Stage 2 — Kotlin build (`gradle:8-jdk17`).** Copies the compiled CSS bundles from Stage 1 and runs `gradle buildFatJar`. Gradle and the JDK are not present in the final image.
 

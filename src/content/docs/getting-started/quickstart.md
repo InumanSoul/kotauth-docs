@@ -14,25 +14,43 @@ You need **Docker** and **Docker Compose**. Nothing else. No JDK, no database cl
 
 No repo clone required. Pull the image directly from GitHub Container Registry.
 
+#### Option A: Zero-config quickstart (fastest)
+
+One command, demo data pre-loaded — ideal for a first look.
+
+```bash
+curl -O https://raw.githubusercontent.com/inumansoul/kotauth/main/docker-compose.quickstart.yml
+docker compose -f docker-compose.quickstart.yml up -d
+```
+
+Open **http://localhost:8080/admin** — two demo workspaces are ready with users, roles, and applications. Credentials are shown in the banner.
+
+When you're ready to configure your own instance, use Option B below.
+
+#### Option B: Configure your own instance
+
 <Steps>
 
 1. **Grab the compose file and env template**
 
    ```bash
    mkdir kotauth && cd kotauth
-   curl https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
-   curl https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
+   curl --create-dirs -o docker/docker-compose.yml \
+     https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
+   curl -o .env.example \
+     https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
    cp .env.example .env
    ```
 
-2. **Set your secret key and base URL**
+2. **Set your secret key**
 
-   Open `.env` and fill in the two required values:
+   Open `.env` and generate a secret key:
 
    ```bash
-   KAUTH_BASE_URL=http://localhost:8080
    KAUTH_SECRET_KEY=        # paste output of: openssl rand -hex 32
    ```
+
+   `KAUTH_BASE_URL` defaults to `http://localhost:8080`. Change it if deploying remotely.
 
    <Aside type="caution">
    Do not skip `KAUTH_SECRET_KEY`. Without it, SMTP configuration cannot be saved and sessions will be lost on every container restart.
