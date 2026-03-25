@@ -128,6 +128,20 @@ For contributors or anyone iterating on the source code.
 
    This builds the image from the local Dockerfile via `docker/docker-compose.dev.yml` and starts the full stack. Flyway runs all migrations on first boot.
 
+   Run `make help` to see all available developer targets. The most useful ones:
+
+   ```bash
+   make up        # build from source and start all services
+   make down      # stop containers
+   make nuke      # stop and wipe volumes (destroys the database)
+   make logs      # follow app container logs
+   make test      # run unit/integration tests
+   make e2e       # run E2E browser tests (Playwright, headless)
+   make lint      # run ktlint check
+   make build     # full CI-equivalent build (CSS + lint + tests + JAR)
+   make health    # probe the local health endpoint
+   ```
+
 4. **Open the admin console**
 
    ```

@@ -45,24 +45,22 @@ The compose stack resolves these to: `jdbc:postgresql://db:5432/kotauth_db`
 
 ## Skipping the bundled database
 
-When using an external database, the bundled `db` service starts unnecessarily. Disable it with a `docker-compose.override.yml` at the project root (this file is gitignored by default):
-
-```yaml
-# docker-compose.override.yml
-services:
-  db:
-    profiles:
-      - disabled
-```
-
-Then bring up only the app:
+Use `docker/docker-compose.external-db.yml` instead of the default compose file. It runs only the Kotauth container — no bundled PostgreSQL.
 
 ```bash
-docker compose -f docker/docker-compose.yml up -d app
+docker compose -f docker/docker-compose.external-db.yml up -d
+```
+
+Set `DB_URL`, `DB_USER`, and `DB_PASSWORD` in your `.env` file. The compose file will fail fast with a clear error if any of these are missing.
+
+For production with TLS, layer the Caddy overlay on top:
+
+```bash
+docker compose -f docker/docker-compose.external-db.yml -f docker/docker-compose.prod.yml up -d
 ```
 
 <Aside type="note">
-The `app` service's `depends_on: db: condition: service_healthy` will cause startup to fail if `db` is disabled and the override isn't applied. The above override removes `db` from the default profile, so `docker compose up app` starts cleanly.
+The default `docker/docker-compose.yml` bundles PostgreSQL and wires everything automatically. Only use `docker-compose.external-db.yml` when you're connecting to your own database.
 </Aside>
 
 ---

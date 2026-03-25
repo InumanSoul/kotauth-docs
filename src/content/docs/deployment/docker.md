@@ -18,7 +18,7 @@ Images are published on every tagged release. Use a pinned tag in production —
 | `ghcr.io/inumansoul/kotauth:latest` | Latest stable release |
 | `ghcr.io/inumansoul/kotauth:1` | Latest patch in the `1.x` line |
 | `ghcr.io/inumansoul/kotauth:1.1` | Latest patch in `1.1.x` |
-| `ghcr.io/inumansoul/kotauth:1.1.1` | Exact version pin |
+| `ghcr.io/inumansoul/kotauth:1.1.2` | Exact version pin |
 
 Pre-release tags (e.g. `1.0.1-rc1`) are published but do not move the `latest` or major/minor tags.
 
@@ -56,12 +56,26 @@ docker compose -f docker/docker-compose.dev.yml up -d --build
 
 The build context is the repo root, so Gradle and Node.js have access to the full source tree.
 
-### Production with Caddy TLS
+### External database (bring your own)
 
-`docker/docker-compose.prod.yml` — an overlay that adds a Caddy sidecar for automatic Let's Encrypt TLS. Stack on top of the pre-built compose file:
+`docker/docker-compose.external-db.yml` — runs only the Kotauth container, no bundled PostgreSQL. Use this when connecting to a managed provider (RDS, Supabase, Neon) or any existing PostgreSQL instance.
 
 ```bash
+docker compose -f docker/docker-compose.external-db.yml up -d
+```
+
+Requires `DB_URL`, `DB_USER`, and `DB_PASSWORD` in `.env`. See [External Databases](/deployment/external-database/) for provider-specific connection strings.
+
+### Production with Caddy TLS
+
+`docker/docker-compose.prod.yml` — an overlay that adds a Caddy sidecar for automatic Let's Encrypt TLS. Stack on top of either the pre-built or external-db compose file:
+
+```bash
+# With bundled database
 docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+
+# With external database
+docker compose -f docker/docker-compose.external-db.yml -f docker/docker-compose.prod.yml up -d
 ```
 
 See [Production Checklist](/deployment/production/) for the full setup.
