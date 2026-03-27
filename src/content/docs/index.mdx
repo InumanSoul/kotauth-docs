@@ -11,7 +11,7 @@ hero:
       icon: right-arrow
       variant: primary
     - text: View on GitHub
-      link: https://github.com/your-org/kotauth
+      link: https://github.com/inumansoul/kotauth
       icon: external
       variant: secondary
 ---
@@ -20,21 +20,21 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
   <Card title="OAuth2 / OIDC Compliant" icon="star">
-    Authorization Code + PKCE, Client Credentials, refresh token rotation, token introspection and revocation. Fully spec-compliant.
+    Authorization Code + PKCE, Client Credentials, refresh token rotation, token introspection, revocation, end-session logout, and OIDC Discovery. Fully spec-compliant.
   </Card>
-  <Card title="Multi-Tenant" icon="puzzle">
-    Isolated workspaces — each with their own users, applications, signing keys, and SMTP config. One instance, many products.
+  <Card title="Multi-Tenant by Design" icon="puzzle">
+    Isolated workspaces — each with their own users, applications, RS256 signing keys, security policies, and SMTP config. One instance, many products.
   </Card>
-  <Card title="REST API" icon="document">
-    30+ endpoints for managing users, roles, groups, sessions, and audit logs. API key authentication with fine-grained scopes.
+  <Card title="REST API & Swagger UI" icon="document">
+    30+ endpoints for managing users, roles, groups, sessions, and audit logs. OpenAPI 3.1 spec with built-in Swagger UI. API key authentication with fine-grained scopes.
   </Card>
   <Card title="Docker Native" icon="rocket">
-    Single container, auto-migrations, minimal config. Run locally in under two minutes. Production-ready behind a reverse proxy.
+    Single container, auto-migrations, minimal config. Run locally in under two minutes. Multi-arch (amd64 + arm64) images published to GHCR.
   </Card>
-  <Card title="RBAC + Groups" icon="setting">
-    Roles, hierarchical groups, composite role inheritance. JWT claims include `realm_access` and `resource_access` out of the box.
+  <Card title="Security by Default" icon="setting">
+    Account lockout, rate limiting, bcrypt passwords, AES-256-GCM encryption, HMAC-signed cookies, CSP headers, PKCE enforcement, and configurable password policies with history and expiry.
   </Card>
-  <Card title="MFA & Social Login" icon="approve-check-circle">
-    TOTP (RFC 6238) with recovery codes and per-tenant policy. Google and GitHub social login with automatic account linking.
+  <Card title="MFA, Social Login & RBAC" icon="approve-check-circle">
+    TOTP (RFC 6238) with recovery codes. Google and GitHub social login with automatic account linking. Hierarchical groups with composite role inheritance.
   </Card>
 </CardGrid>

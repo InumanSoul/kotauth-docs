@@ -1,11 +1,14 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import mermaid from 'astro-mermaid';
 
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
+		mermaid(),
 		starlight({
+			plugins: [],
 			title: 'Kotauth',
 			description: 'Identity infrastructure for modern applications. Self-hosted, container-native, developer-first.',
 			logo: {

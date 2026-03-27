@@ -59,15 +59,19 @@ A JWT issued alongside the access token during OIDC flows. Contains user identit
 
 Refresh tokens rotate on every use. When you exchange a refresh token for a new access token, you get a new refresh token in the response. The previous refresh token is immediately invalidated.
 
-```
-Client                Kotauth
-  │                      │
-  │──── refresh_token_1 ─>│  ✓ Valid, issue new tokens
-  │<──── access_token_2 ──│
-  │<──── refresh_token_2 ─│  ← Store this, discard refresh_token_1
-  │                      │
-  │  (if replay attempted:)
-  │──── refresh_token_1 ─>│  ✗ Rejected — session revoked
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant K as Kotauth
+
+    C->>K: refresh_token_1
+    Note right of K: Valid — issue new tokens
+    K->>C: access_token_2 + refresh_token_2
+    Note left of C: Store refresh_token_2, discard _1
+
+    C->>K: refresh_token_1 (replay)
+    Note right of K: Rejected — session revoked
+    K-->>C: 401 Unauthorized
 ```
 
 <Aside type="caution">

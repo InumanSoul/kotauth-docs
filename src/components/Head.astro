@@ -2,17 +2,8 @@
 /**
  * Custom Head override for Kotauth Docs.
  *
- * Injects a dark-theme forcing script BEFORE Starlight renders its own
- * inline theme-detection script. Starlight reads `localStorage.starlight-theme`
- * to decide which value to set on `document.documentElement.dataset.theme`.
- * By setting both the key and the attribute here we guarantee:
- *   1. The attribute is correct on the very first paint (no FOUT).
- *   2. Starlight's own script confirms 'dark' from localStorage and never
- *      overrides us to 'light' based on OS preference.
- *
- * Without this, users with a light-mode OS preference would get
- * data-theme='light' applied, which breaks Starlight's component-level
- * dark-theme CSS selectors and causes the card icon contrast issue.
+ * Forces dark theme before Starlight's own script runs.
+ * Mermaid diagrams are handled by @pasqal-io/starlight-client-mermaid plugin.
  */
 import Default from "@astrojs/starlight/components/Head.astro";
 ---

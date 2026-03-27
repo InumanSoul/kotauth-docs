@@ -235,16 +235,20 @@ nav.astro-sidebar-nav a[aria-current='true'] {
 .card {
 	background-color: #0D131A !important;
 	border-color: #1C2733 !important;
-	transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.card:hover {
-	border-color: rgba(0, 119, 168, 0.4) !important;
-	transform: translateY(-2px);
 }
 
 .card .title {
 	font-family: 'Inconsolata', monospace;
+}
+
+/* All interactive elements — sharp radius */
+a.action,
+.sl-link-button,
+button,
+input,
+select,
+textarea {
+	border-radius: 0 !important;
 }
 
 /* --------------------------------------------------------------------------

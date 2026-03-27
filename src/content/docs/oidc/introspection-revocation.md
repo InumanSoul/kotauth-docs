@@ -1,6 +1,6 @@
 ---
-title: Introspection & Revocation
-description: Check token validity and revoke tokens via the RFC 7662 and RFC 7009 endpoints.
+title: Introspection, Revocation & Logout
+description: Check token validity, revoke tokens, and initiate RP logout via the RFC 7662, RFC 7009, and OIDC end-session endpoints.
 sidebar:
   order: 6
 ---
@@ -100,3 +100,45 @@ Revoking an access token marks it as revoked in the database. However, resource 
 ### Refresh token revocation
 
 Revoking a refresh token invalidates the entire session — the session record is removed and no new access tokens can be issued for that session. This is the preferred method for logging out from a server-side application.
+
+---
+
+## End-Session Logout (RP-Initiated)
+
+The end-session endpoint implements OpenID Connect RP-Initiated Logout. It revokes the server-side session, clears the session cookie, and optionally redirects the user back to the application.
+
+```
+GET /t/{slug}/protocol/openid-connect/logout
+```
+
+### Parameters
+
+| Parameter | Required | Description |
+|---|---|---|
+| `id_token_hint` | Recommended | The ID token originally issued to the client. Allows Kotauth to identify the session without requiring a session cookie. |
+| `post_logout_redirect_uri` | No | Where to redirect the user after logout. Must share the same origin as the request to prevent open redirect attacks. |
+
+### Example
+
+```
+GET /t/my-app/protocol/openid-connect/logout
+  ?id_token_hint=eyJhbGciOiJSUzI1NiIs...
+  &post_logout_redirect_uri=https://myapp.com/logged-out
+```
+
+### Behavior
+
+1. Kotauth validates the `id_token_hint` and identifies the associated session.
+2. The session is revoked in the database (refresh token invalidated).
+3. The session cookie is cleared.
+4. If `post_logout_redirect_uri` is provided and passes origin validation, the user is redirected there. Otherwise, the user sees the Kotauth login page.
+
+### Security
+
+- **Open redirect prevention** — the `post_logout_redirect_uri` is validated against the request origin. External URIs are rejected.
+- Both GET and POST methods are supported.
+- If no `id_token_hint` is provided, the session is still cleared from the cookie, but Kotauth cannot verify which session to revoke server-side.
+
+### When to use end-session vs. revocation
+
+Use the **end-session endpoint** when you need to log out a user from a browser session — it handles cookie cleanup and user-facing redirects. Use the **revocation endpoint** for server-to-server token invalidation where no browser redirect is needed.

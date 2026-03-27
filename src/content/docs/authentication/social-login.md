@@ -13,18 +13,20 @@ Your application's integration code does not change — you still use the standa
 
 ## How it works
 
-```
-User          Kotauth Login Page        Provider (Google/GitHub)
-  │                   │                          │
-  │──── Click ────────>│                          │
-  │                   │──── Redirect to OAuth ──>│
-  │<──────────────────────── Login at provider ──│
-  │                   │<──── Authorization code ──│
-  │                   │──── Exchange code ────────>│
-  │                   │<──── User profile ─────────│
-  │                   │                          │
-  │  (account linked or created)                 │
-  │<── Kotauth issues tokens and redirects ────────
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant K as Kotauth
+    participant P as Provider (Google/GitHub)
+
+    U->>K: Click social login
+    K->>P: Redirect to OAuth
+    P->>U: Login at provider
+    P->>K: Authorization code
+    K->>P: Exchange code
+    P->>K: User profile
+    Note right of K: Link or create account
+    K->>U: Issue tokens + redirect
 ```
 
 ## Account linking

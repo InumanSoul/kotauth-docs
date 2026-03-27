@@ -44,22 +44,30 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 Kotauth is built on Kotlin with the Ktor framework and PostgreSQL. It follows hexagonal architecture — the domain layer has zero framework dependencies and all I/O flows through typed port interfaces. This makes the codebase straightforward to extend and the business logic easy to test in isolation.
 
-```
-┌─────────────────────────────────────────────┐
-│                   Kotauth                   │
-│                                             │
-│  ┌──────────┐  ┌────────────┐  ┌─────────┐ │
-│  │  domain  │  │  adapter   │  │  infra  │ │
-│  │  model   │  │  web       │  │  rate   │ │
-│  │  port    │  │  persist.  │  │  limit  │ │
-│  │  service │  │  token     │  │  crypto │ │
-│  └──────────┘  │  email     │  └─────────┘ │
-│                │  social    │              │
-│                └────────────┘              │
-└─────────────────────────────────────────────┘
-           │                    │
-     PostgreSQL             OAuth Providers
-                         (Google, GitHub)
+```mermaid
+graph TB
+    subgraph Kotauth
+        subgraph Domain
+            M[model]
+            P[port]
+            S[service]
+        end
+        subgraph Adapters
+            W[web]
+            DB[persistence]
+            T[token]
+            E[email]
+            SO[social]
+        end
+        subgraph Infrastructure
+            R[rate limit]
+            C[crypto]
+        end
+    end
+
+    Domain --> Adapters
+    Adapters --> PG[(PostgreSQL)]
+    Adapters --> OP[OAuth Providers<br/>Google · GitHub]
 ```
 
 ## Next steps

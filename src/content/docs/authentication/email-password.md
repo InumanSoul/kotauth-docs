@@ -35,9 +35,30 @@ Each workspace defines its own password policy, configurable in the admin consol
 | History depth | Prevent reuse of last N passwords. `0` = no history |
 | Blacklist | Reject specific passwords (e.g. common passwords) |
 
+## Account lockout
+
+Kotauth can automatically lock accounts after repeated failed login attempts, protecting against brute-force attacks. Account lockout is disabled by default and configured per workspace in the admin console under **Settings → Security**.
+
+| Setting | Default | Description |
+|---|---|---|
+| Max failed attempts | 0 (disabled) | Number of consecutive failed logins before the account is locked. Set to 0 to disable lockout entirely. |
+| Lockout duration (minutes) | 15 | How long the account remains locked before automatic unlock. |
+
+When an account is locked:
+
+- All login attempts are rejected with an "account locked" message, regardless of whether the password is correct.
+- If SMTP is configured, the user receives an email notification with the lockout duration and a password reset link.
+- An `ACCOUNT_LOCKED` audit event is recorded.
+- Admins can manually unlock accounts from the user detail page in the admin console. This records an `ACCOUNT_UNLOCKED` audit event.
+- The failed attempt counter resets on a successful login.
+
+<Aside type="tip">
+Account lockout works alongside rate limiting — rate limiting protects against high-volume attacks from a single IP, while lockout protects individual accounts regardless of the attacker's IP.
+</Aside>
+
 ## Rate limiting
 
-Login attempts are rate-limited at **5 attempts per minute per IP address**. After exceeding the limit, further attempts return `429 Too Many Requests` until the window resets.
+Login attempts are rate-limited at **5 attempts per minute per IP address** per workspace. After exceeding the limit, further attempts return `429 Too Many Requests` until the window resets.
 
 <Aside type="caution">
 Rate limiting is in-memory per instance. If you run multiple Kotauth replicas behind a load balancer, each instance maintains its own counter. Consider a reverse proxy with shared rate limiting for high-availability deployments.
@@ -45,7 +66,7 @@ Rate limiting is in-memory per instance. If you run multiple Kotauth replicas be
 
 ## Password reset
 
-Users can request a password reset from the login page. Kotauth sends an email with a time-limited reset link (default: 1 hour). On clicking the link, the user sets a new password and all existing sessions are revoked.
+Users can request a password reset from the login page. Kotauth sends an email with a time-limited reset link (default: 1 hour). On clicking the link, the user sets a new password and all existing sessions are revoked. A password changed notification email is sent to the user.
 
 Password reset requires SMTP to be configured in the workspace settings.
 
@@ -53,6 +74,18 @@ Password reset requires SMTP to be configured in the workspace settings.
 
 On registration, Kotauth sends a verification email with a 24-hour token. Unverified accounts can still log in unless the workspace policy requires verification first. Verification status is available as the `email_verified` claim in access tokens.
 
+## Security notifications
+
+Kotauth sends security notification emails when significant account events occur (requires SMTP to be configured):
+
+| Event | Email sent | Content |
+|---|---|---|
+| Password changed (any path) | Yes | Informational notification. No action links to prevent phishing surface. |
+| Account locked | Yes | Includes lockout duration and a password reset link. |
+| Password reset completed | Yes | Confirmation that the password was changed via reset link. |
+
+All notification emails are sent asynchronously — they do not block the authentication flow.
+
 ## Self-service portal
 
-Authenticated users can change their own password at `/t/{slug}/account/password` without admin involvement. The current password is required to set a new one.
+Authenticated users can change their own password at `/t/{slug}/account/password` without admin involvement. The current password is required to set a new one. When the password is changed, all existing sessions are revoked and a security notification email is sent.

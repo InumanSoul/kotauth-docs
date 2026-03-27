@@ -1,7 +1,7 @@
 ---
-title: Guides
-description: Integration guides for Kotauth.
+title: Integration Guides
+description: Framework integration guides for Kotauth.
 draft: true
 ---
 
-Guides coming soon. See [Getting Started](/getting-started/quickstart/) to get up and running.
+Integration guides for Next.js, React SPA, and generic OIDC clients are in progress. In the meantime, see the [Authorization Code + PKCE](/authentication/authorization-code/) documentation for the standard integration flow that works with any OIDC-compliant client library.

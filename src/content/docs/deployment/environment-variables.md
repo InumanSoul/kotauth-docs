@@ -72,6 +72,34 @@ If this key is rotated or lost: all existing SMTP configurations must be re-ente
 
 ---
 
+### `KAUTH_ADMIN_BYPASS`
+
+**Optional.** Default: `false`
+
+When set to `true`, enables direct password login on the admin console as a break-glass recovery mechanism. By default, the admin console authenticates via OAuth Authorization Code + PKCE through the master tenant.
+
+```
+KAUTH_ADMIN_BYPASS=true
+```
+
+<Aside type="caution">
+A startup warning is logged when admin bypass is active. This setting should only be used for recovery when the OAuth flow is broken (e.g. master tenant misconfiguration, lost admin credentials). Disable it once the issue is resolved.
+</Aside>
+
+---
+
+### `KAUTH_DEMO_MODE`
+
+**Optional.** Default: `false`
+
+When set to `true`, seeds two pre-configured workspaces with users, roles, groups, applications, webhooks, and audit history on startup. Renders a credential banner on all pages. Designed for public showcase deployments.
+
+```
+KAUTH_DEMO_MODE=true
+```
+
+---
+
 ## Database
 
 Kotauth connects to PostgreSQL using a standard JDBC URL. You can either provide the full URL directly via `DB_URL`, or let the compose stack construct it from the individual component variables.
@@ -125,6 +153,30 @@ Common non-default ports: `6432` for PgBouncer, `5433` for a non-standard local 
 <Aside type="caution">
 If using PgBouncer in transaction pooling mode, Flyway migrations will fail — Flyway requires a persistent session connection. Use session pooling mode, or connect directly to PostgreSQL for migrations.
 </Aside>
+
+---
+
+### `DB_POOL_MAX_SIZE`
+
+**Optional.** Default: `10`
+
+Maximum number of connections in the HikariCP pool.
+
+```
+DB_POOL_MAX_SIZE=10
+```
+
+---
+
+### `DB_POOL_MIN_IDLE`
+
+**Optional.** Default: `2`
+
+Minimum idle connections maintained by HikariCP.
+
+```
+DB_POOL_MIN_IDLE=2
+```
 
 ---
 
@@ -205,10 +257,18 @@ These are not environment variables — they are configured per workspace throug
 
 ### Password policy
 
-- Minimum length (default: 8)
+- Minimum length (default: 8, range: 4–128)
 - Require uppercase / lowercase / numbers / symbols
-- Maximum age in days (0 = no expiry)
-- Password history depth (0 = no history check)
+- Maximum age in days (0 = no expiry, range: 0–365)
+- Password history depth — prevent reuse of last N passwords (0 = no history check, range: 0–24)
+- Blacklist enabled — reject known-compromised passwords
+
+### Account lockout
+
+- Maximum failed attempts before lockout (default: 0 = disabled, range: 0–100)
+- Lockout duration in minutes (default: 15, range: 1–1440)
+- Admin can manually unlock users from the admin console
+- Locked users receive an email notification with a password reset link (requires SMTP)
 
 ### MFA policy
 

@@ -15,15 +15,18 @@ The Authorization Code flow with PKCE (Proof Key for Code Exchange) is the corre
 
 ## Flow overview
 
-```
-Your App          Kotauth           User's Browser
-   │                │                    │
-   │──── 1. Redirect to /auth ──────────>│
-   │                │<─── 2. Login ──────│
-   │                │──── 3. Redirect ──>│
-   │<─── 4. code ───────────────────────│
-   │──── 5. Exchange code ──>│
-   │<─── 6. access + refresh tokens ────│
+```mermaid
+sequenceDiagram
+    participant App as Your App
+    participant K as Kotauth
+    participant B as User's Browser
+
+    App->>B: 1. Redirect to /authorize
+    B->>K: 2. User logs in
+    K->>B: 3. Redirect with code
+    B->>App: 4. Authorization code
+    App->>K: 5. Exchange code + code_verifier
+    K->>App: 6. access_token + refresh_token
 ```
 
 ## Step by step
