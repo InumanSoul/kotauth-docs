@@ -17,11 +17,13 @@ The Kotauth REST API v1 is a machine-to-machine interface for managing workspace
 
 For example: `https://auth.yourdomain.com/t/my-app/api/v1`
 
-An interactive Swagger UI is also available on any running instance at:
+An interactive Swagger UI is available on every running instance at:
 
 ```
 /t/{workspaceSlug}/api/v1/docs
 ```
+
+Swagger UI assets are bundled inside the application JAR — no external CDN requests are made. This means API documentation works in air-gapped and firewalled environments without additional configuration.
 
 ## Authentication
 

@@ -17,6 +17,10 @@ Each workspace stores a `TenantTheme` configuration. When Kotauth renders an aut
 
 This means theme changes take effect on the next page load — no rebuild, no redeployment.
 
+<Aside type="note">
+Because theme tokens are injected as an inline `<style>` block, Kotauth's Content-Security-Policy includes `'unsafe-inline'` in `style-src`. This is scoped to styles only — `script-src` is strictly `'self'` with no inline JavaScript permitted anywhere. All event handlers use delegated listeners and all JS is bundled with SRI integrity hashes.
+</Aside>
+
 ## Configuring the theme
 
 In the admin console, navigate to **Workspace → Settings → Branding**. You can set individual values or apply one of the built-in presets as a starting point.

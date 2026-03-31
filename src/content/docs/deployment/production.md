@@ -122,10 +122,28 @@ Before starting in production, verify:
 
 - `KAUTH_ENV=production`
 - `KAUTH_BASE_URL` starts with `https://`
-- `KAUTH_SECRET_KEY` is a freshly generated 32+ byte hex string (`openssl rand -hex 32`)
+- `KAUTH_SECRET_KEY` is a freshly generated 32+ byte hex string (use `java -jar kauth.jar cli generate-secret-key` or `openssl rand -hex 32`)
 - `DB_URL`, `DB_USER`, `DB_PASSWORD` point to your production PostgreSQL instance
 - Database user has `CREATE`, `SELECT`, `INSERT`, `UPDATE`, `DELETE` permissions (required for Flyway migrations on first boot)
 - Port 5432 is blocked on the host firewall — the database should never be publicly reachable
+
+---
+
+## Encryption at rest
+
+`KAUTH_SECRET_KEY` derives the AES-256-GCM key used to encrypt sensitive data stored in the database. This currently covers:
+
+- **RSA private keys** — each tenant's JWT signing key is encrypted before being persisted. Existing plaintext keys are automatically migrated to encrypted form on first startup after upgrading to v1.3.0+.
+- **SMTP credentials** — passwords for workspace SMTP configurations.
+- **TOTP secrets** — MFA enrollment seeds.
+
+If `KAUTH_SECRET_KEY` is lost, all encrypted data becomes irrecoverable. Back up this value alongside your database backups.
+
+---
+
+## HTTP compression and caching
+
+Kotauth enables gzip and deflate compression on all HTTP responses. Static assets (CSS bundles, JavaScript, Swagger UI files) are served with long-lived `Cache-Control` headers. No additional reverse proxy configuration is needed for compression — Ktor handles it at the application level.
 
 ---
 

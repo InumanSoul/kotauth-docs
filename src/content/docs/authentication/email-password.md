@@ -11,7 +11,7 @@ Email and password authentication is the baseline login method in every Kotauth 
 
 ## How it works
 
-1. Your application redirects the user to `/t/{slug}/login` (or Kotauth redirects them there as part of an OAuth2 Authorization Code flow).
+1. Your application redirects the user to `/t/{slug}/authorize` to begin an OAuth2 Authorization Code flow. Kotauth renders the hosted login page.
 2. The user enters their username or email and password.
 3. Kotauth verifies the credentials, enforces MFA if required, and issues an authorization code.
 4. The code is exchanged for access and refresh tokens at the token endpoint.
@@ -87,6 +87,12 @@ Kotauth sends security notification emails when significant account events occur
 | Password reset completed | Yes | Confirmation that the password was changed via reset link. |
 
 All notification emails are sent asynchronously — they do not block the authentication flow.
+
+## Client-side password validation
+
+As of v1.3.1, all password input fields (registration, password change, password reset) display a real-time validation checklist that reflects the workspace's configured password policy. Each requirement (minimum length, uppercase, lowercase, digits, symbols) updates inline as the user types — invalid rules show a dimmed indicator that transitions to a green checkmark when satisfied. The submit button is not enabled until all rules pass.
+
+This validation is purely cosmetic — the server enforces the same rules on submission regardless of client-side state. The checklist is rendered from the workspace's `PasswordPolicy` configuration, so it adapts automatically when an admin changes the policy.
 
 ## Self-service portal
 

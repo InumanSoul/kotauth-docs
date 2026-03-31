@@ -14,7 +14,7 @@ A workspace is the top-level isolation boundary. Think of it as a realm or tenan
 You reference a workspace by its **slug** — a URL-safe identifier you choose when creating it. The slug appears in every URL:
 
 ```
-/t/{slug}/login
+/t/{slug}/authorize
 /t/{slug}/.well-known/openid-configuration
 /t/{slug}/api/v1/users
 ```

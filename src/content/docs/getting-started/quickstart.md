@@ -178,7 +178,7 @@ After startup you have:
 | URL | Description |
 |-----|-------------|
 | `http://localhost:8080/admin` | Admin console |
-| `http://localhost:8080/t/{slug}/login` | Login page for workspace `slug` |
+| `http://localhost:8080/t/{slug}/authorize` | Authorization endpoint for workspace `slug` |
 | `http://localhost:8080/t/{slug}/.well-known/openid-configuration` | OIDC discovery document |
 | `http://localhost:8080/t/{slug}/api/v1/docs` | Swagger UI (REST API) |
 | `http://localhost:8080/health` | Liveness probe |
