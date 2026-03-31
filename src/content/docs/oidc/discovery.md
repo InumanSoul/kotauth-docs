@@ -20,7 +20,7 @@ Returns the standard [OpenID Connect Discovery](https://openid.net/specs/openid-
 ```json
 {
   "issuer": "https://auth.yourdomain.com/t/my-app",
-  "authorization_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/auth",
+  "authorization_endpoint": "https://auth.yourdomain.com/t/my-app/authorize",
   "token_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/token",
   "userinfo_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/userinfo",
   "jwks_uri": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/certs",

@@ -8,10 +8,12 @@ sidebar:
 The authorization endpoint is where an OAuth2/OIDC flow begins. Your application redirects the user's browser here; Kotauth handles authentication and redirects back with an authorization code.
 
 ```
-GET /t/{slug}/protocol/openid-connect/auth
+GET /t/{slug}/authorize
 ```
 
 **No authentication required** — this endpoint is accessed by the user's browser.
+
+The legacy path `/t/{slug}/protocol/openid-connect/auth` is still supported as a redirect to `/authorize` for backward compatibility.
 
 ## Request parameters
 
@@ -30,7 +32,7 @@ GET /t/{slug}/protocol/openid-connect/auth
 ## Example
 
 ```
-GET https://auth.yourdomain.com/t/my-app/protocol/openid-connect/auth
+GET https://auth.yourdomain.com/t/my-app/authorize
   ?response_type=code
   &client_id=my-spa
   &redirect_uri=https%3A%2F%2Fapp.yourdomain.com%2Fcallback

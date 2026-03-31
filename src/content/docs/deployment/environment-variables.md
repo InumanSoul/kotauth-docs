@@ -38,7 +38,7 @@ Controls startup validation strictness.
 
 | Value | Behavior |
 |---|---|
-| `development` | HTTP allowed, default secrets tolerated, startup warnings printed |
+| `development` | HTTP allowed, startup warnings printed |
 | `production` | HTTPS required, default JWT secret rejected, strict cookie flags enforced |
 
 ```
@@ -49,12 +49,15 @@ KAUTH_ENV=production
 
 ### `KAUTH_SECRET_KEY`
 
-**Recommended.**
+**Required.**
 
-A 32+ character hex string used for AES-256-GCM encryption of SMTP passwords stored in the database and HMAC-SHA256 signing of short-lived cookies (MFA pending, PKCE verifier, portal session).
+A 32+ character hex string used for AES-256-GCM encryption (SMTP passwords, RSA private keys at rest) and HMAC-SHA256 signing of short-lived cookies (MFA pending, PKCE verifier, portal session).
 
 ```bash
 # Generate a key:
+java -jar kauth.jar cli generate-secret-key
+
+# Or manually:
 openssl rand -hex 32
 ```
 
@@ -62,28 +65,12 @@ openssl rand -hex 32
 KAUTH_SECRET_KEY=<paste output here>
 ```
 
-<Aside type="caution">
-If not set: SMTP configuration cannot be saved, and sessions use a random key generated at startup — sessions do not survive a container restart. Never skip this in production.
+<Aside type="danger">
+The server will not start without this key. There is no fallback in any environment.
 </Aside>
 
 <Aside type="danger">
-If this key is rotated or lost: all existing SMTP configurations must be re-entered and all active sessions will be invalidated. Store it securely alongside your database credentials.
-</Aside>
-
----
-
-### `KAUTH_ADMIN_BYPASS`
-
-**Optional.** Default: `false`
-
-When set to `true`, enables direct password login on the admin console as a break-glass recovery mechanism. By default, the admin console authenticates via OAuth Authorization Code + PKCE through the master tenant.
-
-```
-KAUTH_ADMIN_BYPASS=true
-```
-
-<Aside type="caution">
-A startup warning is logged when admin bypass is active. This setting should only be used for recovery when the OAuth flow is broken (e.g. master tenant misconfiguration, lost admin credentials). Disable it once the issue is resolved.
+If this key is rotated or lost: all encrypted data (SMTP passwords, RSA private keys) must be re-provisioned and all active sessions will be invalidated. Store it securely alongside your database credentials.
 </Aside>
 
 ---

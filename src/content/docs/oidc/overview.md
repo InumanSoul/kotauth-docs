@@ -11,22 +11,18 @@ If you're integrating an application, you likely don't need to read these pages 
 
 ## Endpoint overview
 
-All protocol endpoints are scoped to a workspace:
-
-```
-/t/{workspaceSlug}/protocol/openid-connect/...
-```
+All protocol endpoints are scoped to a workspace under `/t/{workspaceSlug}/`:
 
 | Endpoint | Path |
 |---|---|
 | [OIDC Discovery Document](#) | `/.well-known/openid-configuration` |
 | [JWKS (Public Keys)](/oidc/discovery/) | `/protocol/openid-connect/certs` |
-| [Authorization](/oidc/authorization/) | `/protocol/openid-connect/auth` |
+| [Authorization](/oidc/authorization/) | `/authorize` |
 | [Token](/oidc/token/) | `/protocol/openid-connect/token` |
 | [Userinfo](/oidc/userinfo/) | `/protocol/openid-connect/userinfo` |
 | [Introspection](/oidc/introspection-revocation/) | `/protocol/openid-connect/introspect` |
 | [Revocation](/oidc/introspection-revocation/) | `/protocol/openid-connect/revoke` |
-| [End Session (Logout)](/oidc/token/) | `/protocol/openid-connect/logout` |
+| [End Session (Logout)](/oidc/introspection-revocation/) | `/protocol/openid-connect/logout` |
 
 ## Supported flows
 

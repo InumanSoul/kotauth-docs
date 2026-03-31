@@ -68,6 +68,8 @@ Rate limiting is in-memory per instance. If you run multiple Kotauth replicas be
 
 Users can request a password reset from the login page. Kotauth sends an email with a time-limited reset link (default: 1 hour). On clicking the link, the user sets a new password and all existing sessions are revoked. A password changed notification email is sent to the user.
 
+Password reset requests are rate-limited at **3 attempts per 5-minute window** per IP to prevent abuse of the email delivery pipeline.
+
 Password reset requires SMTP to be configured in the workspace settings.
 
 ## Email verification

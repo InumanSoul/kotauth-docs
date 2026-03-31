@@ -39,7 +39,7 @@ Recovery codes are shown exactly once. They are stored as irreversible hashes. L
 
 When a user with MFA enabled submits their credentials on the login page, Kotauth issues a short-lived pending session cookie and redirects to the MFA challenge page. The user must enter a valid 6-digit TOTP code to complete login.
 
-Failed TOTP codes do not count toward the login rate limit, but excessive failed attempts within a short window may trigger a temporary block.
+MFA challenges are rate-limited independently at **5 attempts per 5-minute window** per IP. Exceeding this limit returns `429 Too Many Requests` until the window resets. This prevents brute-forcing of 6-digit TOTP codes during the MFA pending window.
 
 ## Recovery codes
 

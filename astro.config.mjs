@@ -122,6 +122,7 @@ export default defineConfig({
 						{ label: 'Docker', slug: 'deployment/docker' },
 						{ label: 'Production Checklist', slug: 'deployment/production' },
 						{ label: 'External Databases', slug: 'deployment/external-database' },
+						{ label: 'CLI Commands', slug: 'deployment/cli' },
 					],
 				},
 			],

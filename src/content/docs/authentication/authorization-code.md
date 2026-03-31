@@ -47,7 +47,7 @@ sequenceDiagram
 2. **Redirect to the authorization endpoint**
 
    ```
-   GET /t/{slug}/protocol/openid-connect/auth
+   GET /t/{slug}/authorize
      ?response_type=code
      &client_id=YOUR_CLIENT_ID
      &redirect_uri=https://yourapp.com/callback
@@ -56,6 +56,10 @@ sequenceDiagram
      &code_challenge=CODE_CHALLENGE
      &code_challenge_method=S256
    ```
+
+   <Aside type="note">
+   The legacy path `/t/{slug}/protocol/openid-connect/auth` is still supported as a redirect but `/authorize` is the canonical endpoint.
+   </Aside>
 
    | Parameter | Required | Description |
    |---|---|---|
