@@ -98,6 +98,15 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'MCP Integration',
+					items: [
+						{ label: 'Overview', slug: 'mcp/overview' },
+						{ label: 'Setup & Configuration', slug: 'mcp/setup' },
+						{ label: 'Tool Reference', slug: 'mcp/tools' },
+						{ label: 'Examples & Recipes', slug: 'mcp/examples' },
+					],
+				},
+				{
 					label: 'OIDC / OAuth2 Protocol',
 					items: [
 						{ label: 'Overview', slug: 'oidc/overview' },

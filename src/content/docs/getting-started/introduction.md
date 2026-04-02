@@ -27,6 +27,8 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Self-service user portal.** Users can manage their own profile, change passwords, view and revoke active sessions, and enroll in or disable MFA — without developer involvement.
 
+**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 21 tools let you manage users, roles, groups, applications, sessions, and audit logs through natural language — no HTTP requests, no SDK, no code.
+
 ## How Kotauth compares
 
 | | Kotauth | Keycloak | Clerk / Auth0 |
@@ -36,6 +38,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 | **Multi-tenant** | Yes | Realm-based | Organization-based |
 | **OIDC compliant** | Yes | Yes | Yes |
 | **REST management API** | Yes | Yes | Yes |
+| **AI assistant integration (MCP)** | Yes | No | No |
 | **Setup time** | ~2 min | ~30 min | ~5 min |
 | **Operational footprint** | Minimal | Heavy (JVM, Infinispan) | Zero |
 | **Open source** | MIT | Apache 2.0 | Closed |

@@ -9,6 +9,10 @@ import { Aside } from '@astrojs/starlight/components';
 
 The Kotauth REST API v1 is a machine-to-machine interface for managing workspace resources programmatically. It covers the full lifecycle of users, roles, groups, applications, sessions, and audit logs.
 
+<Aside type="tip">
+Prefer natural language over HTTP? The [`@kotauth/mcp`](/mcp/overview) package lets AI assistants like Claude and Cursor call these same endpoints through the Model Context Protocol — no code required.
+</Aside>
+
 **Base URL:**
 
 ```
