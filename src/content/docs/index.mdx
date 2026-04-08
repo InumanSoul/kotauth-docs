@@ -19,22 +19,22 @@ hero:
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
-  <Card title="OAuth2 / OIDC Compliant" icon="star">
-    Authorization Code + PKCE, Client Credentials, refresh token rotation, token introspection, revocation, end-session logout, and OIDC Discovery. Fully spec-compliant.
+  <Card title="AI-Native Management (MCP)" icon="star">
+    Manage users, roles, sessions, and audit logs from Claude, Cursor, or any MCP-compatible AI assistant. 21 tools across 6 domains — no SDK, no HTTP, just natural language. `npx @kotauth/mcp` to connect.
   </Card>
-  <Card title="Multi-Tenant by Design" icon="puzzle">
-    Isolated workspaces — each with their own users, applications, RS256 signing keys, security policies, and SMTP config. One instance, many products.
+  <Card title="OAuth2 / OIDC Compliant" icon="approve-check-circle">
+    Authorization Code + PKCE, Client Credentials, refresh token rotation, introspection, revocation, end-session logout, and OIDC Discovery. Any spec-compliant client library works without modification.
   </Card>
-  <Card title="REST API & Swagger UI" icon="document">
-    30+ endpoints for managing users, roles, groups, sessions, and audit logs. OpenAPI 3.1 spec with built-in Swagger UI. API key authentication with fine-grained scopes.
+  <Card title="Multi-Tenant Workspaces" icon="puzzle">
+    Isolated user directories, per-tenant RS256 key pairs, independent security policies, white-label auth pages, and slug-routed APIs. One instance, many products.
   </Card>
-  <Card title="Docker Native" icon="rocket">
-    Single container, auto-migrations, minimal config. Run locally in under two minutes. Multi-arch (amd64 + arm64) images published to GHCR.
+  <Card title="User Invitations & Onboarding" icon="email">
+    Invite users via branded email with secure activation links. Required actions framework handles pending setup steps. Self-service portal for password, MFA, sessions, and connected social accounts.
   </Card>
-  <Card title="Security by Default" icon="setting">
-    Account lockout, rate limiting, bcrypt passwords, AES-256-GCM encryption, HMAC-signed cookies, CSP headers, PKCE enforcement, and configurable password policies with history and expiry.
+  <Card title="Security That Ships by Default" icon="setting">
+    Account lockout, tiered rate limiting, bcrypt passwords, AES-256-GCM encryption at rest, HMAC-signed cookies, strict CSP, SRI on all JS, PKCE enforcement, and password policies with history and expiry.
   </Card>
-  <Card title="MFA, Social Login & RBAC" icon="approve-check-circle">
-    TOTP (RFC 6238) with recovery codes. Google and GitHub social login with automatic account linking. Hierarchical groups with composite role inheritance.
+  <Card title="Docker Native & Developer-First" icon="rocket">
+    Single container, auto-migrations, ~120 MB image. 30+ REST API endpoints with OpenAPI 3.1 and bundled Swagger UI. Built-in CLI, RBAC with composite inheritance, and HMAC-signed webhooks for 8 event types.
   </Card>
 </CardGrid>

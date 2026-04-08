@@ -83,6 +83,7 @@ export default defineConfig({
 						{ label: 'Social Login', slug: 'authentication/social-login' },
 						{ label: 'Multi-Factor Authentication', slug: 'authentication/mfa' },
 						{ label: 'Token Lifecycle', slug: 'authentication/token-lifecycle' },
+						{ label: 'User Invitations', slug: 'authentication/user-invitations' },
 					],
 				},
 				{

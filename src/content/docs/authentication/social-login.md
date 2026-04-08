@@ -80,6 +80,10 @@ When a user authenticates via a social provider, Kotauth fetches their profile a
 | `username` | Provider's login/username (or user-chosen if unavailable) |
 | `emailVerified` | Set to `true` — provider-verified emails are trusted |
 
+## Connected accounts in the portal
+
+Users can view their linked social identities from the self-service portal under their **Profile** page. The "Connected accounts" section displays each linked provider (Google, GitHub) with the provider icon and associated email. Users who signed in only with a password see an empty state.
+
 ## Social login and MFA
 
 If the workspace MFA policy is `required` or `required_for_admins`, users who log in via a social provider are still required to complete MFA enrollment. Social login does not bypass MFA policies.

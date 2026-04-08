@@ -23,7 +23,8 @@ Users are identity records within a workspace. The Users API covers listing, cre
   "fullName": "Alice Smith",
   "emailVerified": true,
   "enabled": true,
-  "mfaEnabled": false
+  "mfaEnabled": false,
+  "requiredActions": []
 }
 ```
 
@@ -36,6 +37,7 @@ Users are identity records within a workspace. The Users API covers listing, cre
 | `emailVerified` | boolean | Whether the email has been verified |
 | `enabled` | boolean | `false` = disabled, cannot log in |
 | `mfaEnabled` | boolean | Whether the user has enrolled in MFA |
+| `requiredActions` | string[] | Pending setup actions (e.g. `["SET_PASSWORD"]` for invited users). Empty when account is fully activated |
 
 ---
 
@@ -89,9 +91,9 @@ curl https://auth.yourdomain.com/t/my-app/api/v1/users?search=alice \
 POST /t/{slug}/api/v1/users
 ```
 
-Creates a new user account. The account is enabled immediately and the email is marked unverified. To trigger a verification email, SMTP must be configured in the workspace.
+Creates a new user account. You can either set a password directly or send an invite email so the user sets their own password.
 
-**Request body:**
+**Request body (with password):**
 
 ```json
 {
@@ -102,12 +104,26 @@ Creates a new user account. The account is enabled immediately and the email is 
 }
 ```
 
+**Request body (with invite):**
+
+```json
+{
+  "username": "bob",
+  "email": "bob@example.com",
+  "fullName": "Bob Jones",
+  "sendInvite": true
+}
+```
+
 | Field | Required | Constraints |
 |---|---|---|
 | `username` | Yes | Pattern `[a-zA-Z0-9._-]+`, unique in workspace |
 | `email` | Yes | Valid email, unique in workspace |
 | `fullName` | Yes | Non-empty string |
-| `password` | Yes | Minimum 4 characters; workspace password policy applies |
+| `password` | Conditional | Required unless `sendInvite` is `true`. Workspace password policy applies |
+| `sendInvite` | No | When `true`, sends an invite email instead of setting a password. Requires SMTP to be configured. Default: `false` |
+
+When `sendInvite` is `true`, the created user will have `requiredActions: ["SET_PASSWORD"]` and `emailVerified: false` until they complete the invite flow.
 
 **Response `201 Created`:** Returns the created user object.
 
@@ -213,3 +229,26 @@ DELETE /t/{slug}/api/v1/users/{userId}/roles/{roleId}
 Removes a directly assigned role from the user. Roles inherited through group membership are not affected.
 
 **Response `204 No Content`**
+
+---
+
+## Resend an invitation
+
+```http
+POST /t/{slug}/api/v1/users/{userId}/resend-invite
+```
+
+Resends the invite email for a user who has a pending `SET_PASSWORD` required action. Generates a new 72-hour token and invalidates any previous invite tokens for this user.
+
+<Aside type="note">
+  This endpoint requires SMTP to be configured for the workspace. It will return an error if the user does not have a pending invite (i.e. `SET_PASSWORD` is not in their `requiredActions`).
+</Aside>
+
+**Response `200 OK`**
+
+**Error responses:**
+
+| Status | Condition |
+|---|---|
+| `400 Bad Request` | User does not have a pending invite |
+| `500 Internal Server Error` | SMTP not configured or email delivery failed |

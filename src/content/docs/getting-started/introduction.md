@@ -25,7 +25,9 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Built-in admin console.** A full web UI for workspace management, user administration, application setup, audit log review, webhook configuration, and security policies. No separate tooling required for day-to-day operations.
 
-**Self-service user portal.** Users can manage their own profile, change passwords, view and revoke active sessions, and enroll in or disable MFA — without developer involvement.
+**User invitations.** Admins can invite users via branded email instead of setting passwords on their behalf. Invited users receive a secure activation link (72-hour expiry), set their own password, and their account activates automatically. A required actions framework tracks pending setup steps like `SET_PASSWORD`, with purpose-scoped tokens ensuring invite and password-reset flows never interfere with each other.
+
+**Self-service user portal.** Users can manage their own profile, change passwords, view and revoke active sessions, enroll in or disable MFA, and view connected social accounts (Google, GitHub) — without developer involvement.
 
 **AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 21 tools let you manage users, roles, groups, applications, sessions, and audit logs through natural language — no HTTP requests, no SDK, no code.
 
@@ -39,6 +41,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 | **OIDC compliant** | Yes | Yes | Yes |
 | **REST management API** | Yes | Yes | Yes |
 | **AI assistant integration (MCP)** | Yes | No | No |
+| **User invitations** | Yes | Yes | Yes |
 | **Setup time** | ~2 min | ~30 min | ~5 min |
 | **Operational footprint** | Minimal | Heavy (JVM, Infinispan) | Zero |
 | **Open source** | MIT | Apache 2.0 | Closed |
@@ -78,5 +81,6 @@ graph TB
 - [Quickstart](/getting-started/quickstart/) — get a local instance running in under 5 minutes
 - [Core Concepts](/getting-started/core-concepts/) — understand workspaces, applications, and tokens
 - [Authentication Overview](/authentication/overview/) — understand the supported auth flows
+- [User Invitations](/authentication/user-invitations/) — onboard users via branded invite emails
 - [Webhooks](/customization/webhooks/) — react to identity events in real time
 - [White-label Theming](/customization/theming/) — apply your brand to auth pages
