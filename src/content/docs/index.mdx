@@ -20,21 +20,21 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
   <Card title="AI-Native Management (MCP)" icon="star">
-    Manage users, roles, sessions, and audit logs from Claude, Cursor, or any MCP-compatible AI assistant. 21 tools across 6 domains — no SDK, no HTTP, just natural language. `npx @kotauth/mcp` to connect.
+    Manage users, roles, sessions, and audit logs from Claude, Cursor, or any MCP-compatible AI assistant. 19 tools across 6 domains — no SDK, no HTTP, just natural language. `npx @kotauth/mcp` to connect.
   </Card>
   <Card title="OAuth2 / OIDC Compliant" icon="approve-check-circle">
-    Authorization Code + PKCE, Client Credentials, refresh token rotation, introspection, revocation, end-session logout, and OIDC Discovery. Any spec-compliant client library works without modification.
+    Authorization Code + PKCE, Client Credentials, token rotation, introspection, revocation, end-session logout, and OIDC Discovery. Any spec-compliant client library works without modification.
   </Card>
-  <Card title="Multi-Tenant Workspaces" icon="puzzle">
-    Isolated user directories, per-tenant RS256 key pairs, independent security policies, white-label auth pages, and slug-routed APIs. One instance, many products.
+  <Card title="Multi-Tenant with Key Rotation" icon="puzzle">
+    Isolated user directories, per-tenant RS256 key pairs with admin-initiated rotation and JWT kid headers, independent security policies, and white-label auth pages. One instance, many products.
   </Card>
   <Card title="User Invitations & Onboarding" icon="email">
-    Invite users via branded email with secure activation links. Required actions framework handles pending setup steps. Self-service portal for password, MFA, sessions, and connected social accounts.
+    Invite users via branded email with 72-hour activation links. Required actions framework handles pending setup. Self-service portal for password, MFA, sessions, and connected social accounts.
   </Card>
-  <Card title="Security That Ships by Default" icon="setting">
-    Account lockout, tiered rate limiting, bcrypt passwords, AES-256-GCM encryption at rest, HMAC-signed cookies, strict CSP, SRI on all JS, PKCE enforcement, and password policies with history and expiry.
+  <Card title="Security by Default" icon="setting">
+    bcrypt hashing, AES-256-GCM encryption at rest, SHA-256 API keys, signing key rotation, account lockout, tiered rate limiting, strict CSP with SRI, PKCE enforcement, and password policies with history and expiry.
   </Card>
   <Card title="Docker Native & Developer-First" icon="rocket">
-    Single container, auto-migrations, ~120 MB image. 30+ REST API endpoints with OpenAPI 3.1 and bundled Swagger UI. Built-in CLI, RBAC with composite inheritance, and HMAC-signed webhooks for 8 event types.
+    ~120 MB image, Flyway auto-migrations, built-in CLI tools. 30+ REST API endpoints with OpenAPI 3.1 and bundled Swagger UI. RBAC with composite inheritance and HMAC-signed webhooks for 8 event types.
   </Card>
 </CardGrid>

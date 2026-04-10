@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The `@kotauth/mcp` package is an MCP server that connects AI assistants — Claude, Cursor, Windsurf, and any other MCP-compatible client — directly to your Kotauth instance. It exposes 21 tools across 6 domains, letting you manage users, roles, groups, applications, sessions, and audit logs through natural language.
+The `@kotauth/mcp` package is an MCP server that connects AI assistants — Claude, Cursor, Windsurf, and any other MCP-compatible client — directly to your Kotauth instance. It exposes 19 tools across 6 domains, letting you manage users, roles, groups, applications, sessions, and audit logs through natural language.
 
 Instead of writing HTTP requests or navigating the admin console, you describe what you want and the AI assistant calls the right Kotauth API endpoints automatically.
 
@@ -51,5 +51,5 @@ The MCP server is a thin wrapper around the REST API. Every operation it perform
 ## Next steps
 
 - [Setup & Configuration](/mcp/setup) — install the MCP server and connect it to Claude, Cursor, or any MCP client
-- [Tool Reference](/mcp/tools) — full list of all 21 tools with parameters and required scopes
+- [Tool Reference](/mcp/tools) — full list of all 19 tools with parameters and required scopes
 - [Examples & Recipes](/mcp/examples) — common workflows and prompts

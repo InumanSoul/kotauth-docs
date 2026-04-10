@@ -133,6 +133,7 @@ export default defineConfig({
 						{ label: 'Production Checklist', slug: 'deployment/production' },
 						{ label: 'External Databases', slug: 'deployment/external-database' },
 						{ label: 'CLI Commands', slug: 'deployment/cli' },
+						{ label: 'Key Rotation', slug: 'deployment/key-rotation' },
 					],
 				},
 			],

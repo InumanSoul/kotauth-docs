@@ -13,7 +13,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **OAuth2 and OIDC compliance.** Kotauth implements the Authorization Code flow with PKCE, the Client Credentials flow, refresh token rotation, token introspection (RFC 7662), token revocation (RFC 7009), and a full OIDC discovery document with per-tenant JWKS endpoints. Any library or framework that speaks standard OAuth2/OIDC works with Kotauth out of the box.
 
-**Multi-tenancy.** A single Kotauth instance hosts multiple independent workspaces. Each workspace has its own isolated user directory, OAuth applications, role definitions, SMTP configuration, and RS256 signing key pair. Users in workspace A cannot interact with workspace B in any way.
+**Multi-tenancy.** A single Kotauth instance hosts multiple independent workspaces. Each workspace has its own isolated user directory, OAuth applications, role definitions, SMTP configuration, and RS256 signing key pair with admin-initiated key rotation. Signing keys can be rotated from the admin console with zero-downtime rollover — old keys remain in JWKS for token verification until explicitly retired. Users in workspace A cannot interact with workspace B in any way.
 
 **REST API.** A machine-to-machine API covers the full lifecycle of users, roles, groups, OAuth applications, sessions, and audit logs. Each operation is guarded by API key scopes so you can issue keys with the minimum privilege required.
 
@@ -29,7 +29,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Self-service user portal.** Users can manage their own profile, change passwords, view and revoke active sessions, enroll in or disable MFA, and view connected social accounts (Google, GitHub) — without developer involvement.
 
-**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 21 tools let you manage users, roles, groups, applications, sessions, and audit logs through natural language — no HTTP requests, no SDK, no code.
+**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 19 tools let you manage users, roles, groups, applications, sessions, and audit logs through natural language — no HTTP requests, no SDK, no code.
 
 ## How Kotauth compares
 
@@ -82,5 +82,6 @@ graph TB
 - [Core Concepts](/getting-started/core-concepts/) — understand workspaces, applications, and tokens
 - [Authentication Overview](/authentication/overview/) — understand the supported auth flows
 - [User Invitations](/authentication/user-invitations/) — onboard users via branded invite emails
+- [Key Rotation](/deployment/key-rotation/) — rotate signing keys with zero-downtime rollover
 - [Webhooks](/customization/webhooks/) — react to identity events in real time
 - [White-label Theming](/customization/theming/) — apply your brand to auth pages

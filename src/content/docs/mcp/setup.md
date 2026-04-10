@@ -148,5 +148,5 @@ The MCP server is installed via `npx`, which always fetches the latest published
 
 ## Next steps
 
-- [Tool Reference](/mcp/tools) — parameters, return types, and required scopes for all 21 tools
+- [Tool Reference](/mcp/tools) — parameters, return types, and required scopes for all 19 tools
 - [Examples & Recipes](/mcp/examples) — common workflows
