@@ -48,7 +48,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 ## Architecture at a glance
 
-Kotauth is built on Kotlin with the Ktor framework and PostgreSQL. It follows hexagonal architecture — the domain layer has zero framework dependencies and all I/O flows through typed port interfaces. This makes the codebase straightforward to extend and the business logic easy to test in isolation.
+Kotauth is built on Kotlin 2.3 with Ktor 3.4 and PostgreSQL. It follows hexagonal architecture — the domain layer has zero framework dependencies and all I/O flows through typed port interfaces. Route handling uses Ktor's route-scoped plugin system for tenant resolution, session guards, and API context injection. This makes the codebase straightforward to extend and the business logic easy to test in isolation.
 
 ```mermaid
 graph TB
