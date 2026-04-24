@@ -1,6 +1,6 @@
 ---
 title: Tool Reference
-description: Complete reference for all 21 MCP tools — parameters, required scopes, and behavior.
+description: Complete reference for all 25 MCP tools — parameters, required scopes, and behavior.
 sidebar:
   order: 3
 ---
@@ -224,6 +224,76 @@ Query the immutable audit log with optional filters.
 | `offset` | integer | No | Pagination offset (default: 0) |
 
 Common event types include: `LOGIN_SUCCESS`, `LOGIN_FAILED`, `ADMIN_USER_CREATED`, `ADMIN_USER_UPDATED`, `ADMIN_ROLE_ASSIGNED`, `MFA_ENROLLMENT_STARTED`, `SESSION_REVOKED`, `PASSWORD_RESET_COMPLETED`.
+
+---
+
+## User Attributes
+
+**Read scope:** `user_attributes:read` · **Write scope:** `user_attributes:write`
+
+### list_user_attributes
+
+List all custom attributes for a user. Returns a key-value map.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `userId` | integer | Yes | User ID |
+
+### set_user_attribute
+
+Set a key-value attribute on a user. Creates the attribute if it doesn't exist, updates it if it does.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `userId` | integer | Yes | User ID |
+| `key` | string | Yes | Attribute key (max 64 chars) |
+| `value` | string | Yes | Attribute value (max 1024 chars) |
+
+If a [claim mapper](#claim-mappers) exists for this key, the value will appear in newly issued JWTs.
+
+### delete_user_attribute
+
+Remove an attribute from a user.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `userId` | integer | Yes | User ID |
+| `key` | string | Yes | Attribute key to delete |
+
+---
+
+## Claim Mappers
+
+**Read scope:** `claim_mappers:read` · **Write scope:** `claim_mappers:write`
+
+### list_claim_mappers
+
+List all claim mappers configured for the workspace.
+
+No parameters.
+
+### set_claim_mapper
+
+Create or update a claim mapper. Maps a user attribute key to a JWT claim name.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `attributeKey` | string | Yes | User attribute key to map |
+| `claimName` | string | Yes | JWT claim name (max 128 chars, must not be a reserved OIDC claim) |
+| `includeInAccess` | boolean | No | Include in access tokens (default: `true`) |
+| `includeInId` | boolean | No | Include in ID tokens (default: `false`) |
+
+<Aside type="caution">
+Reserved OIDC claim names (`sub`, `iss`, `aud`, `email`, etc.) are blocked. Attempting to use a reserved name returns a `400 Bad Request`. Each tenant is limited to 20 mappers.
+</Aside>
+
+### delete_claim_mapper
+
+Remove a claim mapper. The mapped claim will no longer appear in newly issued tokens.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `attributeKey` | string | Yes | Attribute key of the mapper to delete |
 
 ---
 

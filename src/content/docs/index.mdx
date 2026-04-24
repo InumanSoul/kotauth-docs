@@ -20,13 +20,16 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
   <Card title="AI-Native Management (MCP)" icon="star">
-    Manage users, roles, sessions, and audit logs from Claude, Cursor, or any MCP-compatible AI assistant. 19 tools across 6 domains — no SDK, no HTTP, just natural language. `npx @kotauth/mcp` to connect.
+    Manage users, roles, attributes, claim mappers, sessions, and audit logs from Claude, Cursor, or any MCP-compatible AI assistant. 25 tools across 8 domains — no SDK, no HTTP, just natural language. `npx @kotauth/mcp` to connect.
   </Card>
   <Card title="OAuth2 / OIDC Compliant" icon="approve-check-circle">
     Authorization Code + PKCE, Client Credentials, token rotation, introspection, revocation, end-session logout, and OIDC Discovery. Any spec-compliant client library works without modification.
   </Card>
   <Card title="Multi-Tenant with Key Rotation" icon="puzzle">
     Isolated user directories, per-tenant RS256 key pairs with admin-initiated rotation and JWT kid headers, independent security policies, and white-label auth pages. One instance, many products.
+  </Card>
+  <Card title="Custom JWT Claims" icon="document">
+    Attach per-user attributes and project them into access and ID tokens via claim mappers. 41 reserved OIDC claims protected, 20-mapper cap, refresh-token re-projection. Manage via admin console, REST API, or MCP.
   </Card>
   <Card title="User Invitations & Onboarding" icon="email">
     Invite users via branded email with 72-hour activation links. Required actions framework handles pending setup. Self-service portal for password, MFA, sessions, and connected social accounts.

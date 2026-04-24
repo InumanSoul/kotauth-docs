@@ -84,6 +84,7 @@ export default defineConfig({
 						{ label: 'Multi-Factor Authentication', slug: 'authentication/mfa' },
 						{ label: 'Token Lifecycle', slug: 'authentication/token-lifecycle' },
 						{ label: 'User Invitations', slug: 'authentication/user-invitations' },
+						{ label: 'Custom JWT Claims', slug: 'authentication/custom-claims' },
 					],
 				},
 				{
@@ -96,6 +97,8 @@ export default defineConfig({
 						{ label: 'Applications', slug: 'api/applications' },
 						{ label: 'Sessions', slug: 'api/sessions' },
 						{ label: 'Audit Logs', slug: 'api/audit-logs' },
+						{ label: 'User Attributes', slug: 'api/user-attributes' },
+						{ label: 'Claim Mappers', slug: 'api/claim-mappers' },
 					],
 				},
 				{

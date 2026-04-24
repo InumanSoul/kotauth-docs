@@ -29,7 +29,9 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Self-service user portal.** Users can manage their own profile, change passwords, view and revoke active sessions, enroll in or disable MFA, and view connected social accounts (Google, GitHub) — without developer involvement.
 
-**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 19 tools let you manage users, roles, groups, applications, sessions, and audit logs through natural language — no HTTP requests, no SDK, no code.
+**Custom JWT claims.** Attach per-user key-value attributes and project them into JWT access and/or ID tokens using tenant-level claim mappers. 41 reserved OIDC claim names are protected. Changes propagate on next token issuance or immediately on refresh token renewal.
+
+**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 25 tools let you manage users, roles, groups, applications, sessions, audit logs, user attributes, and claim mappers through natural language — no HTTP requests, no SDK, no code.
 
 ## How Kotauth compares
 
@@ -42,6 +44,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 | **REST management API** | Yes | Yes | Yes |
 | **AI assistant integration (MCP)** | Yes | No | No |
 | **User invitations** | Yes | Yes | Yes |
+| **Custom JWT claims** | Yes | Yes (protocol mappers) | Yes |
 | **Setup time** | ~2 min | ~30 min | ~5 min |
 | **Operational footprint** | Minimal | Heavy (JVM, Infinispan) | Zero |
 | **Open source** | MIT | Apache 2.0 | Closed |
@@ -82,6 +85,7 @@ graph TB
 - [Core Concepts](/getting-started/core-concepts/) — understand workspaces, applications, and tokens
 - [Authentication Overview](/authentication/overview/) — understand the supported auth flows
 - [User Invitations](/authentication/user-invitations/) — onboard users via branded invite emails
+- [Custom JWT Claims](/authentication/custom-claims/) — project per-user attributes into access and ID tokens
 - [Key Rotation](/deployment/key-rotation/) — rotate signing keys with zero-downtime rollover
 - [Webhooks](/customization/webhooks/) — react to identity events in real time
 - [White-label Theming](/customization/theming/) — apply your brand to auth pages

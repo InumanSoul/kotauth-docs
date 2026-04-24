@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The `@kotauth/mcp` package is an MCP server that connects AI assistants — Claude, Cursor, Windsurf, and any other MCP-compatible client — directly to your Kotauth instance. It exposes 19 tools across 6 domains, letting you manage users, roles, groups, applications, sessions, and audit logs through natural language.
+The `@kotauth/mcp` package is an MCP server that connects AI assistants — Claude, Cursor, Windsurf, and any other MCP-compatible client — directly to your Kotauth instance. It exposes 25 tools across 8 domains, letting you manage users, roles, groups, applications, sessions, audit logs, user attributes, and claim mappers through natural language.
 
 Instead of writing HTTP requests or navigating the admin console, you describe what you want and the AI assistant calls the right Kotauth API endpoints automatically.
 
@@ -24,6 +24,8 @@ With `@kotauth/mcp` connected, you can ask your AI assistant to:
 - **Manage OAuth applications** — list registered clients, update redirect URIs, change access types
 - **Monitor sessions** — list active sessions with IP addresses and expiry times, revoke individual sessions
 - **Query audit logs** — filter by event type, user, and time range to investigate activity
+- **Manage user attributes** — set, list, and delete per-user key-value metadata
+- **Configure claim mappers** — project user attributes into JWT access and ID tokens
 
 All operations respect the same scope-based access control as the REST API. An API key with `users:read` scope can list users but not create them.
 
@@ -51,5 +53,5 @@ The MCP server is a thin wrapper around the REST API. Every operation it perform
 ## Next steps
 
 - [Setup & Configuration](/mcp/setup) — install the MCP server and connect it to Claude, Cursor, or any MCP client
-- [Tool Reference](/mcp/tools) — full list of all 19 tools with parameters and required scopes
+- [Tool Reference](/mcp/tools) — full list of all 25 tools with parameters and required scopes
 - [Examples & Recipes](/mcp/examples) — common workflows and prompts

@@ -125,6 +125,10 @@ The MCP server enforces the same scope model as the REST API. Each tool requires
 | `list_sessions` | `sessions:read` |
 | `revoke_session` | `sessions:write` |
 | `query_audit_logs` | `audit_logs:read` |
+| `list_user_attributes` | `user_attributes:read` |
+| `set_user_attribute`, `delete_user_attribute` | `user_attributes:write` |
+| `list_claim_mappers` | `claim_mappers:read` |
+| `set_claim_mapper`, `delete_claim_mapper` | `claim_mappers:write` |
 
 <Aside type="tip">
 For a read-only reporting key, select only the `:read` scopes. For a full administration key, select all scopes. Always follow the principle of least privilege.
@@ -148,5 +152,5 @@ The MCP server is installed via `npx`, which always fetches the latest published
 
 ## Next steps
 
-- [Tool Reference](/mcp/tools) — parameters, return types, and required scopes for all 19 tools
+- [Tool Reference](/mcp/tools) — parameters, return types, and required scopes for all 25 tools
 - [Examples & Recipes](/mcp/examples) — common workflows
