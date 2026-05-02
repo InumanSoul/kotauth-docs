@@ -31,6 +31,22 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Custom JWT claims.** Attach per-user key-value attributes and project them into JWT access and/or ID tokens using tenant-level claim mappers. 41 reserved OIDC claim names are protected. Changes propagate on next token issuance or immediately on refresh token renewal.
 
+**Magic-link passwordless.** Users can authenticate via email with 15-minute one-time tokens — no password required. Same-device cookie binding prevents token replay from a different browser. MFA is still enforced if enrolled. Workspaces can disable password login entirely to go fully passwordless.
+
+**Admin impersonation.** Administrators can act as any user without knowing their password. Impersonated sessions carry an RFC 8693 `act` claim for full audit attribution. A dual-session model preserves the admin session underneath, and cascade revocation ensures impersonated sessions are terminated when the admin logs out.
+
+**Tenant backup & restore.** Export entire workspaces as encrypted, portable archive files (PBKDF2 600k iterations + AES-256-GCM) via CLI or admin API. Import with schema-version compatibility validation. Useful for disaster recovery, environment promotion, and migration between instances.
+
+**Redis distributed sessions.** An optional Redis sidecar upgrades in-memory session storage and rate limiting to distributed implementations. Lua-scripted rate limiting ensures consistent enforcement across all instances. Fail-closed semantics prevent security bypass during Redis outages.
+
+**Internationalization (i18n).** All user-facing strings in auth pages and the portal are externalized through a translation system. Volume-mounted JSON bundles let you add languages without recompiling. Accept-Language header resolution with quality-factor ranking and configurable per-workspace default locale.
+
+**App launcher.** A per-workspace tile grid at `/t/{slug}/launcher` shows all applications the user is entitled to access, based on client-scoped roles. Tiles are auto-generated from registered OAuth applications.
+
+**Breached password detection.** Passwords are checked against the Have I Been Pwned database using k-Anonymity range queries during registration and password changes. Only the first 5 characters of the SHA-1 hash leave the server.
+
+**Silent SSO.** OIDC `prompt=none` checks for existing sessions without user interaction. `max_age` enforces re-authentication after a specified duration. `id_token_hint` validates session identity. The `auth_time` claim lets clients verify session age independently.
+
 **AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 25 tools let you manage users, roles, groups, applications, sessions, audit logs, user attributes, and claim mappers through natural language — no HTTP requests, no SDK, no code.
 
 ## How Kotauth compares
@@ -42,7 +58,14 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 | **Multi-tenant** | Yes | Realm-based | Organization-based |
 | **OIDC compliant** | Yes | Yes | Yes |
 | **REST management API** | Yes | Yes | Yes |
+| **Magic-link passwordless** | Yes | No | Yes |
 | **AI assistant integration (MCP)** | Yes | No | No |
+| **Tenant backup & restore** | Yes | No | No |
+| **Admin impersonation** | Yes | Yes | Yes |
+| **Silent SSO (prompt=none)** | Yes | Yes | Yes |
+| **Redis distributed sessions** | Yes | Yes | N/A |
+| **Internationalization** | Yes | Yes | Yes |
+| **Breached password detection** | Yes | No | Yes |
 | **User invitations** | Yes | Yes | Yes |
 | **Custom JWT claims** | Yes | Yes (protocol mappers) | Yes |
 | **Setup time** | ~2 min | ~30 min | ~5 min |
@@ -51,7 +74,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 ## Architecture at a glance
 
-Kotauth is built on Kotlin 2.3 with Ktor 3.4 and PostgreSQL. It follows hexagonal architecture — the domain layer has zero framework dependencies and all I/O flows through typed port interfaces. Route handling uses Ktor's route-scoped plugin system for tenant resolution, session guards, and API context injection. This makes the codebase straightforward to extend and the business logic easy to test in isolation.
+Kotauth is built on Kotlin 2.3 with Ktor 3.4 and PostgreSQL, with an optional Redis sidecar for distributed deployments. It follows hexagonal architecture — the domain layer has zero framework dependencies and all I/O flows through typed port interfaces. Route handling uses Ktor's route-scoped plugin system for tenant resolution, session guards, and API context injection. This makes the codebase straightforward to extend and the business logic easy to test in isolation.
 
 ```mermaid
 graph TB
@@ -71,11 +94,13 @@ graph TB
         subgraph Infrastructure
             R[rate limit]
             C[crypto]
+            I[i18n]
         end
     end
 
     Domain --> Adapters
     Adapters --> PG[(PostgreSQL)]
+    Adapters --> RD[(Redis<br/>optional)]
     Adapters --> OP[OAuth Providers<br/>Google · GitHub]
 ```
 
@@ -84,8 +109,13 @@ graph TB
 - [Quickstart](/getting-started/quickstart/) — get a local instance running in under 5 minutes
 - [Core Concepts](/getting-started/core-concepts/) — understand workspaces, applications, and tokens
 - [Authentication Overview](/authentication/overview/) — understand the supported auth flows
+- [Magic-Link Passwordless](/authentication/magic-links/) — email-based passwordless login
 - [User Invitations](/authentication/user-invitations/) — onboard users via branded invite emails
 - [Custom JWT Claims](/authentication/custom-claims/) — project per-user attributes into access and ID tokens
+- [Admin Impersonation](/authentication/impersonation/) — act as any user for debugging and support
+- [Backup & Restore](/deployment/backup-restore/) — encrypted tenant export and import
+- [Redis](/deployment/redis/) — distributed sessions and rate limiting
 - [Key Rotation](/deployment/key-rotation/) — rotate signing keys with zero-downtime rollover
+- [Internationalization](/customization/i18n/) — translate auth pages and the portal
 - [Webhooks](/customization/webhooks/) — react to identity events in real time
 - [White-label Theming](/customization/theming/) — apply your brand to auth pages

@@ -203,6 +203,106 @@ DB_PASSWORD=<strong password>
 
 ---
 
+## Redis
+
+### `KAUTH_REDIS_URL`
+
+**Optional.**
+
+Redis connection URL. When set, Kotauth uses Redis for distributed session storage and rate limiting instead of in-memory stores. Required for multi-instance deployments.
+
+```
+KAUTH_REDIS_URL=redis://localhost:6379
+```
+
+With authentication and TLS:
+
+```
+KAUTH_REDIS_URL=rediss://:your-password@redis-host:6380
+```
+
+See [Redis](/deployment/redis/) for full setup instructions.
+
+---
+
+### `KAUTH_REDIS_POOL_SIZE`
+
+**Optional.** Default: `8`
+
+Maximum connections in the Lettuce connection pool.
+
+```
+KAUTH_REDIS_POOL_SIZE=8
+```
+
+---
+
+### `KAUTH_REDIS_TIMEOUT_MS`
+
+**Optional.** Default: `3000`
+
+Connection and command timeout in milliseconds.
+
+```
+KAUTH_REDIS_TIMEOUT_MS=3000
+```
+
+---
+
+### `KAUTH_REDIS_KEY_PREFIX`
+
+**Optional.** Default: `kotauth:`
+
+Prefix for all Redis keys. Useful when sharing a Redis instance with other services.
+
+```
+KAUTH_REDIS_KEY_PREFIX=kotauth:
+```
+
+---
+
+## Internationalization
+
+### `KAUTH_I18N_BUNDLE_DIR`
+
+**Optional.**
+
+Path to a directory containing JSON translation bundles. Each file should be named with a locale code (e.g. `es.json`, `fr.json`). When not set, only English is available.
+
+```
+KAUTH_I18N_BUNDLE_DIR=/i18n
+```
+
+See [Internationalization](/customization/i18n/) for bundle format and Docker configuration.
+
+---
+
+## Auto-update
+
+### `KAUTH_UPDATE_CHECK`
+
+**Optional.** Default: `true`
+
+When `true`, Kotauth queries a version manifest on startup and surfaces available updates in the admin console. Set to `false` for air-gapped deployments.
+
+```
+KAUTH_UPDATE_CHECK=false
+```
+
+---
+
+### `KAUTH_UPDATE_CHECK_URL`
+
+**Optional.**
+
+Override the default version manifest URL. Useful for private registries or internal update servers.
+
+```
+KAUTH_UPDATE_CHECK_URL=https://internal.example.com/kotauth/versions.json
+```
+
+---
+
 ## Docker production stack
 
 These variables are only used when running `docker/docker-compose.prod.yml` (the Caddy TLS overlay). They are not read by Kotauth itself.

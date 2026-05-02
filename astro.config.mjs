@@ -78,6 +78,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', slug: 'authentication/overview' },
 						{ label: 'Email & Password', slug: 'authentication/email-password' },
+						{ label: 'Magic-Link Passwordless', slug: 'authentication/magic-links' },
 						{ label: 'Authorization Code + PKCE', slug: 'authentication/authorization-code' },
 						{ label: 'Client Credentials', slug: 'authentication/client-credentials' },
 						{ label: 'Social Login', slug: 'authentication/social-login' },
@@ -85,6 +86,7 @@ export default defineConfig({
 						{ label: 'Token Lifecycle', slug: 'authentication/token-lifecycle' },
 						{ label: 'User Invitations', slug: 'authentication/user-invitations' },
 						{ label: 'Custom JWT Claims', slug: 'authentication/custom-claims' },
+						{ label: 'Admin Impersonation', slug: 'authentication/impersonation' },
 					],
 				},
 				{
@@ -119,6 +121,7 @@ export default defineConfig({
 						{ label: 'Token Endpoint', slug: 'oidc/token' },
 						{ label: 'Userinfo Endpoint', slug: 'oidc/userinfo' },
 						{ label: 'Introspection & Revocation', slug: 'oidc/introspection-revocation' },
+						{ label: 'Silent SSO', slug: 'oidc/silent-sso' },
 					],
 				},
 				{
@@ -126,6 +129,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Webhooks', slug: 'customization/webhooks' },
 						{ label: 'White-label Theming', slug: 'customization/theming' },
+						{ label: 'Internationalization (i18n)', slug: 'customization/i18n' },
 					],
 				},
 				{
@@ -137,6 +141,8 @@ export default defineConfig({
 						{ label: 'External Databases', slug: 'deployment/external-database' },
 						{ label: 'CLI Commands', slug: 'deployment/cli' },
 						{ label: 'Key Rotation', slug: 'deployment/key-rotation' },
+						{ label: 'Backup & Restore', slug: 'deployment/backup-restore' },
+						{ label: 'Redis', slug: 'deployment/redis' },
 					],
 				},
 			],

@@ -15,6 +15,7 @@ Kotauth supports several authentication flows, covering every common integration
 | [Client Credentials](/authentication/client-credentials/) | Service-to-service, background jobs | No |
 | [Social Login](/authentication/social-login/) | Google or GitHub as the identity provider | Yes |
 | [Email & Password](/authentication/email-password/) | Direct login via Kotauth's hosted login page | Yes |
+| [Magic-Link Passwordless](/authentication/magic-links/) | Email-based passwordless login | Yes |
 
 ## How it works
 

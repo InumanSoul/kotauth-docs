@@ -1,13 +1,13 @@
 ---
 title: CLI Commands
-description: Built-in command-line tools for key generation and account recovery.
+description: Built-in command-line tools for key generation, account recovery, and tenant backup/restore.
 sidebar:
   order: 5
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Kotauth includes a set of CLI subcommands accessible via `java -jar kauth.jar cli <command>`. These tools handle operations that should not require a running HTTP server or browser session — key generation, emergency account recovery, etc.
+Kotauth includes a set of CLI subcommands accessible via `java -jar kauth.jar cli <command>`. These tools handle operations that should not require a running HTTP server or browser session — key generation, emergency account recovery, tenant backup/restore, etc.
 
 ## Usage
 
@@ -73,3 +73,55 @@ This command requires database connectivity. The `DB_URL` (or `DB_HOST` / `DB_PO
 <Aside type="note">
 Only accounts on the master tenant can be reset via CLI. To reset MFA for users on other workspaces, use the admin console.
 </Aside>
+
+---
+
+## `export-tenant`
+
+Exports a workspace as an encrypted archive file. The archive uses the `bkp1` envelope format with PBKDF2 (600,000 iterations) key derivation and AES-256-GCM encryption.
+
+```bash
+java -jar kauth.jar cli export-tenant \
+  --slug=my-workspace \
+  --output=/backups/my-workspace.bkp1 \
+  --passphrase="your-strong-passphrase"
+```
+
+| Option | Required | Description |
+|---|---|---|
+| `--slug` | Yes | Workspace slug to export |
+| `--output` | Yes | Output file path |
+| `--passphrase` | Yes | Encryption passphrase |
+
+The archive contains all tenant data: users, roles, groups, applications, sessions, audit logs, attributes, claim mappers, and settings.
+
+<Aside type="caution">
+This command requires database connectivity. The `DB_URL` (or `DB_HOST` / `DB_PORT` / `DB_NAME`), `DB_USER`, and `DB_PASSWORD` environment variables must be set.
+</Aside>
+
+---
+
+## `import-tenant`
+
+Imports a workspace from an encrypted archive file. Validates schema-version compatibility before applying any data.
+
+```bash
+java -jar kauth.jar cli import-tenant \
+  --input=/backups/my-workspace.bkp1 \
+  --passphrase="your-strong-passphrase"
+```
+
+| Option | Required | Description |
+|---|---|---|
+| `--input` | Yes | Archive file path |
+| `--passphrase` | Yes | Decryption passphrase |
+
+<Aside type="caution">
+Importing a tenant with a slug that already exists will fail. Delete or rename the existing workspace first.
+</Aside>
+
+<Aside type="caution">
+This command requires database connectivity. The `DB_URL` (or `DB_HOST` / `DB_PORT` / `DB_NAME`), `DB_USER`, and `DB_PASSWORD` environment variables must be set.
+</Aside>
+
+See [Backup & Restore](/deployment/backup-restore/) for full documentation on the archive format, API endpoints, and schema compatibility.
