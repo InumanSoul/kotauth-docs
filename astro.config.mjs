@@ -79,6 +79,7 @@ export default defineConfig({
 						{ label: 'Overview', slug: 'authentication/overview' },
 						{ label: 'Email & Password', slug: 'authentication/email-password' },
 						{ label: 'Magic-Link Passwordless', slug: 'authentication/magic-links' },
+						{ label: 'Email OTP Passwordless', slug: 'authentication/email-otp' },
 						{ label: 'Authorization Code + PKCE', slug: 'authentication/authorization-code' },
 						{ label: 'Client Credentials', slug: 'authentication/client-credentials' },
 						{ label: 'Social Login', slug: 'authentication/social-login' },
@@ -129,6 +130,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Webhooks', slug: 'customization/webhooks' },
 						{ label: 'White-label Theming', slug: 'customization/theming' },
+						{ label: 'Email Branding', slug: 'customization/email-branding' },
 						{ label: 'Internationalization (i18n)', slug: 'customization/i18n' },
 					],
 				},

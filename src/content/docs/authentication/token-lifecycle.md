@@ -75,10 +75,19 @@ sequenceDiagram
 ```
 
 <Aside type="caution">
-If a refresh token is used after rotation, Kotauth treats this as a token theft signal and **revokes the entire session**. All active tokens for that session stop working immediately. The user must re-authenticate.
+If a refresh token is used after rotation, Kotauth treats this as a token theft signal and **revokes every session for the user** — not just the compromised session. All active refresh tokens across all devices stop working immediately. A `refresh_token_replay_detected` audit event is recorded. The user must re-authenticate on every device.
 
 This means your application must never use a refresh token more than once and must never allow concurrent refresh attempts for the same token.
 </Aside>
+
+### Confidential client authentication
+
+When using the `refresh_token` grant, confidential clients **must** authenticate on the token endpoint. Kotauth supports two methods:
+
+- **`client_secret_basic`** — HTTP Basic auth with `client_id:client_secret` in the `Authorization` header
+- **`client_secret_post`** — `client_id` and `client_secret` as form body parameters
+
+Public clients (SPAs, mobile apps) are exempt from client authentication but must use PKCE. Unauthenticated requests from confidential clients are rejected with `401 invalid_client`.
 
 ## Expiry configuration
 

@@ -106,9 +106,10 @@ docker run -d \
 | Property | Value |
 |---|---|
 | Runtime base | `eclipse-temurin:17-jre` |
-| Runtime size | ~85 MB |
+| Runtime size | ~120 MB |
 | Build | 3-stage multi-stage |
 | Port | `8080` |
+| User | `kotauth` (UID 10001, GID 10001) |
 | Startup time | ~3–5 seconds |
 
 The image is built in three stages to keep the runtime lean:
@@ -117,7 +118,7 @@ The image is built in three stages to keep the runtime lean:
 
 **Stage 2 — Kotlin build (`gradle:8-jdk17`).** Copies the compiled CSS bundles from Stage 1 and runs `gradle buildFatJar`. Gradle and the JDK are not present in the final image.
 
-**Stage 3 — Runtime (`eclipse-temurin:17-jre`).** Copies only the fat JAR. Adds `curl` for the health check probe. No build tools, no source code.
+**Stage 3 — Runtime (`eclipse-temurin:17-jre`).** Copies only the fat JAR. Adds `curl` for the health check probe. Runs as non-root user `kotauth` (UID 10001) with `no-new-privileges`, `cap_drop: ALL`, and a read-only filesystem. No build tools, no source code.
 
 ---
 

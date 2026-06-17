@@ -28,7 +28,8 @@ Applications cannot be created via the REST API — use the admin console. Creat
   "redirectUris": [
     "https://app.yourdomain.com/callback",
     "http://localhost:3000/callback"
-  ]
+  ],
+  "audience": "https://api.yourdomain.com"
 }
 ```
 
@@ -41,6 +42,7 @@ Applications cannot be created via the REST API — use the admin console. Creat
 | `accessType` | `public` \| `confidential` | Public = no secret, must use PKCE; Confidential = has client secret |
 | `enabled` | boolean | `false` = disabled, blocks new logins |
 | `redirectUris` | string[] | Allowed OAuth2 redirect URIs |
+| `audience` | string \| null | Custom JWT `aud` claim. Falls back to `clientId` if null. Max 200 characters. |
 
 ---
 
@@ -124,6 +126,56 @@ Updates the application's name, description, access type, and allowed redirect U
 | `redirectUris` | Yes | Array of allowed redirect URIs. Must be exact matches. |
 
 **Response `200 OK`:** Returns the updated application object.
+
+---
+
+## Get default roles
+
+```http
+GET /t/{slug}/api/v1/applications/{appId}/default-roles
+```
+
+Returns the roles that are automatically assigned to users who self-register through this application (via password signup, social login, or Email OTP).
+
+**Required scope:** `applications:read`
+
+**Response `200 OK`:**
+
+```json
+{
+  "data": [
+    { "id": 3, "name": "viewer", "description": "Read-only access", "composite": false }
+  ],
+  "meta": { "total": 1 }
+}
+```
+
+---
+
+## Set default roles
+
+```http
+PUT /t/{slug}/api/v1/applications/{appId}/default-roles
+Content-Type: application/json
+
+{
+  "roleIds": [3, 7]
+}
+```
+
+Replaces the full set of default roles for the application. Pass an empty array to clear all default roles.
+
+**Required scope:** `applications:write`
+
+| Field | Required | Description |
+|---|---|---|
+| `roleIds` | Yes | Array of role IDs to auto-assign at registration. Full-set replace. |
+
+**Response `200 OK`:** Returns the updated default roles in the same format as the GET endpoint.
+
+:::note
+Default roles are only applied during self-registration. Existing users are not affected when the default roles change. Admin-created users do not receive default roles.
+:::
 
 ---
 

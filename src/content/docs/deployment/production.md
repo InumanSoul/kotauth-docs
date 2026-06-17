@@ -123,7 +123,9 @@ Before starting in production, verify:
 - `KAUTH_ENV=production`
 - `KAUTH_BASE_URL` starts with `https://`
 - `KAUTH_SECRET_KEY` is a freshly generated 32+ byte hex string (use `java -jar kauth.jar cli generate-secret-key` or `openssl rand -hex 32`)
-- `DB_URL`, `DB_USER`, `DB_PASSWORD` point to your production PostgreSQL instance
+- `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` is set (min 12 chars, mixed case + digit) — or capture the generated password from stdout on first boot
+- `KAUTH_TRUSTED_PROXY=true` if behind a reverse proxy (rate limiting uses `X-Forwarded-For`)
+- `DB_URL`, `DB_USER`, `DB_PASSWORD` point to your production PostgreSQL instance — `DB_PASSWORD` is required and must not be blank
 - Database user has `CREATE`, `SELECT`, `INSERT`, `UPDATE`, `DELETE` permissions (required for Flyway migrations on first boot)
 - Port 5432 is blocked on the host firewall — the database should never be publicly reachable
 
@@ -136,8 +138,31 @@ Before starting in production, verify:
 - **RSA private keys** — each tenant's JWT signing key is encrypted before being persisted. Existing plaintext keys are automatically migrated to encrypted form on first startup after upgrading to v1.3.0+.
 - **SMTP credentials** — passwords for workspace SMTP configurations.
 - **TOTP secrets** — MFA enrollment seeds.
+- **Social provider secrets** — Google and GitHub OAuth client secrets.
 
 If `KAUTH_SECRET_KEY` is lost, all encrypted data becomes irrecoverable. Back up this value alongside your database backups.
+
+---
+
+## Container hardening
+
+The Kotauth Docker image runs with security defaults:
+
+- **Non-root user** — the process runs as `kotauth` (UID 10001, GID 10001), not root
+- **No new privileges** — `no-new-privileges` security option is set in the compose files
+- **Capability drop** — `cap_drop: ALL` removes all Linux capabilities
+- **Read-only filesystem** — the runtime filesystem is read-only; only `/tmp` is writable
+
+These settings are applied by default in the published compose files. If you run the image with `docker run`, add the equivalent flags:
+
+```bash
+docker run -d \
+  --security-opt no-new-privileges \
+  --cap-drop ALL \
+  --read-only \
+  --tmpfs /tmp \
+  ghcr.io/inumansoul/kotauth:latest
+```
 
 ---
 
@@ -149,17 +174,19 @@ Kotauth enables gzip and deflate compression on all HTTP responses. Static asset
 
 ## Security configuration
 
-After startup, complete these steps in the admin console:
+**Set the admin password.** As of v1.14.1, there are no hardcoded default credentials. Set `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` in your environment before first boot — minimum 12 characters with uppercase, lowercase, and a digit. If unset, a random password is generated and printed to stdout once. See [Environment Variables](/deployment/environment-variables/) for details.
 
-**Change the master workspace admin password.** Default credentials are printed in the startup log on first boot and must be rotated immediately.
+**Enable trusted proxy.** If Kotauth runs behind a reverse proxy, set `KAUTH_TRUSTED_PROXY=true` so rate limiting uses the real client IP from `X-Forwarded-For`. Leave it `false` when Kotauth is directly exposed to prevent header spoofing.
 
-**Configure SMTP.** Required for email verification and password resets. Without it, users cannot verify their email or reset forgotten passwords. Set this up under **Settings → SMTP** in each workspace.
+**Configure SMTP.** Required for email verification, password resets, magic links, Email OTP, and user invitations. Set this up under **Settings → SMTP** in each workspace.
 
 **Review password policy.** The default (minimum 8 characters) may not meet your requirements. Tighten it under **Settings → Security**.
 
 **Set the MFA policy.** Decide whether MFA should be `optional`, `required`, or `required_for_admins`. For sensitive workspaces, `required` is the safe default.
 
 **Create workspaces with meaningful slugs.** The workspace slug appears in every URL and cannot be changed after creation. Choose something permanent (e.g. `my-product`, not `test-1`).
+
+**Provision API keys via environment.** For automated deployments, use `KAUTH_BOOTSTRAP_API_KEYS` to create API keys idempotently on startup. See [Environment Variables](/deployment/environment-variables/) and `hash-api-key` in [CLI Commands](/deployment/cli/).
 
 ---
 

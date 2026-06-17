@@ -87,6 +87,77 @@ KAUTH_DEMO_MODE=true
 
 ---
 
+### `KAUTH_TRUSTED_PROXY`
+
+**Optional.** Default: `false`
+
+When set to `true`, Kotauth installs Ktor's `XForwardedHeaders` plugin and trusts `X-Forwarded-For` and `X-Forwarded-Proto` headers from reverse proxies. This affects rate limiting (IP extraction) and HTTPS detection.
+
+```
+KAUTH_TRUSTED_PROXY=true
+```
+
+<Aside type="danger">
+Only enable this when Kotauth runs behind a trusted reverse proxy (nginx, Caddy, Traefik, cloud load balancer). When `false`, forwarded headers are ignored entirely — this prevents rate-limit bypass via header spoofing on directly-exposed deployments.
+</Aside>
+
+---
+
+### `KAUTH_BOOTSTRAP_ADMIN_PASSWORD`
+
+**Optional.**
+
+Sets the password for the initial admin account (`admin` on the `master` tenant) created on first startup when the database is empty.
+
+```
+KAUTH_BOOTSTRAP_ADMIN_PASSWORD=YourStr0ng!Password
+```
+
+**Validation rules:** minimum 12 characters, at least one uppercase letter, one lowercase letter, and one digit. Failing validation causes a fatal startup error.
+
+**Behavior when not set:**
+- In demo mode (`KAUTH_DEMO_MODE=true`): uses the demo password `Demo1234!`
+- In normal mode: generates a random password and prints it to stdout on first boot
+
+<Aside type="caution">
+As of v1.14.1, there are no hardcoded default credentials. If you do not set this variable and miss the generated password in the startup log, you must re-seed the database.
+</Aside>
+
+---
+
+### `KAUTH_BOOTSTRAP_API_KEYS`
+
+**Optional.**
+
+A JSON array of API keys to provision idempotently on startup. Useful for infrastructure-as-code and CI/CD pipelines.
+
+```
+KAUTH_BOOTSTRAP_API_KEYS='[{"tenant":"my-app","name":"ci-key","scopes":["users:read","users:write"],"keyHash":"sha256hex..."}]'
+```
+
+Each object in the array:
+
+| Field | Required | Description |
+|---|---|---|
+| `tenant` | Yes | Workspace slug |
+| `name` | Yes | Key display name (upsert key — identifies the key) |
+| `scopes` | Yes | Array of scope strings |
+| `keyHash` | Yes | SHA-256 hex digest of the raw API key |
+| `keyPrefix` | No | Display prefix (default: `kauth_{tenant}` truncated to 16 chars) |
+
+**Upsert behavior:**
+- If no key with that `(tenant, name)` pair exists: created with `enabled=true`
+- If a key exists and hash + scopes match: no-op
+- If a key exists but hash or scopes differ: updated, re-enabled if previously disabled
+
+<Aside type="danger">
+Invalid JSON, unknown tenant slugs, or unknown scope names cause a fatal startup error (`exitProcess(1)`). Validate your configuration before deploying.
+</Aside>
+
+Use `java -jar kauth.jar cli hash-api-key` to generate the SHA-256 hash for the `keyHash` field. See [CLI Commands](/deployment/cli/).
+
+---
+
 ## Database
 
 Kotauth connects to PostgreSQL using a standard JDBC URL. You can either provide the full URL directly via `DB_URL`, or let the compose stack construct it from the individual component variables.
@@ -195,7 +266,7 @@ DB_USER=kotauth
 
 **Required.**
 
-PostgreSQL password.
+PostgreSQL password. As of v1.14.0, the server refuses to start if this is blank or missing — there is no fallback.
 
 ```
 DB_PASSWORD=<strong password>

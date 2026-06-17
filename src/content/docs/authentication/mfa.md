@@ -29,7 +29,7 @@ Users enroll through the self-service portal at `/t/{slug}/account/mfa`.
 2. Kotauth generates a TOTP secret and displays a QR code
 3. The user scans the QR code with their authenticator app
 4. The user enters the 6-digit code to confirm enrollment
-5. Kotauth displays **10 one-time recovery codes** — the user must save these
+5. Kotauth displays **8 one-time recovery codes** — the user must save these
 
 <Aside type="caution">
 Recovery codes are shown exactly once. They are stored as irreversible hashes. Losing all recovery codes and the authenticator device locks the user out — an admin must manually reset MFA from the admin console.
@@ -40,6 +40,16 @@ Recovery codes are shown exactly once. They are stored as irreversible hashes. L
 When a user with MFA enabled submits their credentials on the login page, Kotauth issues a short-lived pending session cookie and redirects to the MFA challenge page. The user must enter a valid 6-digit TOTP code to complete login.
 
 MFA challenges are rate-limited independently at **5 attempts per 5-minute window** per IP. Exceeding this limit returns `429 Too Many Requests` until the window resets. This prevents brute-forcing of 6-digit TOTP codes during the MFA pending window.
+
+### TOTP replay protection
+
+Each TOTP code is valid for only one verification per time step. After a code is successfully verified, Kotauth records the time step and rejects any subsequent attempt to use a code from the same or earlier time step. This makes TOTP replay structurally impossible — even if an attacker captures a valid code, it cannot be reused.
+
+### Per-enrollment lockout
+
+Failed TOTP verification attempts are tracked per MFA enrollment. After 5 consecutive failures, the enrollment is locked for the workspace's configured lockout duration. While locked, all TOTP challenges for that enrollment are rejected immediately. The lockout counter resets on successful verification.
+
+This is independent of the IP-based rate limiting — an attacker who rotates IP addresses is still caught by the enrollment-level lockout.
 
 ## Recovery codes
 

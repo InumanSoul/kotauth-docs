@@ -17,7 +17,11 @@ Content-Type: application/x-www-form-urlencoded
 token=ACCESS_OR_REFRESH_TOKEN&token_type_hint=access_token
 ```
 
-**Authentication required** — use HTTP Basic auth with a confidential client's `client_id` and `client_secret`.
+**Authentication required** — confidential clients must authenticate using either HTTP Basic auth (`client_secret_basic`) or form body parameters (`client_secret_post`). The client must be of type `confidential` and enabled. Unauthenticated or public-client requests are rejected with `401 invalid_client`.
+
+:::caution
+As of v1.14.0, client authentication is **required** on both the introspection and revocation endpoints. This is a breaking change from earlier versions that allowed unauthenticated access. Update your resource servers to include client credentials.
+:::
 
 ### Parameters
 
@@ -50,7 +54,7 @@ token=ACCESS_OR_REFRESH_TOKEN&token_type_hint=access_token
 }
 ```
 
-An `active: false` response means the token is expired, revoked, or never existed. The response body contains no other claims.
+An `active: false` response means the token is expired, revoked, never existed, or was issued by a different tenant. Kotauth enforces issuer validation on introspection — a token minted for tenant A returns `active: false` when introspected against tenant B, even if the token is otherwise valid. The response body contains no other claims.
 
 ### When to use introspection
 
@@ -76,7 +80,7 @@ Content-Type: application/x-www-form-urlencoded
 token=TOKEN_TO_REVOKE&token_type_hint=refresh_token
 ```
 
-**Authentication required** — same as introspection.
+**Authentication required** — same as introspection. Confidential clients must authenticate via `client_secret_basic` or `client_secret_post`.
 
 ### Parameters
 
@@ -135,7 +139,7 @@ GET /t/my-app/protocol/openid-connect/logout
 
 ### Security
 
-- **Open redirect prevention** — the `post_logout_redirect_uri` is validated against the request origin. External URIs are rejected.
+- **Open redirect prevention** — the `post_logout_redirect_uri` is validated against the `KAUTH_BASE_URL` origin. URIs with a different scheme, host, or port are rejected. Protocol-relative URIs (`//evil.com`), backslash-prefixed URIs (`/\evil.com`), and URIs with `userInfo` components are all blocked. Invalid URIs fall back to the workspace's authorization endpoint.
 - Both GET and POST methods are supported.
 - If no `id_token_hint` is provided, the session is still cleared from the cookie, but Kotauth cannot verify which session to revoke server-side.
 

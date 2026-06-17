@@ -1,6 +1,6 @@
 ---
 title: Tool Reference
-description: Complete reference for all 25 MCP tools — parameters, required scopes, and behavior.
+description: Complete reference for all 33 MCP tools — parameters, required scopes, and behavior.
 sidebar:
   order: 3
 ---
@@ -86,6 +86,33 @@ Remove a role from a user.
 | `userId` | integer | Yes | User ID |
 | `roleId` | integer | Yes | Role ID to remove |
 
+### invite_user
+
+Invite a user via email. The user receives a branded activation link (72-hour expiry) and sets their own password.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `email` | string | Yes | Email address to send the invite to |
+| `username` | string | No | Username (auto-generated if omitted) |
+| `fullName` | string | No | Display name |
+
+### send_password_reset
+
+Send a password reset email to a user.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `userId` | integer | Yes | User ID to send the password reset email to |
+
+### set_temporary_password
+
+Set a temporary password for a user. The user must change it on their next login (CHANGE_PASSWORD required action).
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `userId` | integer | Yes | User ID |
+| `password` | string | Yes | Temporary password (min 4 characters) |
+
 ---
 
 ## Roles
@@ -98,6 +125,14 @@ List all roles in the workspace with their scope and description.
 
 No parameters.
 
+### get_role
+
+Get detailed information about a specific role, including assigned users.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `roleId` | integer | Yes | Role ID |
+
 ### create_role
 
 Create a new role.
@@ -107,6 +142,15 @@ Create a new role.
 | `name` | string | Yes | Role name (alphanumeric, dots, underscores, hyphens) |
 | `description` | string | No | Human-readable description |
 | `scope` | string | No | `"tenant"` (default) or `"client"` |
+
+### update_role
+
+Update a role's description.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `roleId` | integer | Yes | Role ID |
+| `description` | string | No | New description |
 
 ### delete_role
 
@@ -132,6 +176,14 @@ List all groups with their hierarchy and parent relationships.
 
 No parameters.
 
+### get_group
+
+Get detailed information about a specific group, including its members and parent group.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `groupId` | integer | Yes | Group ID |
+
 ### create_group
 
 Create a new group, optionally nested under a parent.
@@ -141,6 +193,16 @@ Create a new group, optionally nested under a parent.
 | `name` | string | Yes | Group name |
 | `description` | string | No | Group description |
 | `parentGroupId` | integer | No | Parent group ID for nesting |
+
+### update_group
+
+Update a group's name or description.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `groupId` | integer | Yes | Group ID |
+| `name` | string | No | New group name |
+| `description` | string | No | New description |
 
 ### delete_group
 
@@ -171,6 +233,14 @@ Add or remove a user from a group. Users inherit all roles assigned to their gro
 List all OAuth2/OIDC clients registered in the workspace.
 
 No parameters.
+
+### get_application
+
+Get detailed information about a specific OAuth2/OIDC application by its ID.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `applicationId` | integer | Yes | Application ID |
 
 ### update_application
 

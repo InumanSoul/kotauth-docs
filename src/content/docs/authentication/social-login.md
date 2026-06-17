@@ -36,8 +36,12 @@ When a user authenticates via a social provider, Kotauth matches the provider's 
 - **Email match found** — the social identity is linked to the existing account. The user can now log in with either their password or the social provider.
 - **No match** — a new account is created. If the provider's email is not available, Kotauth prompts the user to choose a username to complete registration.
 
+### Email verification gate
+
+Automatic account linking only proceeds if the social provider reports the email as **verified**. If the provider returns an unverified email address, Kotauth rejects the link attempt and returns an error. This prevents an attacker from creating an unverified email at a social provider and using it to hijack an existing Kotauth account.
+
 <Aside type="note">
-Account linking is automatic based on email address. If you need to prevent automatic linking (e.g. for security reasons in your workspace), raise a GitHub issue — this will be configurable in a future release.
+Google always returns verified emails. GitHub may return unverified emails if the user has not confirmed their email address — in this case, the user must verify their email at GitHub before social login will work.
 </Aside>
 
 ## Configuring social providers

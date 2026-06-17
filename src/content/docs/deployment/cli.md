@@ -76,6 +76,46 @@ Only accounts on the master tenant can be reset via CLI. To reset MFA for users 
 
 ---
 
+## `hash-api-key`
+
+Generates or hashes an API key for use with `KAUTH_BOOTSTRAP_API_KEYS`.
+
+**Generate a new key:**
+
+```bash
+java -jar kauth.jar cli hash-api-key --tenant=my-app
+```
+
+Output:
+
+```
+plaintext: kauth_my-app_a1b2c3d4e5f6...
+sha256:    9f86d081884c7d659a2feaa0...
+```
+
+The `plaintext` value is what API consumers use in the `Authorization` header. The `sha256` value goes into the `keyHash` field of `KAUTH_BOOTSTRAP_API_KEYS`.
+
+**Hash an existing key:**
+
+```bash
+java -jar kauth.jar cli hash-api-key --key=kauth_my-app_sk_xxxxxxxx
+```
+
+Output:
+
+```
+sha256: 9f86d081884c7d659a2feaa0...
+```
+
+| Option | Required | Description |
+|---|---|---|
+| `--key` | No | An existing key to hash. If omitted, generates a new key. |
+| `--tenant` | No | Tenant slug for the key prefix (used in generate mode) |
+
+This command is pure computation — it does not connect to the database.
+
+---
+
 ## `export-tenant`
 
 Exports a workspace as an encrypted archive file. The archive uses the `bkp1` envelope format with PBKDF2 (600,000 iterations) key derivation and AES-256-GCM encryption.

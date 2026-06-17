@@ -15,7 +15,8 @@ Kotauth supports several authentication flows, covering every common integration
 | [Client Credentials](/authentication/client-credentials/) | Service-to-service, background jobs | No |
 | [Social Login](/authentication/social-login/) | Google or GitHub as the identity provider | Yes |
 | [Email & Password](/authentication/email-password/) | Direct login via Kotauth's hosted login page | Yes |
-| [Magic-Link Passwordless](/authentication/magic-links/) | Email-based passwordless login | Yes |
+| [Magic-Link Passwordless](/authentication/magic-links/) | Email-based passwordless login (one-time link) | Yes |
+| [Email OTP Passwordless](/authentication/email-otp/) | Email-based passwordless login (6-digit code) | Yes |
 
 ## How it works
 
@@ -43,6 +44,9 @@ All flows enforce the following by default:
 
 - Rate limiting: 5 login attempts per minute per IP per workspace, 5 MFA attempts per 5 minutes, 3 password reset attempts per 5 minutes
 - PKCE is required for public clients (SPAs and mobile apps)
-- Refresh tokens rotate on every use — possession of a revoked token triggers full session revocation
+- Refresh tokens rotate on every use — replaying a previously rotated token revokes all sessions for the user (family revocation)
+- Confidential clients must authenticate (Basic or POST) on refresh, introspection, and revocation endpoints
+- TOTP codes are single-use per time step — replay of an already-consumed code is rejected
+- Login error responses are normalized — all rejection branches return the same message with timing equalization to prevent user enumeration
 - Sessions store only the hashed token value — raw tokens never persist to the database
 - HTTPS is enforced in production mode (`KAUTH_ENV=production`)

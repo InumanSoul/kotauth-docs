@@ -115,12 +115,12 @@ The MCP server enforces the same scope model as the REST API. Each tool requires
 | Tools | Required scope |
 |---|---|
 | `list_users`, `get_user` | `users:read` |
-| `create_user`, `update_user`, `disable_user`, `assign_user_role`, `remove_user_role` | `users:write` |
-| `list_roles` | `roles:read` |
-| `create_role`, `delete_role` | `roles:write` |
-| `list_groups` | `groups:read` |
-| `create_group`, `delete_group`, `manage_group_member` | `groups:write` |
-| `list_applications` | `applications:read` |
+| `create_user`, `update_user`, `disable_user`, `assign_user_role`, `remove_user_role`, `invite_user`, `send_password_reset`, `set_temporary_password` | `users:write` |
+| `list_roles`, `get_role` | `roles:read` |
+| `create_role`, `update_role`, `delete_role` | `roles:write` |
+| `list_groups`, `get_group` | `groups:read` |
+| `create_group`, `update_group`, `delete_group`, `manage_group_member` | `groups:write` |
+| `list_applications`, `get_application` | `applications:read` |
 | `update_application` | `applications:write` |
 | `list_sessions` | `sessions:read` |
 | `revoke_session` | `sessions:write` |
@@ -152,5 +152,5 @@ The MCP server is installed via `npx`, which always fetches the latest published
 
 ## Next steps
 
-- [Tool Reference](/mcp/tools) — parameters, return types, and required scopes for all 25 tools
+- [Tool Reference](/mcp/tools) — parameters, return types, and required scopes for all 33 tools
 - [Examples & Recipes](/mcp/examples) — common workflows
