@@ -448,7 +448,7 @@ These are not environment variables — they are configured per workspace throug
 
 ### Local development
 
-```env
+```dotenv
 KAUTH_BASE_URL=http://localhost:8080
 KAUTH_ENV=development
 KAUTH_SECRET_KEY=        # openssl rand -hex 32
@@ -462,7 +462,7 @@ DB_PASSWORD=changeme
 
 ### Production — bundled PostgreSQL
 
-```env
+```dotenv
 KAUTH_BASE_URL=https://auth.yourdomain.com
 KAUTH_ENV=production
 KAUTH_SECRET_KEY=        # openssl rand -hex 32
@@ -479,7 +479,7 @@ ACME_EMAIL=you@yourdomain.com
 
 ### Production — external managed database
 
-```env
+```dotenv
 KAUTH_BASE_URL=https://auth.yourdomain.com
 KAUTH_ENV=production
 KAUTH_SECRET_KEY=        # openssl rand -hex 32

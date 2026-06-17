@@ -41,7 +41,7 @@ cp .env.example .env
 
 **2. Fill in `.env` for production**
 
-```env
+```dotenv
 KAUTH_BASE_URL=https://auth.yourdomain.com
 KAUTH_ENV=production
 KAUTH_SECRET_KEY=        # openssl rand -hex 32

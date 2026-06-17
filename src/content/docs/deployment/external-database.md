@@ -21,7 +21,7 @@ There are two ways to specify the database connection. **`DB_URL` always wins** 
 
 Set `DB_URL` directly in `.env`. All other `DB_*` variables are ignored.
 
-```env
+```dotenv
 DB_URL=jdbc:postgresql://your-host:5432/kotauth_db?sslmode=require
 DB_USER=kotauth
 DB_PASSWORD=your-password
@@ -31,7 +31,7 @@ DB_PASSWORD=your-password
 
 Let the compose file construct the URL from parts. Useful when using the bundled `db` service or a simple external server that doesn't need extra JDBC parameters.
 
-```env
+```dotenv
 DB_HOST=db         # defaults to the Docker service name
 DB_PORT=5432
 DB_NAME=kotauth_db
@@ -92,7 +92,7 @@ DB_URL=jdbc:postgresql://your-host:5432/kotauth_db?sslmode=require&connectTimeou
 
 Find your endpoint in the RDS console under **Connectivity & security → Endpoint**.
 
-```env
+```dotenv
 DB_URL=jdbc:postgresql://xxx.yyy.us-east-1.rds.amazonaws.com:5432/kotauth_db?sslmode=require
 DB_USER=kotauth
 DB_PASSWORD=your-password
@@ -109,7 +109,7 @@ Use the **Session mode** pooler (port 5432) — not the Transaction mode pooler.
 
 Find your connection string in the Supabase dashboard under **Project Settings → Database → Connection string → JDBC**.
 
-```env
+```dotenv
 DB_URL=jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
 DB_USER=postgres.your-project-ref
 DB_PASSWORD=your-password
@@ -124,7 +124,7 @@ The username for Supabase's pooler includes the project reference as a prefix: `
 
 Find your connection string in the Neon console under **Connection Details**. Select **JDBC** format.
 
-```env
+```dotenv
 DB_URL=jdbc:postgresql://ep-xxx-yyy.us-east-2.aws.neon.tech/kotauth_db?sslmode=require&channel_binding=disable
 DB_USER=kotauth_owner
 DB_PASSWORD=your-password
@@ -139,7 +139,7 @@ Neon branches work the same way — just swap the endpoint for your branch's hos
 
 Find your connection details in the Railway dashboard under your PostgreSQL service → **Connect → Public**.
 
-```env
+```dotenv
 DB_URL=jdbc:postgresql://monorail.proxy.rlwy.net:PORT/railway?sslmode=require
 DB_USER=postgres
 DB_PASSWORD=your-password
@@ -154,7 +154,7 @@ Find your connection details in the Render dashboard under your PostgreSQL servi
 
 Use the **External Database URL** for connections from outside Render's network, or the **Internal Database URL** if Kotauth is also running on Render (same region).
 
-```env
+```dotenv
 # External (outside Render)
 DB_URL=jdbc:postgresql://dpg-xxx.oregon-postgres.render.com:5432/kotauth_db?sslmode=require
 DB_USER=kotauth_user
@@ -166,7 +166,7 @@ DB_PASSWORD=your-password
 
 For a self-managed PostgreSQL server (bare metal, EC2, VPS):
 
-```env
+```dotenv
 # Without SSL (private network / same host)
 DB_URL=jdbc:postgresql://your-postgres-host:5432/kotauth_db
 DB_USER=kotauth
@@ -180,7 +180,7 @@ DB_PASSWORD=your-password
 
 Or using component variables (no JDBC parameters needed):
 
-```env
+```dotenv
 DB_HOST=your-postgres-host
 DB_PORT=5432
 DB_NAME=kotauth_db
@@ -230,7 +230,7 @@ PgBouncer in **transaction pooling** mode is incompatible with Flyway migrations
 
 If your infrastructure uses PgBouncer in session pooling mode, it works transparently:
 
-```env
+```dotenv
 DB_URL=jdbc:postgresql://your-pgbouncer-host:6432/kotauth_db?sslmode=require
 ```
 

@@ -15,19 +15,19 @@ Adding a Redis sidecar upgrades both stores to distributed implementations. Sess
 
 Set the `KAUTH_REDIS_URL` environment variable to your Redis connection string:
 
-```env
+```dotenv
 KAUTH_REDIS_URL=redis://localhost:6379
 ```
 
 With authentication:
 
-```env
+```dotenv
 KAUTH_REDIS_URL=redis://:your-password@redis-host:6379
 ```
 
 With TLS (Redis 6+):
 
-```env
+```dotenv
 KAUTH_REDIS_URL=rediss://:your-password@redis-host:6380
 ```
 
