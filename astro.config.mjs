@@ -7,6 +7,7 @@ import mermaid from 'astro-mermaid';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://docs.kotauth.com',
+	output: 'static',
 	integrations: [
 		mermaid({
 			theme: 'dark',
