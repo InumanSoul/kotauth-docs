@@ -19,7 +19,7 @@ There are two ways to specify the database connection. **`DB_URL` always wins** 
 
 **Option A — Full JDBC URL (recommended for external databases)**
 
-Set `DB_URL` directly in `.env`. All other `DB_*` variables are ignored.
+Set `DB_URL` directly in `.env`. All other `DB_*` connection variables (`DB_HOST`, `DB_PORT`, `DB_NAME`) are ignored.
 
 ```dotenv
 DB_URL=jdbc:postgresql://your-host:5432/kotauth_db?sslmode=require
@@ -43,24 +43,29 @@ The compose stack resolves these to: `jdbc:postgresql://db:5432/kotauth_db`
 
 ---
 
-## Skipping the bundled database
+## Using an external database
 
-Use `docker/docker-compose.external-db.yml` instead of the default compose file. It runs only the Kotauth container — no bundled PostgreSQL.
+Set `DB_URL` in your `.env` file. The bundled `db` service in the compose file will start but sit idle — you can remove it by hand if you prefer a cleaner stack.
 
-```bash
-docker compose -f docker/docker-compose.external-db.yml up -d
+```dotenv
+# .env
+DB_URL=jdbc:postgresql://your-managed-host:5432/kotauth_db?sslmode=require
+DB_USER=kotauth
+DB_PASSWORD=your-password
 ```
 
-Set `DB_URL`, `DB_USER`, and `DB_PASSWORD` in your `.env` file. The compose file will fail fast with a clear error if any of these are missing.
-
-For production with TLS, layer the Caddy overlay on top:
+Then start normally:
 
 ```bash
-docker compose -f docker/docker-compose.external-db.yml -f docker/docker-compose.prod.yml up -d
+# Local / evaluation
+docker compose up -d
+
+# Production with Caddy TLS
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-<Aside type="note">
-The default `docker/docker-compose.yml` bundles PostgreSQL and wires everything automatically. Only use `docker-compose.external-db.yml` when you're connecting to your own database.
+<Aside type="tip">
+For production with file-based secrets, use `DB_PASSWORD_FILE` instead of `DB_PASSWORD`. See [Docker — File-based secrets](/deployment/docker/#file-based-secrets).
 </Aside>
 
 ---
@@ -218,7 +223,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT USAGE, SELECT ON SEQUENCES TO kotauth;
 ```
 
-On managed services, grant the user the `rds_iam` role (RDS) or equivalent — check your provider's documentation for the minimum required privileges.
+For the audit log, consider a separate maintenance role with `UPDATE`/`DELETE` on `audit_log` — the app user should only have `INSERT` and `SELECT` on that table. See [Production Checklist](/deployment/production/#audit-log-integrity).
 
 ---
 
@@ -241,8 +246,8 @@ DB_URL=jdbc:postgresql://your-pgbouncer-host:6432/kotauth_db?sslmode=require
 After setting your environment variables, check that Kotauth can reach the database:
 
 ```bash
-# Docker Compose
-docker compose -f docker/docker-compose.yml logs app | grep -E "migration|Flyway|DB|error"
+# Check the logs
+docker compose logs kotauth | grep -E "migration|Flyway|DB|error"
 
 # Or use the health endpoint
 curl -s http://localhost:8080/health/ready

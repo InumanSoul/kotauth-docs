@@ -1,13 +1,13 @@
 ---
 title: CLI Commands
-description: Built-in command-line tools for key generation, account recovery, and tenant backup/restore.
+description: Built-in command-line tools for key generation, account recovery, audit verification, and tenant backup/restore.
 sidebar:
   order: 5
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Kotauth includes a set of CLI subcommands accessible via `java -jar kauth.jar cli <command>`. These tools handle operations that should not require a running HTTP server or browser session — key generation, emergency account recovery, tenant backup/restore, etc.
+Kotauth includes CLI subcommands accessible via `java -jar kauth.jar cli <command>`. These tools handle operations that should not require a running HTTP server or browser session.
 
 ## Usage
 
@@ -44,7 +44,7 @@ Output:
 a1b2c3d4e5f6...  # 64-character hex string
 ```
 
-This command is pure cryptography — it does not connect to the database or require any environment variables. Use it to provision a new key before first startup or when rotating an existing key.
+This command is pure cryptography — it does not connect to the database or require any environment variables.
 
 <Aside type="tip">
 You can also generate a key with `openssl rand -hex 32`, but the built-in command ensures the output meets Kotauth's requirements.
@@ -60,15 +60,11 @@ Resets MFA enrollment for a user on the master tenant. This is the recovery path
 java -jar kauth.jar cli reset-admin-mfa --username=admin
 ```
 
-This command connects to the database directly (using `DB_*` environment variables) without running Flyway migrations or starting the HTTP server. It removes the TOTP secret and recovery codes for the specified user, forcing re-enrollment on the next login.
+Connects to the database directly (using `DB_*` environment variables) without running Flyway migrations or starting the HTTP server. Removes the TOTP secret and recovery codes for the specified user, forcing re-enrollment on next login.
 
 | Option | Required | Description |
 |---|---|---|
 | `--username` | Yes | The username of the admin account to reset |
-
-<Aside type="caution">
-This command requires database connectivity. The `DB_URL` (or `DB_HOST` / `DB_PORT` / `DB_NAME`), `DB_USER`, and `DB_PASSWORD` environment variables must be set.
-</Aside>
 
 <Aside type="note">
 Only accounts on the master tenant can be reset via CLI. To reset MFA for users on other workspaces, use the admin console.
@@ -101,12 +97,6 @@ The `plaintext` value is what API consumers use in the `Authorization` header. T
 java -jar kauth.jar cli hash-api-key --key=kauth_my-app_sk_xxxxxxxx
 ```
 
-Output:
-
-```
-sha256: 9f86d081884c7d659a2feaa0...
-```
-
 | Option | Required | Description |
 |---|---|---|
 | `--key` | No | An existing key to hash. If omitted, generates a new key. |
@@ -116,9 +106,41 @@ This command is pure computation — it does not connect to the database.
 
 ---
 
+## `verify-audit-chain`
+
+Verifies the HMAC integrity chain of the audit log for a tenant. Each audit log row carries `prev_hash` and `row_hash` values computed via HMAC-SHA256 keyed by `KAUTH_SECRET_KEY`. This command walks the chain and reports any breaks caused by tampering, deletion, or reordering.
+
+```bash
+java -jar kauth.jar cli verify-audit-chain --tenant=my-workspace
+```
+
+| Option | Required | Description |
+|---|---|---|
+| `--tenant` | Yes | Workspace slug to verify |
+
+Output on success:
+
+```
+Audit chain for tenant 'my-workspace': 1,247 rows verified, chain intact.
+```
+
+Output on failure:
+
+```
+Audit chain for tenant 'my-workspace': BREAK at row 892.
+  Expected prev_hash: a1b2c3...
+  Actual prev_hash:   d4e5f6...
+```
+
+<Aside type="caution">
+Requires database connectivity and `KAUTH_SECRET_KEY` (the same key used when the rows were written). If the secret key has been rotated since the rows were written, the chain cannot be verified.
+</Aside>
+
+---
+
 ## `export-tenant`
 
-Exports a workspace as an encrypted archive file. The archive uses the `bkp1` envelope format with PBKDF2 (600,000 iterations) key derivation and AES-256-GCM encryption.
+Exports a workspace as an encrypted archive file. Uses PBKDF2 (600,000 iterations) key derivation and AES-256-GCM encryption in a `bkp1` envelope format.
 
 ```bash
 java -jar kauth.jar cli export-tenant \
@@ -133,11 +155,7 @@ java -jar kauth.jar cli export-tenant \
 | `--output` | Yes | Output file path |
 | `--passphrase` | Yes | Encryption passphrase |
 
-The archive contains all tenant data: users, roles, groups, applications, sessions, audit logs, attributes, claim mappers, and settings.
-
-<Aside type="caution">
-This command requires database connectivity. The `DB_URL` (or `DB_HOST` / `DB_PORT` / `DB_NAME`), `DB_USER`, and `DB_PASSWORD` environment variables must be set.
-</Aside>
+See [Backup & Restore](/deployment/backup-restore/) for archive format details, API endpoints, and schema compatibility.
 
 ---
 
@@ -160,8 +178,4 @@ java -jar kauth.jar cli import-tenant \
 Importing a tenant with a slug that already exists will fail. Delete or rename the existing workspace first.
 </Aside>
 
-<Aside type="caution">
-This command requires database connectivity. The `DB_URL` (or `DB_HOST` / `DB_PORT` / `DB_NAME`), `DB_USER`, and `DB_PASSWORD` environment variables must be set.
-</Aside>
-
-See [Backup & Restore](/deployment/backup-restore/) for full documentation on the archive format, API endpoints, and schema compatibility.
+See [Backup & Restore](/deployment/backup-restore/) for full documentation.

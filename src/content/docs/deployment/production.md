@@ -19,7 +19,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 ## Docker Compose production stack
 
-The fastest path to a production deployment is the bundled `docker/docker-compose.prod.yml`, which adds a [Caddy](https://caddyserver.com/) sidecar to the base stack. Caddy handles automatic TLS certificate provisioning and renewal via Let's Encrypt — no manual certificate management required.
+The fastest path is `docker-compose.prod.yml` at the repository root, which adds a [Caddy](https://caddyserver.com/) sidecar for automatic Let's Encrypt TLS.
 
 **Prerequisites:** a domain pointing to your server and ports 80/443 open on the host firewall.
 
@@ -28,10 +28,7 @@ The fastest path to a production deployment is the bundled `docker/docker-compos
 ```bash
 mkdir kotauth && cd kotauth
 
-curl --create-dirs -o docker/docker-compose.yml \
-  https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
-curl --create-dirs -o docker/docker-compose.prod.yml \
-  https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/inumansoul/kotauth/main/docker-compose.prod.yml
 curl --create-dirs -o docker/Caddyfile \
   https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/Caddyfile
 curl -o .env.example \
@@ -54,13 +51,21 @@ DOMAIN=auth.yourdomain.com
 ACME_EMAIL=you@yourdomain.com
 ```
 
+For managed databases (RDS, Supabase, Neon), set `DB_URL` instead of `DB_HOST`/`DB_PORT`/`DB_NAME`. See [External Databases](/deployment/external-database/).
+
 **3. Start**
 
 ```bash
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-This brings up three services: `db` (PostgreSQL with a persistent volume), `app` (Kotauth from GHCR), and `caddy` (automatic TLS). Caddy obtains the certificate on first startup — this requires port 80 to be reachable for the ACME HTTP-01 challenge.
+This brings up three services: `db` (PostgreSQL with a persistent volume), `app` (Kotauth from GHCR), and `caddy` (automatic TLS). Caddy obtains the certificate on first startup — port 80 must be reachable for the ACME HTTP-01 challenge.
+
+To also enable Redis:
+
+```bash
+docker compose -f docker-compose.prod.yml --profile redis up -d
+```
 
 <Aside type="tip">
 Block port 8080 on the host firewall after starting — only Caddy should handle inbound traffic. For example: `ufw deny 8080`.
@@ -70,7 +75,7 @@ Block port 8080 on the host firewall after starting — only Caddy should handle
 
 ## Manual reverse proxy setup
 
-If you already have a reverse proxy running on the host, skip the Caddy overlay and proxy to port 8080 directly.
+If you already have a reverse proxy, use `docker-compose.yml` (local/eval compose) and proxy to port 8080 directly. Set `KAUTH_TRUSTED_PROXY=true` and `KAUTH_ENV=production` in `.env`.
 
 ### Caddy (standalone)
 
@@ -79,8 +84,6 @@ auth.yourdomain.com {
     reverse_proxy kotauth:8080
 }
 ```
-
-That's the entire Caddyfile. Caddy provisions and renews the certificate automatically.
 
 ### nginx
 
@@ -133,14 +136,28 @@ Before starting in production, verify:
 
 ## Encryption at rest
 
-`KAUTH_SECRET_KEY` derives the AES-256-GCM key used to encrypt sensitive data stored in the database. This currently covers:
+`KAUTH_SECRET_KEY` derives the AES-256-GCM key used to encrypt sensitive data stored in the database:
 
-- **RSA private keys** — each tenant's JWT signing key is encrypted before being persisted. Existing plaintext keys are automatically migrated to encrypted form on first startup after upgrading to v1.3.0+.
-- **SMTP credentials** — passwords for workspace SMTP configurations.
-- **TOTP secrets** — MFA enrollment seeds.
-- **Social provider secrets** — Google and GitHub OAuth client secrets.
+- **RSA private keys** — each tenant's JWT signing key
+- **SMTP credentials** — workspace SMTP passwords
+- **TOTP secrets** — MFA enrollment seeds
+- **Social provider secrets** — Google and GitHub OAuth client secrets
+- **Audit log HMAC chain** — `KAUTH_SECRET_KEY` keys the HMAC-SHA256 that chains audit log rows for tamper detection
 
 If `KAUTH_SECRET_KEY` is lost, all encrypted data becomes irrecoverable. Back up this value alongside your database backups.
+
+---
+
+## File-based secrets
+
+For production deployments, avoid passing secrets as plain environment variables. Kotauth supports `*_FILE` sibling variables that read the value from a file at startup:
+
+```dotenv
+KAUTH_SECRET_KEY_FILE=/run/secrets/kauth_secret_key
+DB_PASSWORD_FILE=/run/secrets/db_password
+```
+
+Compatible with Docker Swarm secrets, Kubernetes mounted secrets, and systemd `LoadCredential=`. See [Docker](/deployment/docker/#file-based-secrets) for a compose example.
 
 ---
 
@@ -166,17 +183,11 @@ docker run -d \
 
 ---
 
-## HTTP compression and caching
-
-Kotauth enables gzip and deflate compression on all HTTP responses. Static assets (CSS bundles, JavaScript, Swagger UI files) are served with long-lived `Cache-Control` headers. No additional reverse proxy configuration is needed for compression — Ktor handles it at the application level.
-
----
-
 ## Security configuration
 
-**Set the admin password.** As of v1.14.1, there are no hardcoded default credentials. Set `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` in your environment before first boot — minimum 12 characters with uppercase, lowercase, and a digit. If unset, a random password is generated and printed to stdout once. See [Environment Variables](/deployment/environment-variables/) for details.
+**Set the admin password.** As of v1.14.1, there are no hardcoded default credentials. Set `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` in your environment before first boot — minimum 12 characters with uppercase, lowercase, and a digit. If unset, a random password is generated and printed to stdout once.
 
-**Enable trusted proxy.** If Kotauth runs behind a reverse proxy, set `KAUTH_TRUSTED_PROXY=true` so rate limiting uses the real client IP from `X-Forwarded-For`. Leave it `false` when Kotauth is directly exposed to prevent header spoofing.
+**Enable trusted proxy.** If Kotauth runs behind a reverse proxy, set `KAUTH_TRUSTED_PROXY=true` so rate limiting uses the real client IP from `X-Forwarded-For`. Leave it `false` when directly exposed.
 
 **Configure SMTP.** Required for email verification, password resets, magic links, Email OTP, and user invitations. Set this up under **Settings → SMTP** in each workspace.
 
@@ -184,9 +195,7 @@ Kotauth enables gzip and deflate compression on all HTTP responses. Static asset
 
 **Set the MFA policy.** Decide whether MFA should be `optional`, `required`, or `required_for_admins`. For sensitive workspaces, `required` is the safe default.
 
-**Create workspaces with meaningful slugs.** The workspace slug appears in every URL and cannot be changed after creation. Choose something permanent (e.g. `my-product`, not `test-1`).
-
-**Provision API keys via environment.** For automated deployments, use `KAUTH_BOOTSTRAP_API_KEYS` to create API keys idempotently on startup. See [Environment Variables](/deployment/environment-variables/) and `hash-api-key` in [CLI Commands](/deployment/cli/).
+**Provision API keys via environment.** For automated deployments, use `KAUTH_BOOTSTRAP_API_KEYS` to create API keys idempotently on startup. See [Environment Variables](/deployment/environment-variables/) and [CLI Commands](/deployment/cli/).
 
 ---
 
@@ -195,24 +204,23 @@ Kotauth enables gzip and deflate compression on all HTTP responses. Static asset
 Kotauth uses Flyway for schema migrations. Upgrades are handled automatically on startup — pull the new image and restart:
 
 ```bash
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml pull
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 Flyway runs any pending migrations before the server begins accepting traffic. Always back up the database before upgrading between major versions.
 
-To pin to a specific version rather than tracking `latest`, edit `docker/docker-compose.yml`:
+To pin to a specific version, edit the `image` tag in your compose file:
 
 ```yaml
-# change:
-image: ghcr.io/inumansoul/kotauth:latest
-# to:
-image: ghcr.io/inumansoul/kotauth:1.0.1
+image: ghcr.io/inumansoul/kotauth:1.19.2
 ```
 
 ---
 
-## Database backup
+## Backups
+
+### Database-level backup
 
 Kotauth's entire state lives in PostgreSQL. Back up regularly using standard PostgreSQL tools:
 
@@ -224,13 +232,21 @@ docker exec kotauth-db pg_dump -U kotauth kotauth_db > backup_$(date +%Y%m%d).sq
 pg_dump -h your-db-host -U kotauth kotauth_db > backup_$(date +%Y%m%d).sql
 ```
 
-Restore:
+### Tenant-level backup
+
+Kotauth also provides encrypted tenant snapshots via the CLI and admin API. These use PBKDF2 + AES-256-GCM and are portable across Kotauth instances. See [Backup & Restore](/deployment/backup-restore/) for full documentation.
+
+---
+
+## Audit log integrity
+
+The audit log uses an HMAC chain for tamper detection. Each row carries `prev_hash` and `row_hash` computed via HMAC-SHA256 keyed by `KAUTH_SECRET_KEY`. Verify the chain at any time:
 
 ```bash
-cat backup_20260101.sql | docker exec -i kotauth-db psql -U kotauth -d kotauth_db
+docker compose exec kauth java -jar kauth.jar cli verify-audit-chain --tenant=my-workspace
 ```
 
-There is no Kotauth-specific backup procedure — standard PostgreSQL backup and restore works fully.
+See [CLI Commands](/deployment/cli/) for details.
 
 ---
 

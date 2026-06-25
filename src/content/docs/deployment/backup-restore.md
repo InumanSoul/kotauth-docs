@@ -34,9 +34,9 @@ Key derivation uses PBKDF2 with 600,000 iterations and the user-provided passphr
 Archive files are encrypted at rest, but you should still store them in a secure location. The passphrase is the only barrier to decryption — use a strong, unique passphrase and store it in a secrets manager.
 </Aside>
 
-## CLI commands
+## CLI usage
 
-### Export a tenant
+Export a workspace:
 
 ```bash
 java -jar kauth.jar cli export-tenant \
@@ -44,12 +44,6 @@ java -jar kauth.jar cli export-tenant \
   --output=/backups/my-workspace-2026-05-01.bkp1 \
   --passphrase="your-strong-passphrase"
 ```
-
-| Option | Required | Description |
-|---|---|---|
-| `--slug` | Yes | Workspace slug to export |
-| `--output` | Yes | Output file path |
-| `--passphrase` | Yes | Encryption passphrase |
 
 With Docker Compose:
 
@@ -60,7 +54,7 @@ docker compose exec kauth java -jar kauth.jar cli export-tenant \
   --passphrase="your-strong-passphrase"
 ```
 
-### Import a tenant
+Import a workspace:
 
 ```bash
 java -jar kauth.jar cli import-tenant \
@@ -68,18 +62,7 @@ java -jar kauth.jar cli import-tenant \
   --passphrase="your-strong-passphrase"
 ```
 
-| Option | Required | Description |
-|---|---|---|
-| `--input` | Yes | Archive file path |
-| `--passphrase` | Yes | Decryption passphrase |
-
-<Aside type="note">
-Import validates schema-version compatibility before applying any data. If the archive was exported from a newer version of Kotauth with schema changes not present in the target instance, the import will fail with a descriptive error.
-</Aside>
-
-<Aside type="caution">
-Importing a tenant with a slug that already exists will fail. Delete or rename the existing workspace first.
-</Aside>
+See [CLI Commands](/deployment/cli/) for full option reference.
 
 ## Admin API
 
@@ -121,9 +104,3 @@ Each archive records the database schema version at the time of export. On impor
 | Same schema version | Import succeeds |
 | Target is newer (has more migrations) | Import succeeds — additional columns use defaults |
 | Target is older (missing migrations) | Import fails with schema mismatch error |
-
-## Next steps
-
-- [CLI Commands](/deployment/cli/) — all available CLI subcommands
-- [Production Checklist](/deployment/production/) — deployment hardening
-- [Environment Variables](/deployment/environment-variables/) — full configuration reference

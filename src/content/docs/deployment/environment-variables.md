@@ -51,7 +51,7 @@ KAUTH_ENV=production
 
 **Required.**
 
-A 32+ character hex string used for AES-256-GCM encryption (SMTP passwords, RSA private keys at rest) and HMAC-SHA256 signing of short-lived cookies (MFA pending, PKCE verifier, portal session).
+A 32+ character hex string used for AES-256-GCM encryption (SMTP passwords, RSA private keys at rest), HMAC-SHA256 signing of short-lived cookies (MFA pending, PKCE verifier, portal session), and HMAC-SHA256 keying of the audit log integrity chain.
 
 ```bash
 # Generate a key:
@@ -65,12 +65,14 @@ openssl rand -hex 32
 KAUTH_SECRET_KEY=<paste output here>
 ```
 
+Supports file-based injection via `KAUTH_SECRET_KEY_FILE`. See [File-based secrets](#file-based-secrets) below.
+
 <Aside type="danger">
 The server will not start without this key. There is no fallback in any environment.
 </Aside>
 
 <Aside type="danger">
-If this key is rotated or lost: all encrypted data (SMTP passwords, RSA private keys) must be re-provisioned and all active sessions will be invalidated. Store it securely alongside your database credentials.
+If this key is rotated or lost: all encrypted data (SMTP passwords, RSA private keys) must be re-provisioned, all active sessions will be invalidated, and the audit log HMAC chain cannot be verified for rows written with the old key. Store it securely alongside your database credentials.
 </Aside>
 
 ---
@@ -332,6 +334,20 @@ KAUTH_REDIS_KEY_PREFIX=kotauth:
 
 ---
 
+### `KAUTH_REDIS_PASSWORD`
+
+**Optional.**
+
+Redis authentication password. Used when the Redis instance requires authentication and you prefer to set the password separately rather than embedding it in `KAUTH_REDIS_URL`.
+
+```
+KAUTH_REDIS_PASSWORD=your-redis-password
+```
+
+Supports file-based injection via `KAUTH_REDIS_PASSWORD_FILE`. See [File-based secrets](#file-based-secrets) below.
+
+---
+
 ## Internationalization
 
 ### `KAUTH_I18N_BUNDLE_DIR`
@@ -366,7 +382,7 @@ KAUTH_UPDATE_CHECK=false
 
 **Optional.**
 
-Override the default version manifest URL. Useful for private registries or internal update servers.
+Override the default version manifest URL. Useful for private registries or internal update servers. Must use `https://` — the server refuses to start if an HTTP URL is provided. The HTTP client follows zero redirects, and `releaseUrl` values from the manifest are restricted to `https://` schemes.
 
 ```
 KAUTH_UPDATE_CHECK_URL=https://internal.example.com/kotauth/versions.json
@@ -374,9 +390,25 @@ KAUTH_UPDATE_CHECK_URL=https://internal.example.com/kotauth/versions.json
 
 ---
 
+## File-based secrets
+
+Sensitive environment variables accept a `*_FILE` sibling that reads the value from a filesystem path at startup. The file contents are read and trimmed. When both `<NAME>` and `<NAME>_FILE` are set, the file value takes precedence.
+
+| Variable | `_FILE` sibling |
+|---|---|
+| `KAUTH_SECRET_KEY` | `KAUTH_SECRET_KEY_FILE` |
+| `DB_PASSWORD` | `DB_PASSWORD_FILE` |
+| `KAUTH_REDIS_PASSWORD` | `KAUTH_REDIS_PASSWORD_FILE` |
+| `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` | `KAUTH_BOOTSTRAP_ADMIN_PASSWORD_FILE` |
+| `KAUTH_BOOTSTRAP_API_KEYS` | `KAUTH_BOOTSTRAP_API_KEYS_FILE` |
+
+Compatible with Docker Swarm secrets, Kubernetes mounted secrets, and systemd `LoadCredential=`. See [Docker — File-based secrets](/deployment/docker/#file-based-secrets) for a compose example.
+
+---
+
 ## Docker production stack
 
-These variables are only used when running `docker/docker-compose.prod.yml` (the Caddy TLS overlay). They are not read by Kotauth itself.
+These variables are only used when running `docker-compose.prod.yml` (the Caddy TLS production compose). They are not read by Kotauth itself.
 
 ### `DOMAIN`
 

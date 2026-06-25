@@ -30,55 +30,43 @@ docker pull ghcr.io/inumansoul/kotauth:latest
 
 ## Docker Compose
 
-The repository ships three compose files inside the `docker/` folder, each covering a different use case.
+The repository ships two compose files at the project root.
 
-### Pre-built image (recommended)
+### `docker-compose.yml` — Local and evaluation
 
-`docker/docker-compose.yml` — uses the GHCR image, no build step. This is the recommended path for running Kotauth without cloning the repo.
-
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
-
-The compose file pulls `ghcr.io/inumansoul/kotauth:latest`, starts PostgreSQL 15, and wires them together. All configuration comes from `.env` at the project root.
-
-### Build from source
-
-`docker/docker-compose.dev.yml` — builds the image from the local `Dockerfile`. Used by contributors and anyone iterating on the source code.
+Bundles PostgreSQL, builds from source via `--build`, and optionally starts Redis behind `--profile redis`. Used by `make up` and for local evaluation.
 
 ```bash
-# via Makefile (recommended)
+# Pull the pre-built image and start
+docker compose up -d
+
+# Or build from source (contributors)
 make up
-
-# or directly
-docker compose -f docker/docker-compose.dev.yml up -d --build
 ```
 
-The build context is the repo root, so Gradle and Node.js have access to the full source tree.
-
-### External database (bring your own)
-
-`docker/docker-compose.external-db.yml` — runs only the Kotauth container, no bundled PostgreSQL. Use this when connecting to a managed provider (RDS, Supabase, Neon) or any existing PostgreSQL instance.
+Redis for distributed sessions and rate limiting:
 
 ```bash
-docker compose -f docker/docker-compose.external-db.yml up -d
+docker compose --profile redis up -d
 ```
 
-Requires `DB_URL`, `DB_USER`, and `DB_PASSWORD` in `.env`. See [External Databases](/deployment/external-database/) for provider-specific connection strings.
+### `docker-compose.prod.yml` — Production with Caddy TLS
 
-### Production with Caddy TLS
-
-`docker/docker-compose.prod.yml` — an overlay that adds a Caddy sidecar for automatic Let's Encrypt TLS. Stack on top of either the pre-built or external-db compose file:
+Adds a [Caddy](https://caddyserver.com/) sidecar for automatic Let's Encrypt TLS. `KAUTH_TRUSTED_PROXY=true` is baked in. Same `--profile redis` option.
 
 ```bash
-# With bundled database
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
-
-# With external database
-docker compose -f docker/docker-compose.external-db.yml -f docker/docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 See [Production Checklist](/deployment/production/) for the full setup.
+
+### Using an external database
+
+Both compose files bundle a PostgreSQL service. To connect to a managed database instead (RDS, Supabase, Neon), set `DB_URL` in your `.env` file — the bundled `db` service runs idle or can be removed by hand. See [External Databases](/deployment/external-database/).
+
+### Demo mode
+
+Set `KAUTH_DEMO_MODE=true` in `.env` to seed two pre-configured workspaces with users, roles, and applications on startup. A credential banner renders on all pages.
 
 ---
 
@@ -144,6 +132,31 @@ healthcheck:
 
 ---
 
+## File-based secrets
+
+Sensitive environment variables accept a `*_FILE` sibling that reads the value from a file at startup. This is the recommended approach for Docker Swarm secrets, Kubernetes mounted secrets, and systemd `LoadCredential=`.
+
+Supported variables: `KAUTH_SECRET_KEY`, `DB_PASSWORD`, `KAUTH_REDIS_PASSWORD`, `KAUTH_BOOTSTRAP_ADMIN_PASSWORD`, `KAUTH_BOOTSTRAP_API_KEYS`.
+
+```yaml
+# Docker Swarm example
+services:
+  kauth:
+    image: ghcr.io/inumansoul/kotauth:latest
+    environment:
+      KAUTH_SECRET_KEY_FILE: /run/secrets/kauth_secret_key
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - kauth_secret_key
+      - db_password
+```
+
+When both `<NAME>` and `<NAME>_FILE` are set, the file value takes precedence.
+
+See [Environment Variables](/deployment/environment-variables/) for the full list.
+
+---
+
 ## Kubernetes deployment
 
 A minimal Kubernetes deployment:
@@ -203,5 +216,5 @@ spec:
 ```
 
 <Aside type="note">
-Kotauth does not currently support horizontal scaling with session stickiness. Rate limiting is in-memory per instance. If you run multiple replicas, use a reverse proxy with session affinity or accept that rate limits apply per-instance rather than globally.
+For multi-replica deployments, enable Redis (`KAUTH_REDIS_URL`) for shared sessions and global rate limiting. Without Redis, sessions and rate-limit counters are per-instance. See [Redis](/deployment/redis/).
 </Aside>

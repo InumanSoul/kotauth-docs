@@ -14,31 +14,14 @@ You need **Docker** and **Docker Compose**. Nothing else. No JDK, no database cl
 
 No repo clone required. Pull the image directly from GitHub Container Registry.
 
-#### Option A: Zero-config quickstart (fastest)
-
-One command, demo data pre-loaded — ideal for a first look.
-
-```bash
-curl -O https://raw.githubusercontent.com/inumansoul/kotauth/main/docker-compose.quickstart.yml
-docker compose -f docker-compose.quickstart.yml up -d
-```
-
-Open **http://localhost:8080/admin** — two demo workspaces are ready with users, roles, and applications. Credentials are shown in the banner.
-
-When you're ready to configure your own instance, use Option B below.
-
-#### Option B: Configure your own instance
-
 <Steps>
 
 1. **Grab the compose file and env template**
 
    ```bash
    mkdir kotauth && cd kotauth
-   curl --create-dirs -o docker/docker-compose.yml \
-     https://raw.githubusercontent.com/inumansoul/kotauth/main/docker/docker-compose.yml
-   curl -o .env.example \
-     https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
+   curl -O https://raw.githubusercontent.com/inumansoul/kotauth/main/docker-compose.yml
+   curl -O https://raw.githubusercontent.com/inumansoul/kotauth/main/.env.example
    cp .env.example .env
    ```
 
@@ -59,10 +42,16 @@ When you're ready to configure your own instance, use Option B below.
 3. **Start the stack**
 
    ```bash
-   docker compose -f docker/docker-compose.yml up -d
+   docker compose up -d
    ```
 
    Kotauth pulls from GHCR and starts on port `8080`. PostgreSQL is bundled — no external database needed. Flyway runs all migrations automatically on first boot.
+
+   To also start Redis for distributed sessions and rate limiting:
+
+   ```bash
+   docker compose --profile redis up -d
+   ```
 
 4. **Open the admin console**
 
@@ -73,7 +62,7 @@ When you're ready to configure your own instance, use Option B below.
    On first run, master workspace admin credentials are printed to the startup log. Find them with:
 
    ```bash
-   docker compose -f docker/docker-compose.yml logs kotauth | grep "Admin credentials"
+   docker compose logs kotauth | grep "Admin credentials"
    ```
 
    <Aside type="caution">Change the master workspace admin password immediately after first login.</Aside>
@@ -126,7 +115,7 @@ For contributors or anyone iterating on the source code.
    make up
    ```
 
-   This builds the image from the local Dockerfile via `docker/docker-compose.dev.yml` and starts the full stack. Flyway runs all migrations on first boot.
+   This builds the image from the local Dockerfile via `docker-compose.yml` and starts the full stack. Flyway runs all migrations on first boot.
 
    Run `make help` to see all available developer targets. The most useful ones:
 
@@ -151,7 +140,7 @@ For contributors or anyone iterating on the source code.
    Find your initial admin credentials:
 
    ```bash
-   docker compose -f docker/docker-compose.dev.yml logs kotauth | grep "Admin credentials"
+   docker compose logs kotauth | grep "Admin credentials"
    ```
 
    <Aside type="caution">Change the master workspace admin password immediately after first login.</Aside>
