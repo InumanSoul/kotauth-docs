@@ -3,45 +3,25 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
 
-
-// https://astro.build/config
 export default defineConfig({
 	site: 'https://docs.kotauth.com',
 	output: 'static',
 	integrations: [
 		mermaid({
-			theme: 'dark',
-			autoTheme: false,
+			theme: 'default',
+			autoTheme: true,
 			mermaidConfig: {
 				themeVariables: {
 					primaryColor: '#0077A8',
-					primaryTextColor: '#F0F4F8',
-					primaryBorderColor: '#1C2733',
+					primaryTextColor: '#FFFFFF',
+					primaryBorderColor: '#005A80',
+					secondaryColor: '#0090CB',
+					tertiaryColor: '#58D2FF',
 					lineColor: '#64748B',
-					secondaryColor: '#111820',
-					tertiaryColor: '#0D131A',
-					background: '#0A0F14',
-					mainBkg: '#0D131A',
-					nodeBorder: '#1C2733',
-					clusterBkg: '#111820',
-					clusterBorder: '#1C2733',
-					titleColor: '#F0F4F8',
-					edgeLabelBackground: '#0D131A',
-					actorBkg: '#0D131A',
 					actorBorder: '#0077A8',
-					actorTextColor: '#F0F4F8',
-					actorLineColor: '#64748B',
-					signalColor: '#F0F4F8',
-					signalTextColor: '#F0F4F8',
-					labelBoxBkgColor: '#0D131A',
-					labelBoxBorderColor: '#1C2733',
-					labelTextColor: '#F0F4F8',
-					loopTextColor: '#94A3B8',
 					activationBorderColor: '#0077A8',
-					activationBkgColor: '#003d5c',
-					sequenceNumberColor: '#F0F4F8',
 				},
-				fontFamily: "'Inconsolata', monospace",
+				fontFamily: "'JetBrains Mono', monospace",
 				sequence: { mirrorActors: false },
 			},
 		}),
@@ -49,14 +29,11 @@ export default defineConfig({
 			title: 'Kotauth',
 			description: 'Identity infrastructure for modern applications. Self-hosted, container-native, developer-first.',
 			logo: {
-				src: './src/assets/kotauth-negative.svg',
+				light: './src/assets/kotauth-brand.svg',
+				dark: './src/assets/kotauth-negative.svg',
 				replacesTitle: true,
 			},
 			favicon: '/favicon.svg',
-			components: {
-				ThemeSelect: './src/components/EmptyThemeSelect.astro',
-				Head: './src/components/Head.astro',
-			},
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/inumansoul/kotauth' },
 			],
