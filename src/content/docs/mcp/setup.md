@@ -14,20 +14,14 @@ Before connecting the MCP server, you need three things from your Kotauth instan
 3. **API key** — a key with the scopes required for the tools you want to use
 
 ### Creating an API key
-
-<Steps>
-
 1. Open the admin console at `{baseUrl}/admin`
 2. Navigate to the workspace you want to manage
 3. Go to **Settings → API Keys**
 4. Click **Create API Key** and select the scopes you need
 5. Copy the key — it is shown exactly once
-
-</Steps>
-
-<Aside type="caution">
+:::caution
 Store your API key in a secrets manager or environment variable. If you lose it, delete it and create a new one.
-</Aside>
+:::
 
 See the [scopes reference](#scope-reference) below for which scopes each tool requires.
 
@@ -130,9 +124,9 @@ The MCP server enforces the same scope model as the REST API. Each tool requires
 | `list_claim_mappers` | `claim_mappers:read` |
 | `set_claim_mapper`, `delete_claim_mapper` | `claim_mappers:write` |
 
-<Aside type="tip">
+:::tip
 For a read-only reporting key, select only the `:read` scopes. For a full administration key, select all scopes. Always follow the principle of least privilege.
-</Aside>
+:::
 
 ## Verifying the connection
 

@@ -5,8 +5,6 @@ sidebar:
   order: 9
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Custom JWT claims let you embed per-user metadata directly into access and ID tokens. Instead of making a separate API call to look up a user's billing plan, department, or feature flags, consuming services can read the value straight from the token payload.
 
 The feature has two parts: **user attributes** (per-user key-value metadata) and **claim mappers** (tenant-level rules that project attributes into tokens).
@@ -18,9 +16,9 @@ The feature has two parts: **user attributes** (per-user key-value metadata) and
 3. When Kotauth issues a token for that user, it loads all attributes, applies the matching mappers, and stamps the resulting claims into the JWT payload.
 4. Consuming services read `billing_plan: "enterprise"` from the token without any additional API calls.
 
-<Aside type="caution">
-  Attribute values flow **unencrypted** into JWTs. JWTs are base64-encoded (not encrypted) and readable by anyone holding the token. Do not store sensitive PII (Social Security numbers, medical data, financial account numbers) in user attributes that are mapped to claims.
-</Aside>
+:::caution
+Attribute values flow **unencrypted** into JWTs. JWTs are base64-encoded (not encrypted) and readable by anyone holding the token. Do not store sensitive PII (Social Security numbers, medical data, financial account numbers) in user attributes that are mapped to claims.
+:::
 
 ## User attributes
 

@@ -5,8 +5,6 @@ sidebar:
   order: 2
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Email and password authentication is the baseline login method in every Kotauth workspace. Users submit credentials to Kotauth's hosted login page — your application never receives or handles passwords directly.
 
 ## How it works
@@ -52,17 +50,17 @@ When an account is locked:
 - Admins can manually unlock accounts from the user detail page in the admin console. This records an `ACCOUNT_UNLOCKED` audit event.
 - The failed attempt counter resets on a successful login.
 
-<Aside type="tip">
+:::tip
 Account lockout works alongside rate limiting — rate limiting protects against high-volume attacks from a single IP, while lockout protects individual accounts regardless of the attacker's IP.
-</Aside>
+:::
 
 ## Rate limiting
 
 Login attempts are rate-limited at **5 attempts per minute per IP address** per workspace. After exceeding the limit, further attempts return `429 Too Many Requests` until the window resets.
 
-<Aside type="caution">
+:::caution
 Rate limiting is in-memory per instance. If you run multiple Kotauth replicas behind a load balancer, each instance maintains its own counter. Consider a reverse proxy with shared rate limiting for high-availability deployments.
-</Aside>
+:::
 
 ## Password reset
 

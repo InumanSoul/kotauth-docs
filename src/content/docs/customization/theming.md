@@ -7,9 +7,9 @@ sidebar:
 
 Kotauth's auth pages — login, registration, password reset, and MFA screens — are fully themeable per workspace. You can apply custom brand colors, adjust border radius, and supply your own logo and favicon, all without touching any code.
 
-<Aside type="note">
+:::note
 Theming applies **only to the auth pages** (the screens users see when logging in). The admin console uses a fixed dark theme and is not affected by workspace theme settings.
-</Aside>
+:::
 
 ## How theming works
 
@@ -17,9 +17,9 @@ Each workspace stores a `TenantTheme` configuration. When Kotauth renders an aut
 
 This means theme changes take effect on the next page load — no rebuild, no redeployment.
 
-<Aside type="note">
+:::note
 Because theme tokens are injected as an inline `<style>` block, Kotauth's Content-Security-Policy includes `'unsafe-inline'` in `style-src`. This is scoped to styles only — `script-src` is strictly `'self'` with no inline JavaScript permitted anywhere. All event handlers use delegated listeners and all JS is bundled with SRI integrity hashes.
-</Aside>
+:::
 
 ## Configuring the theme
 
@@ -93,9 +93,9 @@ These are the tokens you can configure. All of them map to CSS custom properties
 | `textMuted` | `--color-muted` | Secondary text, labels, hints |
 | `borderRadius` | `--radius` | Corner radius applied to cards and inputs |
 
-<Aside type="caution">
+:::caution
 Functional colors — error states (red), success states (green), warning states (amber) — are fixed in the base stylesheet and are not configurable. This ensures accessibility contrast requirements are always met regardless of theme.
-</Aside>
+:::
 
 ## Logo and favicon
 

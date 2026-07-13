@@ -5,8 +5,6 @@ sidebar:
   order: 4
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
-
 By default, Kotauth's Docker Compose stack starts a bundled PostgreSQL 15 container. For production deployments, you'll often want to connect to a managed database service instead — RDS, Supabase, Neon, Railway, Render, or your own self-managed PostgreSQL server.
 
 Kotauth connects to PostgreSQL via a standard JDBC URL. All connection configuration is done through environment variables — no code changes required.
@@ -64,9 +62,9 @@ docker compose up -d
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-<Aside type="tip">
+:::tip
 For production with file-based secrets, use `DB_PASSWORD_FILE` instead of `DB_PASSWORD`. See [Docker — File-based secrets](/deployment/docker/#file-based-secrets).
-</Aside>
+:::
 
 ---
 
@@ -120,9 +118,9 @@ DB_USER=postgres.your-project-ref
 DB_PASSWORD=your-password
 ```
 
-<Aside type="caution">
+:::caution
 The username for Supabase's pooler includes the project reference as a prefix: `postgres.your-project-ref`. Use this exact format or connections will be rejected.
-</Aside>
+:::
 
 </TabItem>
 <TabItem label="Neon">
@@ -229,9 +227,9 @@ For the audit log, consider a separate maintenance role with `UPDATE`/`DELETE` o
 
 ## PgBouncer compatibility
 
-<Aside type="caution">
+:::caution
 PgBouncer in **transaction pooling** mode is incompatible with Flyway migrations. Flyway uses `SET` commands and advisory locks that require a persistent session. Use **session pooling** mode, or connect directly to PostgreSQL for the initial migration run.
-</Aside>
+:::
 
 If your infrastructure uses PgBouncer in session pooling mode, it works transparently:
 

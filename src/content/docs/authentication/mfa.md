@@ -5,8 +5,6 @@ sidebar:
   order: 6
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Kotauth implements Time-based One-Time Password (TOTP) MFA per RFC 6238. Users enroll using any standard authenticator app (Google Authenticator, Authy, 1Password, etc.) and are prompted for a 6-digit code on subsequent logins.
 
 ## MFA policies
@@ -31,9 +29,9 @@ Users enroll through the self-service portal at `/t/{slug}/account/mfa`.
 4. The user enters the 6-digit code to confirm enrollment
 5. Kotauth displays **8 one-time recovery codes** — the user must save these
 
-<Aside type="caution">
+:::caution
 Recovery codes are shown exactly once. They are stored as irreversible hashes. Losing all recovery codes and the authenticator device locks the user out — an admin must manually reset MFA from the admin console.
-</Aside>
+:::
 
 ## Login flow with MFA
 

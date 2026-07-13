@@ -40,9 +40,9 @@ graph LR
 
 The MCP server runs as a local process on your machine. It communicates with the AI assistant over stdio (standard input/output) and with your Kotauth instance over HTTP using a scoped API key. No data flows through third-party servers — the MCP server talks directly to your Kotauth deployment.
 
-<Aside type="tip">
+:::tip
 The MCP server is a thin wrapper around the REST API. Every operation it performs could be done with `curl` — MCP just removes the need to remember endpoints, parameters, and authentication headers.
-</Aside>
+:::
 
 ## Requirements
 

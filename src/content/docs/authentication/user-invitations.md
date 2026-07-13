@@ -5,13 +5,11 @@ sidebar:
   order: 8
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 User invitations let admins onboard new users without setting passwords on their behalf. Instead of creating a user with a pre-set password, the admin triggers a branded invite email that contains a secure activation link. The invited user clicks the link, sets their own password, and their account becomes active.
 
-<Aside type="note">
-  Invite emails require SMTP to be configured for the workspace. If SMTP is not set up, the admin console disables the invite option and shows a prompt to configure it under **Settings > SMTP**.
-</Aside>
+:::note
+Invite emails require SMTP to be configured for the workspace. If SMTP is not set up, the admin console disables the invite option and shows a prompt to configure it under **Settings > SMTP**.
+:::
 
 ## How it works
 

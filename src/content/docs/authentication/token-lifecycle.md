@@ -5,8 +5,6 @@ sidebar:
   order: 7
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Understanding how tokens work in Kotauth prevents a class of subtle integration bugs and security issues. This page covers what each token is, how long it lives, and what happens when it's rotated or revoked.
 
 ## Token types
@@ -74,11 +72,11 @@ sequenceDiagram
     K-->>C: 401 Unauthorized
 ```
 
-<Aside type="caution">
+:::caution
 If a refresh token is used after rotation, Kotauth treats this as a token theft signal and **revokes every session for the user** — not just the compromised session. All active refresh tokens across all devices stop working immediately. A `refresh_token_replay_detected` audit event is recorded. The user must re-authenticate on every device.
 
 This means your application must never use a refresh token more than once and must never allow concurrent refresh attempts for the same token.
-</Aside>
+:::
 
 ### Confidential client authentication
 

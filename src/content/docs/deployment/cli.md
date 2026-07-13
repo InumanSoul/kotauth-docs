@@ -5,8 +5,6 @@ sidebar:
   order: 5
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Kotauth includes CLI subcommands accessible via `java -jar kauth.jar cli <command>`. These tools handle operations that should not require a running HTTP server or browser session.
 
 ## Usage
@@ -46,9 +44,9 @@ a1b2c3d4e5f6...  # 64-character hex string
 
 This command is pure cryptography — it does not connect to the database or require any environment variables.
 
-<Aside type="tip">
+:::tip
 You can also generate a key with `openssl rand -hex 32`, but the built-in command ensures the output meets Kotauth's requirements.
-</Aside>
+:::
 
 ---
 
@@ -66,9 +64,29 @@ Connects to the database directly (using `DB_*` environment variables) without r
 |---|---|---|
 | `--username` | Yes | The username of the admin account to reset |
 
-<Aside type="note">
+:::note
 Only accounts on the master tenant can be reset via CLI. To reset MFA for users on other workspaces, use the admin console.
-</Aside>
+:::
+
+---
+
+## `reset-admin-passkeys`
+
+Deletes all passkey (WebAuthn) credentials for a user on the master tenant. This is the recovery path when an admin has lost access to all enrolled authenticators and cannot sign in with a passkey.
+
+```bash
+java -jar kauth.jar cli reset-admin-passkeys --username=admin
+```
+
+Connects to the database directly. Removes all `webauthn_credentials` rows for the specified user, allowing them to re-enroll passkeys on their next login.
+
+| Option | Required | Description |
+|---|---|---|
+| `--username` | Yes | The username of the admin account to reset |
+
+:::note
+This command is separate from `reset-admin-mfa` — passkeys and TOTP are independent mechanisms. If an admin needs both reset, run both commands.
+:::
 
 ---
 
@@ -132,9 +150,9 @@ Audit chain for tenant 'my-workspace': BREAK at row 892.
   Actual prev_hash:   d4e5f6...
 ```
 
-<Aside type="caution">
+:::caution
 Requires database connectivity and `KAUTH_SECRET_KEY` (the same key used when the rows were written). If the secret key has been rotated since the rows were written, the chain cannot be verified.
-</Aside>
+:::
 
 ---
 
@@ -174,8 +192,8 @@ java -jar kauth.jar cli import-tenant \
 | `--input` | Yes | Archive file path |
 | `--passphrase` | Yes | Decryption passphrase |
 
-<Aside type="caution">
+:::caution
 Importing a tenant with a slug that already exists will fail. Delete or rename the existing workspace first.
-</Aside>
+:::
 
 See [Backup & Restore](/deployment/backup-restore/) for full documentation.

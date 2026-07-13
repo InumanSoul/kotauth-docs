@@ -1,0 +1,165 @@
+---
+title: Passkeys & WebAuthn
+description: Passwordless sign-in via biometrics or hardware keys, with per-credential replay defense and MFA-equivalent security.
+sidebar:
+  order: 4
+---
+
+Kotauth supports passkeys — the FIDO2/WebAuthn standard for passwordless sign-in. Users authenticate with device biometrics (Face ID, Windows Hello, fingerprint) or hardware security keys (YubiKey) instead of entering a password. Passkeys are phishing-resistant, replay-protected, and inherently multi-factor when user verification is present.
+
+## How it works
+1. The user clicks **Sign in with a passkey** on the login page
+2. Kotauth sends a WebAuthn challenge to the browser (no username required — discoverable credentials)
+3. The browser prompts the user to verify with biometrics, PIN, or hardware key
+4. The authenticator signs the challenge with its private key and returns the assertion
+5. Kotauth verifies the signature, checks the sign counter, and creates a session with `mfaCompleted=true`
+Passkeys are a **sibling sign-in method** to passwords, not an MFA mechanism. A user can hold a password, TOTP enrollment, and multiple passkeys simultaneously. Signing in with a passkey completes the full authentication flow in one step — no separate MFA challenge.
+
+## Enrollment
+
+Users enroll passkeys from the portal under **Security → Passkeys**. Each credential receives a user-chosen name (e.g. "MacBook Pro", "YubiKey"), which defaults to "Passkey" if left blank.
+
+Kotauth uses discoverable credentials (`ResidentKeyRequirement.REQUIRED`), so the private key is stored on the authenticator. This enables usernameless sign-in — the user does not need to enter an email address.
+
+### Enrollment API
+
+```
+POST /t/{slug}/passkeys/register/start
+```
+
+Returns `PublicKeyCredentialCreationOptions` JSON and sets a signed `KOTAUTH_PASSKEY_REG` cookie (5-minute TTL, HttpOnly, SameSite=Strict) containing the challenge.
+
+```
+POST /t/{slug}/passkeys/register/finish
+Content-Type: application/json
+
+{
+  "credential": "...base64url credential response...",
+  "name": "My Laptop"
+}
+```
+
+Returns `201` with the new credential's `id` and `name`. The name is trimmed to 64 characters.
+
+## Authentication
+
+Two endpoints handle the WebAuthn authentication ceremony:
+
+```
+POST /t/{slug}/passkeys/authenticate/start
+```
+
+Returns `PublicKeyCredentialRequestOptions` JSON with no `allowCredentials` (discoverable flow). Sets a signed `KOTAUTH_PASSKEY_AUTH` cookie (5-minute TTL).
+
+```
+POST /t/{slug}/passkeys/authenticate/finish
+Content-Type: application/json
+
+{
+  "credential": "...base64url assertion response..."
+}
+```
+
+Rate limited to 10 attempts per 60 seconds per IP. On success within an OAuth flow, returns `{ "redirect_url": "..." }`. On success outside OAuth, returns `{ "message": "...", "user_id": ... }`.
+
+## MFA bypass
+
+When the authenticator performs user verification (biometrics or PIN), the resulting session is created with `mfaCompleted=true`. This means passkey sign-in satisfies MFA requirements regardless of the workspace's MFA policy — the user is not prompted for a separate TOTP challenge.
+
+:::note
+Legacy U2F-only hardware keys that do not support user verification (no PIN or biometric) return `userVerified=false`. Users with these keys will still be prompted for TOTP if the workspace requires MFA.
+:::
+
+## Replay defense
+
+Each passkey credential carries a monotonically increasing sign counter. On every authentication, Kotauth checks that the new counter value is strictly greater than the stored value.
+
+If the counter is equal to or less than the stored value (indicating a cloned authenticator), the credential is **automatically revoked** and a `PASSKEY_REPLAY_REJECTED` audit event is emitted. The authentication attempt fails.
+
+## Managing passkeys
+
+### User self-service (portal)
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/t/{slug}/passkeys` | GET | List all enrolled passkeys |
+| `/t/{slug}/passkeys/{id}/rename` | POST | Rename a credential |
+| `/t/{slug}/passkeys/{id}/revoke` | POST | Revoke a credential |
+
+Users cannot revoke their last passkey on a passwordless tenant — the request returns an error directing them to enable password sign-in first or add another passkey.
+
+### Admin management
+
+Admins can view passkey enrollment across the workspace at **Settings → Security → Passkeys**, which shows enrollment statistics and a per-user credential table.
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/admin/workspaces/{slug}/users/{userId}/passkeys/{credId}/revoke` | POST | Revoke a single credential |
+| `/admin/workspaces/{slug}/users/{userId}/passkeys/reset-all` | POST | Delete all passkeys for a user |
+
+The reset-all action is blocked with `OperatorLockoutBlocked` if the workspace is in passwordless-only mode and SMTP is not configured — preventing a state where the user cannot authenticate.
+
+### CLI reset
+
+For break-glass recovery of admin accounts:
+
+```
+java -jar kauth.jar cli reset-admin-passkeys --username=admin
+```
+
+This deletes all passkey credentials for the specified admin user on the master tenant, allowing them to re-enroll on their next login. Use this when an admin has lost access to all enrolled authenticators.
+
+## Per-tenant toggle
+
+Passkeys are enabled by default. Admins can disable them per-workspace at **Settings → Security → Sign-in Methods**. When disabled:
+
+- The passkey sign-in button is hidden from the login page
+- Registration endpoints reject requests with `PasskeysDisabledForTenant`
+- Existing credentials are preserved but cannot be used to authenticate
+
+## Passwordless-only mode
+
+Workspaces can disable password sign-in entirely from the Sign-in Methods grid. When `passwordLoginEnabled=false`:
+
+- The login page shows only passkeys (and magic-link/email-OTP if enabled) — no password field
+- Password-based authentication endpoints reject with `403 Forbidden`
+- Existing passwords are preserved but cannot be used
+
+:::caution
+Before disabling password sign-in, ensure SMTP is configured and tested. Kotauth enforces this as a hard gate — the toggle cannot be set without a working SMTP connection, because passwordless recovery flows (magic-link, email OTP) depend on email delivery.
+:::
+
+## Device identification
+
+Kotauth maps authenticator AAGUIDs to human-readable device names. When a user enrolls a passkey, the AAGUID from the attestation is looked up against a bundled registry that includes common authenticators like Chrome (Android), Windows Hello, iCloud Keychain, Google Password Manager, 1Password, Bitwarden, and YubiKey models. Unknown authenticators display as "Unknown authenticator".
+
+## Backup eligibility
+
+Each credential records two FIDO2 backup flags:
+
+- **Backup eligible** — the authenticator supports syncing the credential to other devices (multi-device credential)
+- **Backup state** — the credential is currently backed up
+
+These flags are informational. Kotauth does not restrict enrollment based on backup eligibility, but the flags are available in the admin UI and API responses to help administrators understand their credential landscape.
+
+:::note
+Passkey credentials are excluded from tenant backups. Passkeys are device-bound and tied to the relying party ID (your domain). Restoring them to a different origin would invalidate the cryptographic binding.
+:::
+
+## Audit events
+
+| Event | Trigger |
+|---|---|
+| `PASSKEY_ENROLLED` | User enrolls a new passkey |
+| `PASSKEY_AUTH_SUCCESS` | Successful passkey authentication |
+| `PASSKEY_AUTH_FAILED` | Failed passkey authentication |
+| `PASSKEY_REVOKED` | User self-revokes a passkey |
+| `PASSKEY_REPLAY_REJECTED` | Sign counter mismatch — credential auto-revoked |
+| `PASSKEY_ADMIN_REVOKED` | Admin revokes a single passkey |
+| `PASSKEY_ADMIN_RESET_ALL` | Admin resets all passkeys for a user |
+
+## Next steps
+
+- [Multi-Factor Authentication](/authentication/mfa/) — TOTP enrollment and how passkeys interact with MFA policies
+- [Magic-Link Passwordless](/authentication/magic-links/) — email-based passwordless as a recovery path
+- [Token Lifecycle](/authentication/token-lifecycle/) — session tokens issued after passkey authentication

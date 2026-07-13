@@ -5,31 +5,23 @@ sidebar:
   order: 3
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
-
 Kotauth supports passwordless authentication via magic links — short-lived tokens delivered by email that authenticate a user without requiring a password. This provides a frictionless login experience while maintaining the same security guarantees as password-based auth.
 
 ## How it works
-
-<Steps>
-
 1. The user enters their email address on the login page and clicks **Sign in with magic link**
 2. Kotauth generates a 15-minute one-time token, stores it, and sends an email with a login link
 3. The user clicks the link in their email
 4. Kotauth validates the token, verifies same-device binding, and creates a session
 5. If MFA is enrolled, the user completes the TOTP challenge before the session is fully activated
-
-</Steps>
-
 ## Same-device binding
 
 When a magic link is requested, Kotauth sets a `KOTAUTH_AUTH_CONTEXT` cookie in the browser that initiated the request. When the link is clicked, the server verifies this cookie is present before consuming the token.
 
 This prevents a class of attacks where an attacker intercepts the magic-link email and tries to use it from a different device. Without the context cookie, the token is rejected and remains unconsumed — the legitimate user can still click the link from their original browser.
 
-<Aside type="note">
+:::note
 Cross-device magic links (e.g. requesting from desktop and clicking on mobile) are not supported by design. The same-device binding is a deliberate security choice — if a user needs to authenticate on a different device, they should request a new magic link from that device.
-</Aside>
+:::
 
 ## User-enumeration safety
 
@@ -43,16 +35,16 @@ This means magic links are compatible with any MFA policy (`optional`, `required
 
 ## Passwordless-only mode
 
-Workspaces can disable password login entirely by enabling the **passwordless-only** toggle in the admin console under **Settings → Authentication**. When enabled:
+Workspaces can disable password login entirely from the **Sign-in Methods** grid in the admin console under **Settings → Security**. When enabled:
 
-- The login page shows only the magic-link form — no password field
+- The login page shows only passwordless methods (magic links, passkeys, email OTP) — no password field
 - Password-based authentication endpoints reject requests with `403 Forbidden`
 - Users can still enroll in MFA for second-factor protection
 - Existing passwords are preserved in the database but cannot be used to authenticate
 
-<Aside type="caution">
+:::caution
 Before enabling passwordless-only mode, ensure SMTP is configured and tested. Without working email delivery, users will be unable to authenticate.
-</Aside>
+:::
 
 ## REST API
 
@@ -92,6 +84,7 @@ When a new magic link is requested for an email that already has a pending token
 
 ## Next steps
 
+- [Passkeys & WebAuthn](/authentication/passkeys/) — biometric and hardware-key passwordless sign-in
 - [Email & Password](/authentication/email-password/) — traditional password-based authentication
 - [Multi-Factor Authentication](/authentication/mfa/) — TOTP enrollment and recovery codes
 - [Token Lifecycle](/authentication/token-lifecycle/) — access tokens, refresh tokens, and revocation

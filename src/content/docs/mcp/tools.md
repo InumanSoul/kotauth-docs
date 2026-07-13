@@ -160,9 +160,9 @@ Permanently delete a role. Users and groups that had this role lose it immediate
 |---|---|---|---|
 | `roleId` | integer | Yes | Role ID to delete |
 
-<Aside type="caution">
+:::caution
 Role deletion is irreversible. All users and groups that held this role lose the associated permissions immediately.
-</Aside>
+:::
 
 ---
 
@@ -353,9 +353,9 @@ Create or update a claim mapper. Maps a user attribute key to a JWT claim name.
 | `includeInAccess` | boolean | No | Include in access tokens (default: `true`) |
 | `includeInId` | boolean | No | Include in ID tokens (default: `false`) |
 
-<Aside type="caution">
+:::caution
 Reserved OIDC claim names (`sub`, `iss`, `aud`, `email`, etc.) are blocked. Attempting to use a reserved name returns a `400 Bad Request`. Each tenant is limited to 20 mappers.
-</Aside>
+:::
 
 ### delete_claim_mapper
 

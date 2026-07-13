@@ -26,7 +26,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     Authorization Code + PKCE, Client Credentials, token rotation, introspection, revocation, silent SSO (`prompt=none`), end-session logout, and OIDC Discovery. Any spec-compliant client library works without modification.
   </Card>
   <Card title="Passwordless Authentication" icon="email">
-    Magic-link login with 15-minute one-time tokens and same-device cookie binding. Email OTP with 6-digit codes, find-or-create semantics, and cross-challenge lockout. MFA invariant preserved on both flows.
+    Passkeys via FIDO2/WebAuthn with biometric or hardware-key sign-in, discoverable credentials, and per-credential replay defense. Magic-link login with same-device cookie binding. Email OTP with find-or-create semantics. Passwordless-only mode removes the password field entirely.
   </Card>
   <Card title="Multi-Tenant with Key Rotation" icon="puzzle">
     Isolated user directories, per-tenant RS256 key pairs with admin-initiated rotation and JWT kid headers, independent security policies, and white-label auth pages. One instance, many products.
@@ -38,9 +38,9 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     Act as any user for debugging and support. RFC 8693 `act` claim for audit attribution, dual-session model, and cascade revocation. Full audit trail of all impersonation events.
   </Card>
   <Card title="Security by Default" icon="setting">
-    bcrypt hashing, AES-256-GCM at rest, HIBP breach detection, refresh-token replay detection with family revocation, TOTP replay + lockout protection, non-root container (UID 10001), strict CSP with SRI, PKCE enforcement, and 65+ immutable audit event types.
+    bcrypt hashing, AES-256-GCM at rest, HIBP breach detection, refresh-token replay detection with family revocation, TOTP replay + lockout protection, passkey sign-counter replay defense, non-root container (UID 10001), strict CSP with SRI, PKCE enforcement, and 75+ HMAC-chained immutable audit event types.
   </Card>
   <Card title="Docker Native & Developer-First" icon="rocket">
-    ~120 MB image running as non-root with read-only filesystem. Flyway auto-migrations, 5 built-in CLI tools. 45+ REST API endpoints with OpenAPI 3.1 and bundled Swagger UI. RBAC with composite inheritance, i18n, and HMAC-signed webhooks.
+    ~120 MB image running as non-root with read-only filesystem. Flyway auto-migrations, 6 built-in CLI tools. 45+ REST API endpoints with OpenAPI 3.1 and bundled Swagger UI. RBAC with composite inheritance, i18n, and HMAC-signed webhooks.
   </Card>
 </CardGrid>

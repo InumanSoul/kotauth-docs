@@ -59,6 +59,7 @@ export default defineConfig({
 						{ label: 'Email & Password', slug: 'authentication/email-password' },
 						{ label: 'Magic-Link Passwordless', slug: 'authentication/magic-links' },
 						{ label: 'Email OTP Passwordless', slug: 'authentication/email-otp' },
+						{ label: 'Passkeys & WebAuthn', slug: 'authentication/passkeys' },
 						{ label: 'Authorization Code + PKCE', slug: 'authentication/authorization-code' },
 						{ label: 'Client Credentials', slug: 'authentication/client-credentials' },
 						{ label: 'Social Login', slug: 'authentication/social-login' },

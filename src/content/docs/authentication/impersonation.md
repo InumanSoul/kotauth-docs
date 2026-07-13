@@ -5,8 +5,6 @@ sidebar:
   order: 10
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Admin impersonation lets administrators access the application as another user without requiring that user's password. This is useful for reproducing bugs, verifying permission configurations, and providing support.
 
 ## How it works
@@ -78,9 +76,9 @@ Actions taken during impersonation are logged under the target user's ID, but th
 - Impersonation sessions respect the same token TTLs and security policies as regular sessions
 - The `act` claim is signed as part of the JWT — it cannot be forged or stripped by the client
 
-<Aside type="caution">
+:::caution
 Impersonation bypasses the target user's authentication credentials but does not bypass their authorization. The impersonated session has exactly the same roles and permissions as the target user — no more, no less.
-</Aside>
+:::
 
 ## Next steps
 

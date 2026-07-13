@@ -5,15 +5,13 @@ sidebar:
   order: 9
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Claim mappers are tenant-level rules that project [user attributes](/api/user-attributes/) into JWT access and/or ID tokens. Each mapper connects one attribute key to one claim name, with toggles for which token types include the claim.
 
 **Required scopes:** `claim_mappers:read` for GET, `claim_mappers:write` for PUT and DELETE.
 
-<Aside type="caution">
-  Attribute values flow **unencrypted** into JWTs. JWTs are base64-encoded and readable by anyone holding the token. Avoid mapping attributes that contain sensitive PII.
-</Aside>
+:::caution
+Attribute values flow **unencrypted** into JWTs. JWTs are base64-encoded and readable by anyone holding the token. Avoid mapping attributes that contain sensitive PII.
+:::
 
 ---
 

@@ -103,9 +103,9 @@ def verify_webhook(raw_body: bytes, signature_header: str, secret: str) -> bool:
     return hmac.compare_digest(signature_header, expected)
 ```
 
-<Aside type="caution">
+:::caution
 Compute the HMAC over the **raw request body bytes**, not over a parsed/re-serialized JSON object. JSON serialization is not guaranteed to produce the same byte sequence, which will cause signature mismatches.
-</Aside>
+:::
 
 ## Retry schedule
 
@@ -121,9 +121,9 @@ A delivery is considered successful when your endpoint returns any 2xx HTTP stat
 
 After three failed attempts the delivery is marked **FAILED** and no further retries occur. The failure is recorded in the delivery log (see below) for operator inspection.
 
-<Aside type="note">
+:::note
 Webhook delivery is fire-and-forget from the auth flow's perspective. A failing webhook endpoint does not delay or block login, token issuance, or any other auth operation.
-</Aside>
+:::
 
 ## Delivery statuses
 

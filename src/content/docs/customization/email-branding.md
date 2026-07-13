@@ -5,8 +5,6 @@ sidebar:
   order: 4
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Every workspace can customize the appearance of transactional emails — password resets, email verifications, OTP codes, account lockout notifications, and user invitations. Branding is configured through the admin console and applies to all outbound emails for the workspace.
 
 ## Configurable fields
@@ -48,9 +46,9 @@ When Kotauth sends a transactional email, it resolves each branding property wit
 
 **Footer support link**: `supportEmail` → not rendered
 
-<Aside type="note">
+:::note
 The envelope sender address (the actual email address in the `From:` header) is always determined by the SMTP configuration, not by email branding. This ensures DKIM, SPF, and DMARC alignment is controlled by the operator, not per-workspace admins.
-</Aside>
+:::
 
 ## Example
 
@@ -72,6 +70,6 @@ Produces emails with:
 - Blue (`#2563EB`) CTA buttons
 - A "Contact support" mailto link to `support@acme.com` in the footer
 
-<Aside type="tip">
+:::tip
 Test your branding by triggering a password reset or email verification after saving changes. The admin console does not include an email preview — send a real email to verify the result.
-</Aside>
+:::

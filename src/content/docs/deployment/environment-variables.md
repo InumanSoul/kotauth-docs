@@ -5,8 +5,6 @@ sidebar:
   order: 1
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 All configuration is passed to Kotauth via environment variables. Variables marked **Required** cause a fatal startup error if missing. Variables marked **Recommended** degrade functionality if absent but do not block startup.
 
 ---
@@ -67,13 +65,13 @@ KAUTH_SECRET_KEY=<paste output here>
 
 Supports file-based injection via `KAUTH_SECRET_KEY_FILE`. See [File-based secrets](#file-based-secrets) below.
 
-<Aside type="danger">
+:::danger
 The server will not start without this key. There is no fallback in any environment.
-</Aside>
+:::
 
-<Aside type="danger">
+:::danger
 If this key is rotated or lost: all encrypted data (SMTP passwords, RSA private keys) must be re-provisioned, all active sessions will be invalidated, and the audit log HMAC chain cannot be verified for rows written with the old key. Store it securely alongside your database credentials.
-</Aside>
+:::
 
 ---
 
@@ -99,9 +97,9 @@ When set to `true`, Kotauth installs Ktor's `XForwardedHeaders` plugin and trust
 KAUTH_TRUSTED_PROXY=true
 ```
 
-<Aside type="danger">
+:::danger
 Only enable this when Kotauth runs behind a trusted reverse proxy (nginx, Caddy, Traefik, cloud load balancer). When `false`, forwarded headers are ignored entirely — this prevents rate-limit bypass via header spoofing on directly-exposed deployments.
-</Aside>
+:::
 
 ---
 
@@ -121,9 +119,9 @@ KAUTH_BOOTSTRAP_ADMIN_PASSWORD=YourStr0ng!Password
 - In demo mode (`KAUTH_DEMO_MODE=true`): uses the demo password `Demo1234!`
 - In normal mode: generates a random password and prints it to stdout on first boot
 
-<Aside type="caution">
+:::caution
 As of v1.14.1, there are no hardcoded default credentials. If you do not set this variable and miss the generated password in the startup log, you must re-seed the database.
-</Aside>
+:::
 
 ---
 
@@ -152,9 +150,9 @@ Each object in the array:
 - If a key exists and hash + scopes match: no-op
 - If a key exists but hash or scopes differ: updated, re-enabled if previously disabled
 
-<Aside type="danger">
+:::danger
 Invalid JSON, unknown tenant slugs, or unknown scope names cause a fatal startup error (`exitProcess(1)`). Validate your configuration before deploying.
-</Aside>
+:::
 
 Use `java -jar kauth.jar cli hash-api-key` to generate the SHA-256 hash for the `keyHash` field. See [CLI Commands](/deployment/cli/).
 
@@ -210,9 +208,9 @@ DB_PORT=5432
 
 Common non-default ports: `6432` for PgBouncer, `5433` for a non-standard local instance.
 
-<Aside type="caution">
+:::caution
 If using PgBouncer in transaction pooling mode, Flyway migrations will fail — Flyway requires a persistent session connection. Use session pooling mode, or connect directly to PostgreSQL for migrations.
-</Aside>
+:::
 
 ---
 

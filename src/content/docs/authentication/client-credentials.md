@@ -5,13 +5,11 @@ sidebar:
   order: 4
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 The Client Credentials flow authenticates a service or application itself — there is no user involved. Use this for backend-to-backend calls, background workers, CI/CD pipelines, and any automated process that needs to act on its own behalf.
 
-<Aside type="tip">
+:::tip
 **When to use this flow:** Any non-interactive, machine-to-machine scenario. If a human is logging in, use the Authorization Code flow instead.
-</Aside>
+:::
 
 ## Requirements
 

@@ -17,6 +17,7 @@ Kotauth supports several authentication flows, covering every common integration
 | [Email & Password](/authentication/email-password/) | Direct login via Kotauth's hosted login page | Yes |
 | [Magic-Link Passwordless](/authentication/magic-links/) | Email-based passwordless login (one-time link) | Yes |
 | [Email OTP Passwordless](/authentication/email-otp/) | Email-based passwordless login (6-digit code) | Yes |
+| [Passkeys & WebAuthn](/authentication/passkeys/) | Biometric or hardware-key passwordless login | Yes |
 
 ## How it works
 

@@ -5,13 +5,11 @@ sidebar:
   order: 3
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
-
 The Authorization Code flow with PKCE (Proof Key for Code Exchange) is the correct flow for virtually all user-facing applications. It keeps tokens out of the browser URL and protects against authorization code interception attacks.
 
-<Aside type="tip">
+:::tip
 **When to use this flow:** Any application where a human user logs in — SPAs, mobile apps, server-side web apps. PKCE is required for public clients (SPAs, mobile) and strongly recommended for confidential clients.
-</Aside>
+:::
 
 ## Flow overview
 
@@ -30,9 +28,6 @@ sequenceDiagram
 ```
 
 ## Step by step
-
-<Steps>
-
 1. **Generate PKCE values**
 
    Before redirecting, generate a `code_verifier` (a random 43–128 character string) and its `code_challenge` (SHA-256 hash of the verifier, base64url-encoded):
@@ -57,9 +52,7 @@ sequenceDiagram
      &code_challenge_method=S256
    ```
 
-   <Aside type="note">
-   The legacy path `/t/{slug}/protocol/openid-connect/auth` is still supported as a redirect but `/authorize` is the canonical endpoint.
-   </Aside>
+   > **Note:** The legacy path `/t/{slug}/protocol/openid-connect/auth` is still supported as a redirect but `/authorize` is the canonical endpoint.
 
    | Parameter | Required | Description |
    |---|---|---|
@@ -112,9 +105,6 @@ sequenceDiagram
      "scope": "openid profile email"
    }
    ```
-
-</Steps>
-
 ## Refreshing tokens
 
 Access tokens are short-lived (default: 5 minutes). When one expires, use the refresh token to get a new pair:
@@ -128,9 +118,9 @@ grant_type=refresh_token
 &client_id=YOUR_CLIENT_ID
 ```
 
-<Aside type="caution">
+:::caution
 Refresh tokens rotate on every use. Always store the new refresh token returned in the response and discard the old one. Using a revoked refresh token invalidates the entire session.
-</Aside>
+:::
 
 ## Logging out
 

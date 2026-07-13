@@ -5,8 +5,6 @@ sidebar:
   order: 8
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 By default, Kotauth stores sessions and rate-limiting counters in memory. This works well for single-instance deployments but breaks when running multiple Kotauth instances behind a load balancer — sessions created on one instance are invisible to another, and rate limits are enforced per-instance rather than globally.
 
 Adding a Redis sidecar upgrades both stores to distributed implementations. Sessions are shared across all instances, and rate limiting is enforced globally with atomic Lua scripts.
@@ -33,9 +31,9 @@ KAUTH_REDIS_URL=rediss://:your-password@redis-host:6380
 
 When `KAUTH_REDIS_URL` is set, Kotauth automatically switches from in-memory to Redis-backed implementations for both sessions and rate limiting. No other configuration changes are required.
 
-<Aside type="tip">
+:::tip
 If you are running a single Kotauth instance, Redis is optional. The in-memory stores are faster and have no external dependency. Add Redis when you need horizontal scaling or want sessions to survive container restarts.
-</Aside>
+:::
 
 ## What Redis stores
 
@@ -44,9 +42,9 @@ If you are running a single Kotauth instance, Redis is optional. The in-memory s
 | User sessions | JVM heap, lost on restart | Persisted across restarts, shared across instances |
 | Rate-limit counters | Per-instance counters | Global counters with atomic Lua scripts |
 
-<Aside type="note">
+:::note
 Redis is used only for ephemeral data (sessions and rate limits). All durable data — users, roles, applications, audit logs — is always stored in PostgreSQL.
-</Aside>
+:::
 
 ## Fail-closed semantics
 

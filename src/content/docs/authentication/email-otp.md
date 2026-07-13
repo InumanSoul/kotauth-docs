@@ -5,8 +5,6 @@ sidebar:
   order: 3
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Kotauth supports passwordless authentication via email one-time passwords (OTP). Users enter their email address, receive a 6-digit code, and submit it to authenticate — no password required.
 
 Email OTP is available through both the hosted login page and a standalone Admin API for headless integrations.
@@ -45,9 +43,9 @@ The flow consists of two screens — an email entry page and a code verification
 
 Users can click **Resend code** to get a new code. Resending invalidates any previously issued code for the same challenge.
 
-<Aside type="note">
+:::note
 The Email OTP login option appears on the Kotauth login page only when the workspace has SMTP configured and the feature is enabled in workspace settings.
-</Aside>
+:::
 
 ## Admin API
 
@@ -171,6 +169,6 @@ Email OTP settings are managed in the admin console under **Settings → Authent
 | Lockout threshold | Number of failed OTP attempts before account lockout |
 | Lockout duration | How long the account stays locked (minutes) |
 
-<Aside type="caution">
+:::caution
 Email OTP requires SMTP to be configured for the workspace. Without it, codes cannot be delivered and the feature is effectively disabled.
-</Aside>
+:::

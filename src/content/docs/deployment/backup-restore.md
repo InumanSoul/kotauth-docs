@@ -5,8 +5,6 @@ sidebar:
   order: 7
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Kotauth can export entire workspaces as encrypted, portable archive files. These snapshots contain all tenant data — users, roles, groups, applications, sessions, audit logs, attributes, claim mappers, and settings — in a single file that can be imported into another Kotauth instance.
 
 ## Use cases
@@ -30,9 +28,9 @@ Exports use the `bkp1` envelope format — a self-contained binary file containi
 
 Key derivation uses PBKDF2 with 600,000 iterations and the user-provided passphrase. The high iteration count ensures brute-force resistance even if the archive file is leaked.
 
-<Aside type="caution">
+:::caution
 Archive files are encrypted at rest, but you should still store them in a secure location. The passphrase is the only barrier to decryption — use a strong, unique passphrase and store it in a secrets manager.
-</Aside>
+:::
 
 ## CLI usage
 

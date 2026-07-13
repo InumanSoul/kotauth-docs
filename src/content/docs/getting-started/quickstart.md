@@ -5,17 +5,12 @@ sidebar:
   order: 2
 ---
 
-import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
-
 You need **Docker** and **Docker Compose**. Nothing else. No JDK, no database client, no external dependencies.
 
 <Tabs>
 <TabItem label="Pre-built image (fastest)">
 
 No repo clone required. Pull the image directly from GitHub Container Registry.
-
-<Steps>
-
 1. **Grab the compose file and env template**
 
    ```bash
@@ -35,9 +30,7 @@ No repo clone required. Pull the image directly from GitHub Container Registry.
 
    `KAUTH_BASE_URL` defaults to `http://localhost:8080`. Change it if deploying remotely.
 
-   <Aside type="caution">
-   Do not skip `KAUTH_SECRET_KEY`. Without it, SMTP configuration cannot be saved and sessions will be lost on every container restart.
-   </Aside>
+   > **Caution:** Do not skip `KAUTH_SECRET_KEY`. Without it, SMTP configuration cannot be saved and sessions will be lost on every container restart.
 
 3. **Start the stack**
 
@@ -65,7 +58,7 @@ No repo clone required. Pull the image directly from GitHub Container Registry.
    docker compose logs kotauth | grep "Admin credentials"
    ```
 
-   <Aside type="caution">Change the master workspace admin password immediately after first login.</Aside>
+   > **Caution:** Change the master workspace admin password immediately after first login.
 
 5. **Create a workspace**
 
@@ -80,16 +73,10 @@ No repo clone required. Pull the image directly from GitHub Container Registry.
    ```
 
    This is the URL you'll give to any OAuth2 / OIDC library as the `issuer` or `discovery URL`.
-
-</Steps>
-
 </TabItem>
 <TabItem label="Build from source">
 
 For contributors or anyone iterating on the source code.
-
-<Steps>
-
 1. **Clone the repository**
 
    ```bash
@@ -143,7 +130,7 @@ For contributors or anyone iterating on the source code.
    docker compose logs kotauth | grep "Admin credentials"
    ```
 
-   <Aside type="caution">Change the master workspace admin password immediately after first login.</Aside>
+   > **Caution:** Change the master workspace admin password immediately after first login.
 
 5. **Create a workspace and verify OIDC**
 
@@ -152,9 +139,6 @@ For contributors or anyone iterating on the source code.
    ```
    http://localhost:8080/t/my-app/.well-known/openid-configuration
    ```
-
-</Steps>
-
 </TabItem>
 </Tabs>
 

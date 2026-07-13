@@ -5,8 +5,6 @@ sidebar:
   order: 7
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Kotauth supports OIDC silent SSO parameters that let resource providers check for existing sessions, force re-authentication, or verify session identity — all without requiring user interaction.
 
 ## prompt parameter
@@ -78,9 +76,9 @@ GET /t/{slug}/authorize?
 
 If the session belongs to a different user than the one in the hint, Kotauth returns `?error=login_required` instead of issuing tokens for the wrong user.
 
-<Aside type="tip">
+:::tip
 Combining `prompt=none` with `id_token_hint` is the safest way to do silent SSO — it verifies both that a session exists and that it belongs to the expected user.
-</Aside>
+:::
 
 ## auth_time claim
 

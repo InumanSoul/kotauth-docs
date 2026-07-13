@@ -5,13 +5,11 @@ sidebar:
   order: 1
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 The Kotauth REST API v1 is a machine-to-machine interface for managing workspace resources programmatically. It covers the full lifecycle of users, roles, groups, applications, sessions, and audit logs.
 
-<Aside type="tip">
+:::tip
 Prefer natural language over HTTP? The [`@kotauth/mcp`](/mcp/overview) package lets AI assistants like Claude and Cursor call these same endpoints through the Model Context Protocol — no code required.
-</Aside>
+:::
 
 **Base URL:**
 
@@ -39,9 +37,9 @@ Authorization: Bearer kauth_my-app_abcdef1234567890
 
 API keys are created and managed in the admin console under **Settings → API Keys** for each workspace. The key format is `kauth_<workspaceSlug>_<random>` — the prefix makes them easy to identify in logs and secret scanners.
 
-<Aside type="caution">
+:::caution
 API keys are shown exactly once at creation. Store them in a secrets manager. If a key is lost, delete it and generate a new one.
-</Aside>
+:::
 
 ## Scopes
 

@@ -5,8 +5,6 @@ sidebar:
   order: 6
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Kotauth supports admin-initiated signing key rotation per workspace. You can generate a new RS256 key pair, promote it to the active signing key, and keep the previous key available for token verification until you're ready to retire it. This allows zero-downtime key rollover without invalidating tokens that are still in flight.
 
 ## How it works
@@ -41,9 +39,9 @@ Rotate signing keys when:
 - Compliance requirements mandate regular cryptographic material rotation.
 - You're performing a security audit and want fresh key material.
 
-<Aside type="tip">
-  After rotating, wait for your longest-lived token TTL to expire before retiring the old key. This ensures all tokens signed with the previous key have naturally expired.
-</Aside>
+:::tip
+After rotating, wait for your longest-lived token TTL to expire before retiring the old key. This ensures all tokens signed with the previous key have naturally expired.
+:::
 
 ## Rotating keys from the admin console
 

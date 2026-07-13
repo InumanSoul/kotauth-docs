@@ -5,8 +5,6 @@ sidebar:
   order: 2
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
-
 Kotauth ships as a single Docker image published to GitHub Container Registry. It requires a PostgreSQL database — everything else is self-contained.
 
 ## Available images
@@ -215,6 +213,6 @@ spec:
             initialDelaySeconds: 10
 ```
 
-<Aside type="note">
+:::note
 For multi-replica deployments, enable Redis (`KAUTH_REDIS_URL`) for shared sessions and global rate limiting. Without Redis, sessions and rate-limit counters are per-instance. See [Redis](/deployment/redis/).
-</Aside>
+:::

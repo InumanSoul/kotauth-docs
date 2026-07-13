@@ -5,8 +5,6 @@ sidebar:
   order: 3
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 ## Requirements
 
 **Minimum hardware:** 512 MB RAM, 1 vCPU.
@@ -67,9 +65,9 @@ To also enable Redis:
 docker compose -f docker-compose.prod.yml --profile redis up -d
 ```
 
-<Aside type="tip">
+:::tip
 Block port 8080 on the host firewall after starting — only Caddy should handle inbound traffic. For example: `ufw deny 8080`.
-</Aside>
+:::
 
 ---
 
@@ -264,6 +262,6 @@ Kotauth emits structured JSON logs to stdout. Key fields in each log line:
 
 Route these logs to your observability stack (Loki, CloudWatch, Datadog, etc.). The audit log API is the authoritative source for security events — do not rely on application logs for compliance.
 
-<Aside type="tip">
+:::tip
 The `X-Request-Id` header is generated per request and included in all log lines for that request. Include it in your reverse proxy access logs to correlate application logs with proxy logs during incident investigation.
-</Aside>
+:::

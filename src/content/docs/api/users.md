@@ -5,8 +5,6 @@ sidebar:
   order: 2
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Users are identity records within a workspace. The Users API covers listing, creating, updating, disabling, and role assignment.
 
 **Required scopes:** `users:read` for GET requests, `users:write` for POST / PUT / DELETE.
@@ -193,9 +191,9 @@ DELETE /t/{slug}/api/v1/users/{userId}
 
 Soft-disables the user account. Disabled users cannot log in, but their data, roles, and session history are preserved. To permanently delete a user, use the admin console.
 
-<Aside type="note">
+:::note
 This is a soft delete. The user record is not removed from the database — `enabled` is set to `false`. Existing active sessions are not revoked. To fully lock a user out, also revoke their sessions via the Sessions API.
-</Aside>
+:::
 
 **Response `204 No Content`**
 
@@ -240,9 +238,9 @@ POST /t/{slug}/api/v1/users/{userId}/resend-invite
 
 Resends the invite email for a user who has a pending `SET_PASSWORD` required action. Generates a new 72-hour token and invalidates any previous invite tokens for this user.
 
-<Aside type="note">
-  This endpoint requires SMTP to be configured for the workspace. It will return an error if the user does not have a pending invite (i.e. `SET_PASSWORD` is not in their `requiredActions`).
-</Aside>
+:::note
+This endpoint requires SMTP to be configured for the workspace. It will return an error if the user does not have a pending invite (i.e. `SET_PASSWORD` is not in their `requiredActions`).
+:::
 
 **Response `200 OK`**
 

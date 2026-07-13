@@ -35,6 +35,8 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Email OTP passwordless.** A second passwordless method using 6-digit one-time codes delivered via email. Codes expire after 10 minutes, are SHA-256 hashed at rest, and are limited to 5 attempts per challenge. Find-or-create semantics automatically provision accounts for unknown emails when self-registration is enabled. Cross-challenge lockout tracks failures across multiple OTP challenges to prevent brute-force attempts. Available via the hosted login page and as a headless Admin API (`send-otp` / `verify-otp`).
 
+**Passkeys & WebAuthn.** Users can register FIDO2 passkeys and sign in with device biometrics (Face ID, Windows Hello, fingerprint) or hardware security keys. Discoverable credentials enable usernameless sign-in. Passkeys with user verification satisfy MFA natively — no separate TOTP challenge. Per-credential sign-counter replay defense auto-revokes cloned authenticators. Workspaces can disable password login entirely to go passkey-only.
+
 **Admin impersonation.** Administrators can act as any user without knowing their password. Impersonated sessions carry an RFC 8693 `act` claim for full audit attribution. A dual-session model preserves the admin session underneath, and cascade revocation ensures impersonated sessions are terminated when the admin logs out.
 
 **Tenant backup & restore.** Export entire workspaces as encrypted, portable archive files (PBKDF2 600k iterations + AES-256-GCM) via CLI or admin API. Import with schema-version compatibility validation. Useful for disaster recovery, environment promotion, and migration between instances.
@@ -70,6 +72,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 | **REST management API** | Yes | Yes | Yes |
 | **Magic-link passwordless** | Yes | No | Yes |
 | **Email OTP passwordless** | Yes | No | Yes |
+| **Passkeys / WebAuthn** | Yes | Yes (via extensions) | Yes |
 | **Client default roles** | Yes | Yes | Yes |
 | **Transactional email branding** | Yes | Yes | Yes |
 | **Refresh-token replay detection** | Yes | Yes | N/A |
@@ -128,6 +131,7 @@ graph TB
 - [Authentication Overview](/authentication/overview/) — understand the supported auth flows
 - [Magic-Link Passwordless](/authentication/magic-links/) — email-based passwordless login
 - [Email OTP Passwordless](/authentication/email-otp/) — 6-digit code passwordless login with find-or-create
+- [Passkeys & WebAuthn](/authentication/passkeys/) — biometric and hardware-key passwordless sign-in
 - [User Invitations](/authentication/user-invitations/) — onboard users via branded invite emails
 - [Custom JWT Claims](/authentication/custom-claims/) — project per-user attributes into access and ID tokens
 - [Admin Impersonation](/authentication/impersonation/) — act as any user for debugging and support

@@ -68,9 +68,9 @@ The assistant returns a table of failed attempts with timestamps, usernames, and
 3. `manage_group_member` — adds user 15 to the group
 4. The assistant notes that assigning roles to groups is done through the admin console or REST API directly (MCP tools manage group membership, not group-role assignments)
 
-<Aside type="note">
+:::note
 The MCP server currently supports assigning roles to individual users via `assign_user_role`. Group-level role assignments are managed through the admin console or the REST API directly.
-</Aside>
+:::
 
 **Required scopes:** `roles:write`, `groups:write`
 
@@ -130,9 +130,9 @@ MCP tools execute one operation at a time, but the AI assistant can chain them. 
 
 The assistant calls `disable_user` three times, once for each user ID, and confirms each result.
 
-<Aside type="tip">
+:::tip
 For large batch operations (50+ users), consider using the REST API directly with a script. MCP is best suited for ad-hoc administration tasks where you'd otherwise navigate the admin console or write one-off curl commands.
-</Aside>
+:::
 
 ## npm package
 

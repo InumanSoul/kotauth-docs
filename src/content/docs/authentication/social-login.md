@@ -5,8 +5,6 @@ sidebar:
   order: 5
 ---
 
-import { Aside } from '@astrojs/starlight/components';
-
 Kotauth supports social login via **Google** and **GitHub**. When a user clicks a social provider button on the Kotauth login page, Kotauth handles the OAuth2 exchange with the provider and either links the account to an existing user or creates a new one.
 
 Your application's integration code does not change — you still use the standard Authorization Code flow with Kotauth. Social login is transparent to your app.
@@ -40,9 +38,9 @@ When a user authenticates via a social provider, Kotauth matches the provider's 
 
 Automatic account linking only proceeds if the social provider reports the email as **verified**. If the provider returns an unverified email address, Kotauth rejects the link attempt and returns an error. This prevents an attacker from creating an unverified email at a social provider and using it to hijack an existing Kotauth account.
 
-<Aside type="note">
+:::note
 Google always returns verified emails. GitHub may return unverified emails if the user has not confirmed their email address — in this case, the user must verify their email at GitHub before social login will work.
-</Aside>
+:::
 
 ## Configuring social providers
 
@@ -69,9 +67,9 @@ Social providers are configured **per workspace** in the admin console. They are
 3. Copy the **Client ID** and generate a **Client Secret**
 4. In the Kotauth admin console, go to **Settings → Social Login** and enter the credentials
 
-<Aside type="caution">
+:::caution
 Social login requires HTTPS. Kotauth will refuse to initiate the OAuth2 flow with providers if `KAUTH_BASE_URL` does not start with `https://`. This matches the requirements of both Google and GitHub's OAuth2 policies.
-</Aside>
+:::
 
 ## What's included in the user profile
 

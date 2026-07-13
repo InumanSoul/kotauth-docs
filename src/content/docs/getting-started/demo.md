@@ -5,8 +5,6 @@ sidebar:
   order: 3
 ---
 
-import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
-
 A public Kotauth instance is running at **[demo.kotauth.com](https://demo.kotauth.com)** with realistic pre-seeded data. No Docker install, no `.env` file, no setup — just open it and explore.
 
 ## What's in the demo
@@ -27,9 +25,9 @@ The demo seeds two complete workspaces on startup:
 - 1 registered OAuth application
 - Separate audit history
 
-<Aside type="tip">
-  Admin credentials for each workspace are shown in the blue banner at the top of every page. You can log in immediately.
-</Aside>
+:::tip
+Admin credentials for each workspace are shown in the blue banner at the top of every page. You can log in immediately.
+:::
 
 ## What you can do
 
@@ -85,9 +83,9 @@ docker run -e KAUTH_DEMO_MODE=true \
 </TabItem>
 </Tabs>
 
-<Aside type="caution">
-  Demo mode is designed for showcases and evaluation. Do not enable it in production — it creates users with known passwords and displays credentials on every page.
-</Aside>
+:::caution
+Demo mode is designed for showcases and evaluation. Do not enable it in production — it creates users with known passwords and displays credentials on every page.
+:::
 
 ## How it works
 
