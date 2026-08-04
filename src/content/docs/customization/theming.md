@@ -128,13 +128,27 @@ curl -X PATCH https://auth.yourdomain.com/t/{workspace}/api/v1/settings/theme \
   }'
 ```
 
+## Login layout
+
+Kotauth supports two structural layouts for the login page, configurable per workspace under **Settings → Branding**.
+
+**CENTERED** (default) — the auth card is centered on the page with the page background behind it. This is the classic single-column layout.
+
+**SPLIT** — a two-column layout with a branded panel on the left and the auth card on the right. The branded panel displays the workspace tagline and an optional background image. On narrow viewports (below ~640px), the layout collapses to the centered single-column view.
+
+When using the SPLIT layout, two additional fields become available:
+
+| Field | Max length | Description |
+|---|---|---|
+| Tagline | 200 chars | Short text displayed on the branded panel (e.g. "Welcome back to Acme Corp") |
+| Background image URL | 500 chars | HTTP/HTTPS URL for the panel background image. The URL is percent-encoded to prevent CSS injection. |
+
 ## What is not themeable
 
 The following are intentionally outside the scope of workspace-level theming:
 
 - **Admin console** — always uses Kotauth's fixed dark theme; not tenant-controllable.
 - **Typography** — font family and scale are fixed in the auth stylesheet.
-- **Structural layout** — form width, spacing, and component structure are not configurable.
 - **Functional colors** — error, success, and warning colors are fixed.
 
 These constraints exist to maintain a baseline of usability and accessibility across all tenants.

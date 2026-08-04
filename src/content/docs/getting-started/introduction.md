@@ -15,7 +15,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Multi-tenancy.** A single Kotauth instance hosts multiple independent workspaces. Each workspace has its own isolated user directory, OAuth applications, role definitions, SMTP configuration, and RS256 signing key pair with admin-initiated key rotation. Signing keys can be rotated from the admin console with zero-downtime rollover — old keys remain in JWKS for token verification until explicitly retired. Users in workspace A cannot interact with workspace B in any way.
 
-**REST API.** A machine-to-machine API covers the full lifecycle of users, roles, groups, OAuth applications, sessions, and audit logs. Each operation is guarded by API key scopes so you can issue keys with the minimum privilege required.
+**REST API.** A machine-to-machine API covers the full lifecycle of users, roles, groups, OAuth applications, sessions, audit logs, webhooks, resource servers, API keys, and workspace configuration. 26 scopes provide fine-grained access control, and write operations are rate-limited per key per workspace. Each operation is guarded by API key scopes so you can issue keys with the minimum privilege required.
 
 **Role-based access control.** Roles can be scoped to the entire workspace (tenant roles) or to a specific application (client roles). Groups provide a hierarchy layer — users inherit all roles assigned to their groups and parent groups. Access token JWT claims expose these as `realm_access.roles` and `resource_access.<clientId>.roles`.
 
@@ -80,6 +80,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 | **Non-root container** | Yes | Yes | N/A |
 | **Bootstrap API keys (env-managed)** | Yes | No | No |
 | **AI assistant integration (MCP)** | Yes | No | No |
+| **RFC 8707 Resource Indicators** | Yes | No | No |
 | **Tenant backup & restore** | Yes | No | No |
 | **Admin impersonation** | Yes | Yes | Yes |
 | **Silent SSO (prompt=none)** | Yes | Yes | Yes |

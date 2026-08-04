@@ -7,11 +7,7 @@ sidebar:
 
 Applications are OAuth2 clients registered in a workspace. They represent pieces of software — SPAs, mobile apps, backend services — that authenticate users or request tokens from Kotauth.
 
-**Required scopes:** `applications:read` for GET requests, `applications:write` for PUT / DELETE.
-
-:::note
-Applications cannot be created via the REST API — use the admin console. Creation involves generating a client secret and configuring settings that are better handled through a human-in-the-loop UI.
-:::
+**Required scopes:** `applications:read` for GET requests, `applications:write` for POST / PUT / DELETE.
 
 ---
 
@@ -43,6 +39,75 @@ Applications cannot be created via the REST API — use the admin console. Creat
 | `enabled` | boolean | `false` = disabled, blocks new logins |
 | `redirectUris` | string[] | Allowed OAuth2 redirect URIs |
 | `audience` | string \| null | Custom JWT `aud` claim. Falls back to `clientId` if null. Max 200 characters. |
+
+---
+
+## Create an application
+
+```http
+POST /t/{slug}/api/v1/applications
+Content-Type: application/json
+
+{
+  "clientId": "my-spa",
+  "name": "My SPA",
+  "description": "Frontend web application",
+  "accessType": "public",
+  "redirectUris": [
+    "https://app.yourdomain.com/callback",
+    "http://localhost:3000/callback"
+  ]
+}
+```
+
+| Field | Required | Description |
+|---|---|---|
+| `clientId` | Yes | Unique OAuth2 client identifier. Lowercase alphanumeric and hyphens only (`[a-z0-9-]+`). |
+| `name` | Yes | Display name |
+| `description` | No | Optional description |
+| `accessType` | No | `public` (default) or `confidential` |
+| `redirectUris` | Yes | Array of allowed redirect URIs |
+
+**Response `201 Created`:**
+
+```json
+{
+  "application": {
+    "id": 5,
+    "clientId": "my-spa",
+    "name": "My SPA",
+    "description": "Frontend web application",
+    "accessType": "public",
+    "enabled": true,
+    "redirectUris": ["https://app.yourdomain.com/callback", "http://localhost:3000/callback"]
+  },
+  "clientSecret": null
+}
+```
+
+For **confidential** applications, `clientSecret` contains the generated secret. For **public** applications, it is `null`.
+
+:::caution
+The `clientSecret` is returned exactly once at creation. Store it in a secrets manager immediately. It cannot be retrieved again.
+:::
+
+---
+
+## Regenerate client secret
+
+```http
+POST /t/{slug}/api/v1/applications/{appId}/regenerate-secret
+```
+
+Generates a new client secret for a confidential application. The previous secret is invalidated immediately.
+
+**Response `201 Created`:**
+
+```json
+{
+  "clientSecret": "abcdef1234567890..."
+}
+```
 
 ---
 
@@ -179,14 +244,12 @@ Default roles are only applied during self-registration. Existing users are not 
 
 ---
 
-## Disable an application
+## Delete an application
 
 ```http
 DELETE /t/{slug}/api/v1/applications/{appId}
 ```
 
-Soft-disables the application. New authorization requests are rejected, but existing valid tokens continue to work until they expire.
-
-To re-enable a disabled application, use the admin console.
+Soft-deletes the application. The application is marked as deleted and excluded from all queries and authorization flows. Existing valid tokens continue to work until they expire.
 
 **Response `204 No Content`**

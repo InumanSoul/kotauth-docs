@@ -88,9 +88,20 @@ If the counter is equal to or less than the stored value (indicating a cloned au
 
 Users cannot revoke their last passkey on a passwordless tenant — the request returns an error directing them to enable password sign-in first or add another passkey.
 
+### REST API
+
+Admins can list and delete passkey credentials via the REST API:
+
+| Endpoint | Method | Scope | Description |
+|---|---|---|---|
+| `/api/v1/users/{userId}/passkeys` | GET | `users:read` | List all passkeys for a user |
+| `/api/v1/passkeys/{credentialPk}` | DELETE | `users:write` | Delete a specific passkey credential |
+
+The `credentialPk` path parameter is the credential's numeric primary key (integer).
+
 ### Admin management
 
-Admins can view passkey enrollment across the workspace at **Settings → Security → Passkeys**, which shows enrollment statistics and a per-user credential table.
+Admins can also view passkey enrollment across the workspace at **Settings → Security → Passkeys**, which shows enrollment statistics and a per-user credential table.
 
 | Endpoint | Method | Purpose |
 |---|---|---|

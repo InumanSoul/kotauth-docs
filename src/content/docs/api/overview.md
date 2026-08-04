@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-The Kotauth REST API v1 is a machine-to-machine interface for managing workspace resources programmatically. It covers the full lifecycle of users, roles, groups, applications, sessions, and audit logs.
+The Kotauth REST API v1 is a machine-to-machine interface for managing workspace resources programmatically. It covers the full lifecycle of users, roles, groups, applications, sessions, audit logs, webhooks, resource servers, and API keys.
 
 :::tip
 Prefer natural language over HTTP? The [`@kotauth/mcp`](/mcp/overview) package lets AI assistants like Claude and Cursor call these same endpoints through the Model Context Protocol — no code required.
@@ -54,12 +54,43 @@ Each API key carries a set of scopes that restrict which operations it may perfo
 | `groups:read` | List and retrieve groups |
 | `groups:write` | Create, update, delete groups; manage members |
 | `applications:read` | List and retrieve applications |
-| `applications:write` | Update and disable applications |
+| `applications:read` | List and retrieve applications |
+| `applications:write` | Create, update, delete applications; manage default roles |
 | `sessions:read` | List active sessions |
 | `sessions:write` | Revoke sessions |
 | `audit_logs:read` | Read audit log events |
+| `user_attributes:read` | Read per-user custom attributes |
+| `user_attributes:write` | Set and delete per-user custom attributes |
+| `claim_mappers:read` | List claim mapper configurations |
+| `claim_mappers:write` | Create, update, delete claim mappers |
+| `workspace:read` | Read workspace configuration |
+| `webhooks:read` | List webhook endpoint subscriptions |
+| `webhooks:write` | Create and delete webhook endpoints |
+| `resource_servers:read` | List resource servers and application bindings |
+| `resource_servers:write` | Create, update, delete resource servers; manage application bindings |
+| `api_keys:read` | List API keys |
+| `api_keys:write` | Create and revoke API keys |
+| `auth:send-otp` | Send Email OTP challenges |
+| `auth:verify-otp` | Verify Email OTP codes and receive authorization codes |
 
 Always issue API keys with the minimum scope required. A key used for read-only reporting should not have `write` scopes.
+
+## Rate limiting
+
+Write operations (`POST`, `PUT`, `PATCH`, `DELETE`) are rate-limited to **60 requests per 60-second window** per API key per workspace. Read operations (`GET`) are unrestricted.
+
+When the limit is exceeded, the API returns `429 Too Many Requests` with a `Retry-After` header indicating how many seconds to wait:
+
+```json
+{
+  "type": "https://kotauth.dev/errors/429",
+  "title": "Rate limit exceeded",
+  "status": 429,
+  "detail": "API write rate limit exceeded for this key in this workspace. Retry after 60 seconds."
+}
+```
+
+The rate limit is scoped to the combination of API key prefix and workspace slug, so different keys hitting the same workspace have independent counters.
 
 ## Pagination
 

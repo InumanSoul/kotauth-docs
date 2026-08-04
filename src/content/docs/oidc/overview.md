@@ -48,4 +48,5 @@ Key rotation is currently manual — a new key pair can be generated from the ad
 - [RFC 7009](https://www.rfc-editor.org/rfc/rfc7009) — Token Revocation
 - [RFC 8414](https://www.rfc-editor.org/rfc/rfc8414) — Authorization Server Metadata (Discovery)
 - [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)
+- [RFC 8707](https://www.rfc-editor.org/rfc/rfc8707) — Resource Indicators for OAuth 2.0
 - [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html)

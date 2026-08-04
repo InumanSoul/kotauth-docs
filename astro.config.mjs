@@ -82,6 +82,10 @@ export default defineConfig({
 						{ label: 'Audit Logs', slug: 'api/audit-logs' },
 						{ label: 'User Attributes', slug: 'api/user-attributes' },
 						{ label: 'Claim Mappers', slug: 'api/claim-mappers' },
+						{ label: 'API Keys', slug: 'api/api-keys' },
+						{ label: 'Resource Servers', slug: 'api/resource-servers' },
+						{ label: 'Webhooks (API)', slug: 'api/webhooks' },
+						{ label: 'Workspace', slug: 'api/workspace' },
 					],
 				},
 				{

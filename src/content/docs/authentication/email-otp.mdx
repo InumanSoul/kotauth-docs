@@ -59,7 +59,8 @@ Content-Type: application/json
 
 {
   "email": "alice@example.com",
-  "originatingClientId": "my-spa"
+  "originatingClientId": "my-spa",
+  "resources": ["https://api.yourdomain.com"]
 }
 ```
 
@@ -67,6 +68,7 @@ Content-Type: application/json
 |---|---|---|
 | `email` | Yes | The user's email address |
 | `originatingClientId` | No | The OAuth client initiating the flow. Used to apply client default roles on account creation. |
+| `resources` | No | Array of [RFC 8707](https://www.rfc-editor.org/rfc/rfc8707) resource indicator URIs. When provided, the resulting authorization code is bound to these resources. Defaults to an empty list. |
 
 **Response `202 Accepted`:**
 
