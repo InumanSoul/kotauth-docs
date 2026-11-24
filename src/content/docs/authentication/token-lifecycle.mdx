@@ -13,7 +13,9 @@ Understanding how tokens work in Kotauth prevents a class of subtle integration 
 
 A short-lived RS256-signed JWT. Resource servers verify it using the workspace JWKS endpoint — no call to Kotauth per request.
 
-**Default lifetime:** 300 seconds (5 minutes). Configurable per application in the admin console.
+**Default lifetime:** the workspace's access-token lifetime, 3600 seconds (1 hour) by default. An application can override it with its own **Access token lifetime** (60 to 86400 seconds) on its edit page or `tokenExpiryOverride` in the [Applications API](/api/applications/).
+
+The `aud` claim is the requested `resource`, otherwise the application's `audience`, otherwise its `client_id`. Access tokens for a user also carry `acr` (when a second factor was used) and `auth_time`.
 
 **Contents:**
 
@@ -51,9 +53,16 @@ A long-lived opaque token. Only meaningful to Kotauth — resource servers never
 
 Used to obtain a new access token without re-authenticating. Returns a new access token **and** a new refresh token on every use (rotation).
 
+A refresh token works only:
+
+- at the token endpoint of the workspace that issued it;
+- for the client it was issued to, while that client exists and is enabled. A disabled client's refresh tokens and unredeemed authorization codes are refused with `invalid_client` until it is re-enabled; a deleted client's sessions end.
+
 ### ID token
 
 A JWT issued alongside the access token during OIDC flows. Contains user identity claims. Intended for the **client application**, not resource servers. Use it to display user info in your UI, not to protect API endpoints.
+
+Its `aud` is always the `client_id`, even when the application has a custom `audience`. It carries `auth_time`, `amr` (how the user signed in) and, after a second factor, `acr`. A refreshed ID token keeps the original sign-in's `auth_time` and `amr`. See [MFA → How tokens say what was proven](/authentication/mfa/#how-tokens-say-what-was-proven).
 
 ## Token rotation
 
@@ -95,10 +104,14 @@ These settings live in the admin console per workspace (or per application for a
 
 | Setting | Default | Notes |
 |---|---|---|
-| Access token TTL | 300s (5 min) | Configurable per application |
+| Access token TTL | 3600s (1 hour) | Workspace-wide, with a per-application override (60–86400s) |
 | Refresh token TTL | 86400s (24h) | Workspace-wide |
 | Email verification token | 24h | Fixed |
 | Password reset token | 1h | Fixed |
+
+## Concurrent session limit
+
+**Security → Security policy → Sessions → Max concurrent sessions** (or `maxConcurrentSessions` on `PATCH /workspace`) limits how many active sessions a user may hold **in one application**, for example one per device. A sign-in past the limit ends the user's oldest session in that application; sessions in other applications don't count. Sessions whose access token expired but can still refresh count toward the limit. `0` removes the limit. Each ended session is audited as `SESSION_REVOKED` with reason `session_limit`.
 
 ## Session revocation
 

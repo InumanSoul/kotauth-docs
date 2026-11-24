@@ -13,7 +13,7 @@ Kotauth supports passkeys — the FIDO2/WebAuthn standard for passwordless sign-
 3. The browser prompts the user to verify with biometrics, PIN, or hardware key
 4. The authenticator signs the challenge with its private key and returns the assertion
 5. Kotauth verifies the signature, checks the sign counter, and creates a session with `mfaCompleted=true`
-Passkeys are a **sibling sign-in method** to passwords, not an MFA mechanism. A user can hold a password, TOTP enrollment, and multiple passkeys simultaneously. Signing in with a passkey completes the full authentication flow in one step — no separate MFA challenge.
+Passkeys are a **sibling sign-in method** to passwords, not an MFA mechanism. A user can hold a password, TOTP enrollment, and multiple passkeys simultaneously. A passkey verified **with user verification** (biometric or PIN) counts as two factors and completes sign-in in one step. A passkey asserted without user verification counts as one factor: a user with TOTP enrolled is then challenged, as after a password (since v1.28.1).
 
 ## Enrollment
 

@@ -211,13 +211,13 @@ Email OTP does not bypass MFA. On the hosted page, a user with TOTP enrolled is 
 
 ## Workspace configuration
 
-Email OTP settings are managed in the admin console under **Settings → Authentication**:
+Email OTP settings are managed in the admin console under **Security → Security policy → Email Codes**, or with `PATCH /workspace`:
 
 | Setting | Description |
 |---|---|
 | Email OTP enabled | Toggle the Email OTP login method on/off |
 | Allow self-registration via OTP | Create accounts automatically for unknown emails |
-| Lockout threshold | Number of failed OTP attempts before account lockout |
+| Lockout threshold | Wrong codes, across separate requests, before the account locks. `0` to `50`; `0` turns it off. |
 | Lockout duration | How long the account stays locked (minutes) |
 
 :::caution

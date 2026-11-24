@@ -33,6 +33,8 @@ Currently supported actions:
 
 Users with pending required actions cannot authenticate via the normal login flow. The login page displays an actionable message directing them to check their email or ask an admin to resend the invite.
 
+A user who resets their password through **Forgot password** instead of accepting the invite is treated as if they accepted it: the reset marks the email verified, clears `SET_PASSWORD` (and any forced password change), and invalidates the outstanding invite link.
+
 ## Token purpose separation
 
 Invite tokens and password-reset tokens share the same underlying `password_reset_tokens` table but are distinguished by a `purpose` column:
@@ -46,7 +48,7 @@ Cross-purpose token usage is rejected at the service layer. An invite token cann
 
 ## Resending invitations
 
-Admins can resend an invite from the user detail page in the admin console. Resending generates a fresh token (invalidating the previous one) and dispatches a new invite email. The user detail page shows an **"Invite pending"** badge for users who haven't yet completed setup.
+Admins can resend an invite from the user detail page in the admin console, or with `POST /users/{userId}/resend-invite` (see [Users API](/api/users/)). Resending generates a fresh token (invalidating the previous one) and dispatches a new invite email. The user detail page shows an **"Invite pending"** badge for users who haven't yet completed setup.
 
 ## Audit events
 
@@ -57,19 +59,19 @@ Admins can resend an invite from the user detail page in the admin console. Rese
 
 ## API usage
 
-When creating a user via the REST API, pass `sendInvite: true` in the request body and omit the `password` field:
+Invite a user with `POST /users/invite`. It takes no password:
 
 ```bash
-curl -X POST https://your-instance.com/t/acme/api/v1/users \
+curl -X POST https://your-instance.com/t/acme/api/v1/users/invite \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "alice@example.com",
-    "firstName": "Alice",
-    "lastName": "Smith",
-    "sendInvite": true
+    "email": "alice@example.com",
+    "fullName": "Alice Smith"
   }'
 ```
+
+`username` is optional and generated when omitted. The key needs the `users:write` scope, and the workspace needs SMTP.
 
 The response includes `requiredActions: ["SET_PASSWORD"]` and `emailVerified: false` until the user completes the invite flow.
 
