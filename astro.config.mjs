@@ -63,6 +63,7 @@ export default defineConfig({
 						{ label: 'Authorization Code + PKCE', slug: 'authentication/authorization-code' },
 						{ label: 'Client Credentials', slug: 'authentication/client-credentials' },
 						{ label: 'Social Login', slug: 'authentication/social-login' },
+						{ label: 'OIDC Identity Brokering', slug: 'authentication/oidc-brokering' },
 						{ label: 'Multi-Factor Authentication', slug: 'authentication/mfa' },
 						{ label: 'Token Lifecycle', slug: 'authentication/token-lifecycle' },
 						{ label: 'User Invitations', slug: 'authentication/user-invitations' },
@@ -86,6 +87,14 @@ export default defineConfig({
 						{ label: 'Resource Servers', slug: 'api/resource-servers' },
 						{ label: 'Webhooks (API)', slug: 'api/webhooks' },
 						{ label: 'Workspace', slug: 'api/workspace' },
+						{ label: 'Identity Providers', slug: 'api/identity-providers' },
+						{ label: 'Tenants (Workspaces)', slug: 'api/tenants' },
+					],
+				},
+				{
+					label: 'Enterprise',
+					items: [
+						{ label: 'SCIM 2.0 Provisioning', slug: 'enterprise/scim' },
 					],
 				},
 				{
@@ -126,6 +135,7 @@ export default defineConfig({
 						{ label: 'Production Checklist', slug: 'deployment/production' },
 						{ label: 'External Databases', slug: 'deployment/external-database' },
 						{ label: 'CLI Commands', slug: 'deployment/cli' },
+						{ label: 'Provisioning', slug: 'deployment/provisioning' },
 						{ label: 'Key Rotation', slug: 'deployment/key-rotation' },
 						{ label: 'Backup & Restore', slug: 'deployment/backup-restore' },
 						{ label: 'Redis', slug: 'deployment/redis' },

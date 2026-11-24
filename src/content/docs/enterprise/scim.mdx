@@ -1,0 +1,45 @@
+---
+title: SCIM 2.0 Provisioning
+description: Sync users and groups from Microsoft Entra ID, Okta or any SCIM client.
+---
+
+Available since v1.23.0. Kotauth implements the [SCIM 2.0](https://www.rfc-editor.org/rfc/rfc7644) service-provider protocol, so a corporate directory can create, update and deactivate users and groups in a workspace automatically.
+
+## Endpoints
+
+The base URL for a workspace is `https://{your-kotauth}/t/{slug}/scim/v2`. The console shows it under **Provisioning** in the workspace navigation, ready to paste into the identity provider.
+
+| Path | Methods |
+|---|---|
+| `/Users`, `/Users/{id}` | `GET`, `POST`, `PUT`, `PATCH`, `DELETE` |
+| `/Groups`, `/Groups/{id}` | `GET`, `POST`, `PUT`, `PATCH`, `DELETE` |
+| `/ServiceProviderConfig`, `/ResourceTypes`, `/Schemas` | `GET` |
+
+## Authentication
+
+Create a workspace [API key](/api/api-keys/) with the `scim` scope and give it to the identity provider as a bearer token. Every request is scoped to the workspace in the path.
+
+### Dialects
+
+Each SCIM key declares the wire dialect its client speaks. Pick it when creating the key, or change it later on the **Provisioning** page:
+
+| Dialect | Use for | What it does |
+|---|---|---|
+| `rfc` (default) | Any spec-compliant client | Parses payloads exactly as RFC 7644 defines them |
+| `entra` | Microsoft Entra ID | Reads the `"True"`/`"False"` strings Entra sends as booleans, so a deprovision is not ignored |
+| `okta` | Okta | Ignores the advisory `display` name Okta sends beside each group member id |
+
+The dialect comes from the key, never from a request header. A key provisioned through `KAUTH_BOOTSTRAP_API_KEYS` sets it with the entry's `scimDialect` field.
+
+## Behavior
+
+- **Correlation.** `externalId` on users and groups is unique per workspace, so a client finds the record it created without matching on a mutable attribute.
+- **Filtering and paging.** `eq` filters combined with `and`/`or` (RFC 7644 §3.4.2.2), with `startIndex`/`count`. Filters on `userName`, `externalId` and `id` use an indexed lookup. Matching ignores case wherever `/Schemas` says an attribute is case-insensitive.
+- **Strict validation.** A value of the wrong JSON type, such as `"active": "false"` under the `rfc` dialect, is a `400 invalidValue` naming the attribute. It is never coerced or silently dropped. Unknown attributes are refused on `POST`, `PUT` and `PATCH`.
+- **Deprovisioning.** `DELETE /Users/{id}` and `active: false` **disable** the user rather than deleting them. The account stays fetchable and the change is audited like any admin disable.
+- **Groups.** Deleting a group that still has subgroups answers `409`.
+- **Admin UI.** Users and groups with an `externalId` show an **IdP-managed** badge, since the identity provider may overwrite a local edit on its next sync.
+
+:::note
+Individual SCIM requests are not yet recorded in the audit log. The Provisioning page says so rather than showing a health badge.
+:::
