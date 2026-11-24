@@ -113,7 +113,7 @@ The authorization code has a 60-second TTL and is exchanged for tokens via the s
 
 ### Second factor
 
-Email OTP does not bypass MFA. When the user has TOTP enrolled, or the workspace or application requires MFA, `verify-otp` does not return a code. It answers `403` instead:
+Email OTP does not bypass MFA. When the user has TOTP enrolled, or the workspace MFA policy requires a second factor they lack, `verify-otp` does not return a code. It answers `403` instead:
 
 ```json
 {
