@@ -201,7 +201,7 @@ Each object in the array:
 | `keyHash` | Yes | SHA-256 hex digest of the raw API key |
 | `keyPrefix` | No | Display prefix (default: `kauth_{tenant}` truncated to 16 chars) |
 | `awaitTenant` | No | `true` holds the key at startup when its workspace does not exist yet, and provisions it in the same transaction that creates or imports the workspace. Without it, an unknown slug stops startup. |
-| `scimDialect` | No | SCIM dialect for a key with the `scim` scope: `entra` or `okta`. Defaults to the spec-canonical behavior. |
+| `scimDialect` | No | SCIM dialect for a key with the `scim` scope: `rfc` (default), `entra` or `okta`. |
 
 **Upsert behavior:**
 - If no key with that `(tenant, name)` pair exists: created with `enabled=true`

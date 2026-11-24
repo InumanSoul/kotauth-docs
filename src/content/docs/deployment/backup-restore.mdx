@@ -15,9 +15,8 @@ Kotauth can export entire workspaces as encrypted, portable archive files that c
 | Roles, groups, user attributes, claim mappers | Identity-provider client secrets |
 | Applications, with grant types, audience, launcher settings and token lifetime | The SMTP password |
 | Resource servers, client authorizations and per-client scope allowlists | MFA (TOTP) seeds |
-| Identity providers: issuer, endpoints, scopes and JIT settings | Signing keys, unless you opt in at export |
+| Identity providers: issuer, endpoints, scopes and JIT settings | Signing keys and the audit log, unless you opt in at export |
 | Workspace settings, including its [public domain](/deployment/custom-domains/) | |
-| Audit log | |
 
 Restored identity providers stay **disabled** until you enter their client secret again, so a provider without a secret fails at configuration time rather than at the first sign-in. Users with MFA enroll again.
 
@@ -89,28 +88,50 @@ The same operations are available via the REST API for programmatic backup workf
 
 ### Export
 
-```
+```http
 POST /admin/api/v1/tenants/{slug}/export
+Authorization: Bearer {master-api-key}
 Content-Type: application/json
-Authorization: Bearer {admin-api-key}
 
 {
-  "passphrase": "your-strong-passphrase"
+  "passphrase": "your-strong-passphrase",
+  "includeSigningKeys": false,
+  "includeAuditLog": false
 }
 ```
 
-Returns the encrypted `.bkp1` archive as a binary download (`application/octet-stream`).
+Needs a master API key with the `tenants:export` scope. `includeSigningKeys` and `includeAuditLog` default to `false`.
+
+**Response `200 OK`:**
+
+```json
+{
+  "envelope": "…",
+  "schemaVersion": 72,
+  "kotauthVersion": "1.31.0",
+  "exportedAt": 1764000000000,
+  "summary": { "users": 120, "applications": 4, "…": "…" },
+  "manifest": { "…": "…" }
+}
+```
+
+`envelope` is the encrypted archive as a string. Store it as-is; it is what import takes.
 
 ### Import
 
-```
+```http
 POST /admin/api/v1/tenants/import
-Content-Type: multipart/form-data
-Authorization: Bearer {admin-api-key}
+Authorization: Bearer {master-api-key}
+Content-Type: application/json
 
-file: <archive.bkp1>
-passphrase: your-strong-passphrase
+{
+  "envelope": "…",
+  "passphrase": "your-strong-passphrase",
+  "newSlug": "my-workspace"
+}
 ```
+
+Needs a master API key with the `tenants:import` scope. The workspace is created under `newSlug`.
 
 Returns the import summary on success: the new workspace slug and counts of `users`, `applications`, `roles`, `groups`, `claimMappers`, `socialProviders`, `resourceServers`, `signingKeys` and `auditEvents`, plus `usernameRewrites` and `usersWithNewSubject`.
 
