@@ -196,4 +196,8 @@ java -jar kauth.jar cli import-tenant \
 Importing a tenant with a slug that already exists will fail. Delete or rename the existing workspace first.
 :::
 
+The command prints the counts it restored (`users=`, `apps=`, `resourceServers=`, `signingKeys=` and more), then re-enrollment notes, including whether a fresh signing key was provisioned. The [REST import](/deployment/backup-restore/#what-import-does) also reports `usersWithNewSubject` and username rewrites.
+
+On an empty database, the first CLI command to run applies the migrations and seeds the master `admin` account. Both `export-tenant` and `import-tenant` honor `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` and demo mode the same way the server does, so you can import before the server's first start.
+
 See [Backup & Restore](/deployment/backup-restore/) for full documentation.

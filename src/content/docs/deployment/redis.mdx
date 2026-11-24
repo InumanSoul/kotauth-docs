@@ -17,16 +17,18 @@ Set the `KAUTH_REDIS_URL` environment variable to your Redis connection string:
 KAUTH_REDIS_URL=redis://localhost:6379
 ```
 
-With authentication:
+With authentication, keep credentials out of the URL:
 
 ```dotenv
-KAUTH_REDIS_URL=redis://:your-password@redis-host:6379
+KAUTH_REDIS_URL=redis://redis-host:6379
+KAUTH_REDIS_USERNAME=kotauth        # only for Redis 6+ ACL users
+KAUTH_REDIS_PASSWORD=your-password
 ```
 
-With TLS (Redis 6+):
+With TLS, use the `rediss://` scheme:
 
 ```dotenv
-KAUTH_REDIS_URL=rediss://:your-password@redis-host:6380
+KAUTH_REDIS_URL=rediss://redis-host:6380
 ```
 
 When `KAUTH_REDIS_URL` is set, Kotauth automatically switches from in-memory to Redis-backed implementations for both sessions and rate limiting. No other configuration changes are required.
@@ -59,9 +61,13 @@ Additional environment variables for Redis connection behavior:
 | Variable | Default | Description |
 |---|---|---|
 | `KAUTH_REDIS_URL` | — | Redis connection URL (required to enable Redis) |
-| `KAUTH_REDIS_POOL_SIZE` | `8` | Maximum connections in the Lettuce pool |
-| `KAUTH_REDIS_TIMEOUT_MS` | `3000` | Connection and command timeout in milliseconds |
-| `KAUTH_REDIS_KEY_PREFIX` | `kotauth:` | Prefix for all Redis keys (useful for shared Redis instances) |
+| `KAUTH_REDIS_USERNAME` | — | ACL username (Redis 6+) |
+| `KAUTH_REDIS_PASSWORD` | — | Password; also readable from `KAUTH_REDIS_PASSWORD_FILE` |
+| `KAUTH_REDIS_TIMEOUT_MS` | `250` | Connection timeout in milliseconds |
+| `KAUTH_REDIS_COMMAND_TIMEOUT_MS` | `100` | Timeout for a single command in milliseconds |
+| `KAUTH_REDIS_STARTUP_PROBE_TIMEOUT_MS` | `2000` | How long the startup check waits for Redis |
+
+All keys start with `kauth:`. The prefix is fixed, so give Kotauth its own Redis database (`redis://host:6379/2`) or instance when sharing a server.
 
 ## Docker Compose example
 

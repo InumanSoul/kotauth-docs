@@ -5,7 +5,28 @@ sidebar:
   order: 7
 ---
 
-Kotauth can export entire workspaces as encrypted, portable archive files. These snapshots contain all tenant data — users, roles, groups, applications, sessions, audit logs, attributes, claim mappers, and settings — in a single file that can be imported into another Kotauth instance.
+Kotauth can export entire workspaces as encrypted, portable archive files that can be imported into another Kotauth instance.
+
+## What a backup carries
+
+| Carried | Not carried |
+|---|---|
+| Users, including each user's `sub` (since v1.31.0) | Client secrets |
+| Roles, groups, user attributes, claim mappers | Identity-provider client secrets |
+| Applications, with grant types, audience, launcher settings and token lifetime | The SMTP password |
+| Resource servers, client authorizations and per-client scope allowlists | MFA (TOTP) seeds |
+| Identity providers: issuer, endpoints, scopes and JIT settings | Signing keys, unless you opt in at export |
+| Workspace settings, including its [public domain](/deployment/custom-domains/) | |
+| Audit log | |
+
+Restored identity providers stay **disabled** until you enter their client secret again, so a provider without a secret fails at configuration time rather than at the first sign-in. Users with MFA enroll again.
+
+## What import does
+
+- **Signing key.** A backup without signing keys gets a fresh RS256 key in the same transaction that creates the workspace, so it issues tokens right away. A backup that carries its own active key keeps that key.
+- **`sub` is preserved.** Relying parties keep every link after a move. Users from a backup taken before v1.31.0 get a new `sub`; the import summary reports how many as `usersWithNewSubject`, and those users must be relinked by `sub`.
+- **Legacy usernames are rewritten.** Usernames from backups older than v1.24.0 that break the current format are rewritten, and the summary lists each one with the user's email.
+- **Conflicts are refused.** Import fails, changing nothing, when two users in the backup share a `sub`, or a username equals another user's email address.
 
 ## Use cases
 
@@ -91,7 +112,7 @@ file: <archive.bkp1>
 passphrase: your-strong-passphrase
 ```
 
-Returns the imported tenant metadata on success.
+Returns the import summary on success: the new workspace slug and counts of `users`, `applications`, `roles`, `groups`, `claimMappers`, `socialProviders`, `resourceServers`, `signingKeys` and `auditEvents`, plus `usernameRewrites` and `usersWithNewSubject`.
 
 ## Schema compatibility
 
