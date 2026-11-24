@@ -1,0 +1,57 @@
+---
+title: Upgrading
+description: Changes that need action when you upgrade Kotauth, release by release.
+---
+
+Kotauth applies its database migrations on startup, so most upgrades are a new image tag and a restart. The releases below changed behavior that an integration or deployment may depend on. Read every section between your current version and the one you are moving to.
+
+The full list of changes for each release is in the [changelog](https://github.com/InumanSoul/kotauth/blob/main/CHANGELOG.md).
+
+## v1.31.0 — new users get a UUID `sub`
+
+`sub` used to be the user's database row id, a sequential number. New users now get a random UUID, such as `3f6c1e2a-8b4d-4c7e-9a51-2d0f6b8e7c13`. Users that exist when you upgrade keep the `sub` they have, so no existing token, link or integration changes for them.
+
+**Action:** if a relying party stores `sub` in an integer column, change that column to text **before** upgrading. The first user created afterwards has a UUID.
+
+Backups made on v1.31.0 carry each user's `sub`, so a workspace moved to another instance keeps the identifiers its clients stored. See [Backup & Restore](/deployment/backup-restore/).
+
+## v1.30.1 — webhooks cannot reach private networks
+
+Webhook deliveries to loopback, private and carrier-grade NAT addresses are refused, and link-local and cloud-metadata addresses are always refused. Redirects are never followed.
+
+**Action:** if your webhooks go to services on your own network, for example `http://app:8080` on a Docker network, set `KAUTH_WEBHOOK_ALLOW_PRIVATE_NETWORKS=true` before upgrading. See [Webhooks](/customization/webhooks/#which-addresses-a-webhook-can-reach).
+
+Also in this release, removing an entry from `KAUTH_BOOTSTRAP_API_KEYS` revokes that key at the next startup. Leaving the variable unset counts as an empty list.
+
+## v1.29.0 — the email-code API asks for the second factor
+
+`POST /auth/verify-otp` used to return an authorization code even for users with MFA. It now answers `403` with `error: "mfa_required"` and an `mfaToken`, and the sign-in is completed with `POST /auth/verify-mfa`. A user who lacks MFA the workspace requires gets `403 mfa_enrollment_required`.
+
+**Action:** integrations that call the email-code API must handle these responses. See [Email OTP → Second factor](/authentication/email-otp/#second-factor).
+
+## v1.28.1 — every sign-in path asks for the second factor
+
+Before, only password sign-in asked for an enrolled TOTP code. Magic link, email code, social sign-in and passkeys without user verification now go through the same step. A passkey with user verification still counts as both factors.
+
+**Action:** none for most deployments. Users with TOTP enrolled now see the MFA challenge after those sign-in methods. Since v1.30.0, a user in a workspace that requires MFA sets it up during sign-in instead of being refused.
+
+## v1.25.0 — per-client scope allowlists
+
+Authorizing a client against a resource server no longer grants it every scope the API declares. Each client has an explicit allowlist. Existing authorizations are backfilled with the scopes they had, so nothing changes on upgrade.
+
+**Action:** a scope you add to an API later is not granted to existing clients. Grant it per client on the application's **Authorized APIs** page, or with the [resource-server API](/api/resource-servers/).
+
+## v1.23.0 — deleting a group with subgroups is refused
+
+`DELETE /groups/{groupId}` used to turn the group's children into root groups. It now answers `409 Conflict` while the group has subgroups.
+
+**Action:** delete or move subgroups first.
+
+## v1.22.0 — applications declare their grant types
+
+Each application now lists the OAuth2 grants it may use, and the token endpoint refuses any other grant with `unauthorized_client`. The upgrade backfills existing clients with what they could already do: confidential clients get all three grants, public clients get `authorization_code` and `refresh_token`. **Bearer-only clients get none** and are refused at the token endpoint.
+
+**Action:**
+
+- If a bearer-only client was driving a flow, change its access type to confidential or public and select the grants it uses.
+- A script that creates machine-to-machine applications with `POST /applications` must send `"grantTypes": ["client_credentials"]`. When `grantTypes` is omitted, the default is `authorization_code` and `refresh_token`, never `client_credentials`. See [Applications API](/api/applications/#create-an-application).

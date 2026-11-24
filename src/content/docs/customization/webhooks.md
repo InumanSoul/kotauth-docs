@@ -24,6 +24,22 @@ In the admin console, navigate to **Workspace → Webhooks → Add Endpoint**. P
 
 On save, Kotauth generates a random 32-byte hex **signing secret**. This value is shown exactly once — copy it immediately and store it securely. It is not recoverable; if lost, delete the endpoint and create a new one.
 
+## Which addresses a webhook can reach
+
+A webhook URL is set by a workspace admin or an API key, so Kotauth checks every address the host resolves to, when the endpoint is saved and again on each delivery. The connection goes only to addresses that passed the check, and redirects are never followed.
+
+| Address range | Allowed |
+|---|---|
+| Public internet addresses | Yes |
+| Loopback (`127.0.0.0/8`, `::1`), private (`10/8`, `172.16/12`, `192.168/16`, `fc00::/7`) and carrier-grade NAT (`100.64/10`) | Only with `KAUTH_WEBHOOK_ALLOW_PRIVATE_NETWORKS=true` |
+| Link-local and cloud metadata (`169.254.0.0/16`, `fd00:ec2::254`), unspecified, broadcast and multicast | Never |
+
+A refused URL is rejected on save with `422` and a message naming the reason. A host that later resolves to a refused address fails its delivery, which shows in the delivery log.
+
+:::caution[Upgrading to v1.30.1 or later]
+If your webhooks go to services on your own network, such as `http://app:8080` on a Docker network, set `KAUTH_WEBHOOK_ALLOW_PRIVATE_NETWORKS=true` before upgrading. Otherwise their deliveries fail.
+:::
+
 ## Payload format
 
 Every delivery is an HTTP POST with `Content-Type: application/json`. The body follows this envelope:
