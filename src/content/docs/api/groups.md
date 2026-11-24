@@ -123,9 +123,11 @@ PUT /t/{slug}/api/v1/groups/{groupId}
 DELETE /t/{slug}/api/v1/groups/{groupId}
 ```
 
-Deletes the group and removes all user memberships. Child groups are **not** deleted — they become root groups.
+Deletes the group and removes all user memberships.
 
 **Response `204 No Content`**
+
+A group that still has subgroups is not deleted: the response is `409 Conflict`, naming the subgroups that block it. Delete or move them first. Before v1.23.0, subgroups became root groups instead.
 
 ---
 

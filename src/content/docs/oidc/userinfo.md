@@ -20,7 +20,7 @@ The claims returned depend on the scopes granted to the access token:
 
 ```json
 {
-  "sub": "42",
+  "sub": "3f6c1e2a-8b4d-4c7e-9a51-2d0f6b8e7c13",
   "name": "Alice Smith",
   "preferred_username": "alice",
   "email": "alice@example.com",
@@ -30,11 +30,15 @@ The claims returned depend on the scopes granted to the access token:
 
 | Claim | Scope required | Description |
 |---|---|---|
-| `sub` | `openid` | Subject — the user's internal ID as a string |
+| `sub` | `openid` | Subject — a stable, opaque string that identifies the user in this workspace |
 | `name` | `profile` | User's full display name |
 | `preferred_username` | `profile` | User's username |
 | `email` | `email` | User's email address |
 | `email_verified` | `email` | Whether the email has been verified |
+
+:::note[Store `sub` as text]
+Since v1.31.0, new users get a random UUID as their `sub`. Users created before keep the numeric value they had, as a string. Treat `sub` as an opaque string and never parse it as a number.
+:::
 
 ## When to use this endpoint
 

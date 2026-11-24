@@ -50,6 +50,7 @@ export default defineConfig({
 						{ label: 'Quickstart', slug: 'getting-started/quickstart' },
 						{ label: 'Live Demo', slug: 'getting-started/demo' },
 						{ label: 'Core Concepts', slug: 'getting-started/core-concepts' },
+						{ label: 'Upgrading', slug: 'getting-started/upgrading' },
 					],
 				},
 				{

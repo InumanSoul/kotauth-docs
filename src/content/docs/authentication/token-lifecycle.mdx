@@ -20,7 +20,7 @@ A short-lived RS256-signed JWT. Resource servers verify it using the workspace J
 ```json
 {
   "iss": "https://auth.yourdomain.com/t/my-app",
-  "sub": "42",
+  "sub": "3f6c1e2a-8b4d-4c7e-9a51-2d0f6b8e7c13",
   "aud": ["my-spa"],
   "exp": 1735689600,
   "iat": 1735689300,
@@ -38,6 +38,8 @@ A short-lived RS256-signed JWT. Resource servers verify it using the workspace J
   }
 }
 ```
+
+`sub` is an opaque string: a random UUID for users created since v1.31.0, the numeric id as a string for older users. Store it as text.
 
 Access tokens are **not** stored in the Kotauth database. Once issued, they are verified purely by JWT signature. Revoking access requires waiting for expiry or accepting a short window of continued access (the token lifetime).
 

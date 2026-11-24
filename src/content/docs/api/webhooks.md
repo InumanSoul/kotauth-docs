@@ -102,6 +102,8 @@ The `secret` is returned exactly once. Store it securely — you need it to veri
 
 Unknown event names are rejected with `422 Unprocessable Entity` listing the invalid values.
 
+A URL whose host resolves to a loopback, private, link-local or metadata address is also rejected with `422`. See [which addresses a webhook can reach](/customization/webhooks/#which-addresses-a-webhook-can-reach).
+
 ---
 
 ## Delete a webhook endpoint

@@ -25,7 +25,9 @@ Applications are OAuth2 clients registered in a workspace. They represent pieces
     "https://app.yourdomain.com/callback",
     "http://localhost:3000/callback"
   ],
-  "audience": "https://api.yourdomain.com"
+  "grantTypes": ["authorization_code", "refresh_token"],
+  "audience": "https://api.yourdomain.com",
+  "tokenExpiryOverride": null
 }
 ```
 
@@ -38,7 +40,9 @@ Applications are OAuth2 clients registered in a workspace. They represent pieces
 | `accessType` | `public` \| `confidential` | Public = no secret, must use PKCE; Confidential = has client secret |
 | `enabled` | boolean | `false` = disabled, blocks new logins |
 | `redirectUris` | string[] | Allowed OAuth2 redirect URIs |
-| `audience` | string \| null | Custom JWT `aud` claim. Falls back to `clientId` if null. Max 200 characters. |
+| `grantTypes` | string[] | OAuth2 grants the application may use: `authorization_code`, `client_credentials`, `refresh_token`. The token endpoint refuses any other grant with `unauthorized_client`. |
+| `audience` | string \| null | Default `aud` of this client's access tokens when no `resource` is requested. Falls back to `clientId` if null. ID tokens are always addressed to `clientId`. Max 200 characters. |
+| `tokenExpiryOverride` | integer \| null | Access-token lifetime in seconds for this client. Null means the workspace's `tokenExpirySeconds` applies. |
 
 ---
 
@@ -66,7 +70,21 @@ Content-Type: application/json
 | `name` | Yes | Display name |
 | `description` | No | Optional description |
 | `accessType` | No | `public` (default) or `confidential` |
-| `redirectUris` | Yes | Array of allowed redirect URIs |
+| `redirectUris` | Yes | Array of allowed redirect URIs. Must contain at least one URI when `grantTypes` includes `authorization_code`; pass `[]` for a `client_credentials`-only application. |
+| `grantTypes` | No | Defaults to `["authorization_code", "refresh_token"]`. **Never** defaults to `client_credentials`, even for a confidential application: request it explicitly or the token endpoint answers `unauthorized_client`. |
+| `audience` | No | Default `aud` of this client's access tokens. Defaults to `clientId`. |
+
+A machine-to-machine application:
+
+```json
+{
+  "clientId": "billing-worker",
+  "name": "Billing worker",
+  "accessType": "confidential",
+  "redirectUris": [],
+  "grantTypes": ["client_credentials"]
+}
+```
 
 **Response `201 Created`:**
 
@@ -79,7 +97,10 @@ Content-Type: application/json
     "description": "Frontend web application",
     "accessType": "public",
     "enabled": true,
-    "redirectUris": ["https://app.yourdomain.com/callback", "http://localhost:3000/callback"]
+    "redirectUris": ["https://app.yourdomain.com/callback", "http://localhost:3000/callback"],
+    "grantTypes": ["authorization_code", "refresh_token"],
+    "audience": null,
+    "tokenExpiryOverride": null
   },
   "clientSecret": null
 }
@@ -167,7 +188,7 @@ GET /t/{slug}/api/v1/applications/{appId}
 PUT /t/{slug}/api/v1/applications/{appId}
 ```
 
-Updates the application's name, description, access type, and allowed redirect URIs. Changing `accessType` between `public` and `confidential` affects which OAuth2 flows the app can use.
+Updates any of the fields below; omitted fields keep their current value. Changing `accessType` between `public` and `confidential` affects which OAuth2 flows the app can use.
 
 **Request body:**
 
@@ -185,10 +206,13 @@ Updates the application's name, description, access type, and allowed redirect U
 
 | Field | Required | Description |
 |---|---|---|
-| `name` | Yes | Display name |
+| `name` | No | Display name |
 | `description` | No | Optional description (pass `null` to clear) |
-| `accessType` | Yes | `public` or `confidential` |
-| `redirectUris` | Yes | Array of allowed redirect URIs. Must be exact matches. |
+| `accessType` | No | `public`, `confidential` or `bearer_only` |
+| `redirectUris` | No | Array of allowed redirect URIs |
+| `grantTypes` | No | Omit to leave grants unchanged. An explicit array replaces them; it must name at least one grant unless the application is `bearer_only`. Remove `client_credentials` before demoting a confidential application to `public`. |
+| `audience` | No | Default `aud` of access tokens. An empty string clears it. |
+| `tokenExpiryOverride` | No | Access-token lifetime in seconds, `60` to `86400`. `0` clears it so the workspace setting applies. |
 
 **Response `200 OK`:** Returns the updated application object.
 

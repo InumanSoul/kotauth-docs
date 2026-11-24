@@ -35,7 +35,7 @@ As of v1.14.0, client authentication is **required** on both the introspection a
 ```json
 {
   "active": true,
-  "sub": "42",
+  "sub": "3f6c1e2a-8b4d-4c7e-9a51-2d0f6b8e7c13",
   "username": "alice",
   "email": "alice@example.com",
   "scope": "openid profile email",
