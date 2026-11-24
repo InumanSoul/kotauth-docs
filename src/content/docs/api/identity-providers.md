@@ -84,6 +84,12 @@ Content-Type: application/json
 
 Creates the provider when `{key}` is new (`201`), otherwise updates it (`200`).
 
+**`PUT` replaces the configuration.** Send every field you want to keep: an omitted `displayName`, `issuer` or endpoint becomes null, and an omitted `enabled` becomes `true`, so an update to an `oidc` provider without `issuer` fails validation. Only `clientSecret`, `scopes`, `jitEnabled` and `jitAllowedDomains` keep their stored value when omitted.
+
+:::caution
+The API cannot set the console's **Trust email claim** switch, and a `PUT` currently turns it off. Re-enable it in the console after updating such a provider over the API.
+:::
+
 | Field | Required | Description |
 |---|---|---|
 | `clientId` | Yes | |

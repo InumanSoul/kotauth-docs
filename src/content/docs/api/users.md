@@ -102,26 +102,38 @@ Creates a new user account. You can either set a password directly or send an in
 }
 ```
 
-**Request body (with invite):**
-
-```json
-{
-  "username": "bob",
-  "email": "bob@example.com",
-  "fullName": "Bob Jones",
-  "sendInvite": true
-}
-```
-
 | Field | Required | Constraints |
 |---|---|---|
 | `username` | No | Letters, digits and `. _ @ + -`, up to 255 characters. Stored lowercase; unique in the workspace and never equal to another user's email. Generated from the name or email when omitted (since v1.24.0). |
 | `email` | Yes | Valid email, unique in workspace |
 | `fullName` | Yes | Non-empty string |
-| `password` | Conditional | Required unless `sendInvite` is `true`. Workspace password policy applies |
-| `sendInvite` | No | When `true`, sends an invite email instead of setting a password. Requires SMTP to be configured. Default: `false` |
+| `password` | Yes | Workspace password policy applies. To let the user choose their own password, [invite them](#invite-a-user) instead. |
 
-When `sendInvite` is `true`, the created user will have `requiredActions: ["SET_PASSWORD"]` and `emailVerified: false` until they complete the invite flow.
+Unknown fields are refused with `400`.
+
+**Response `201 Created`:** Returns the created user object.
+
+## Invite a user
+
+```http
+POST /t/{slug}/api/v1/users/invite
+Content-Type: application/json
+
+{
+  "email": "bob@example.com",
+  "fullName": "Bob Jones"
+}
+```
+
+**Required scope:** `users:write`. Requires SMTP to be configured.
+
+| Field | Required | Constraints |
+|---|---|---|
+| `username` | No | Same rules as creation. Generated when omitted. |
+| `email` | Yes | Valid email, unique in workspace |
+| `fullName` | Yes | Non-empty string |
+
+Creates the user without a password and emails a 72-hour invite link. The user has `requiredActions: ["SET_PASSWORD"]` and `emailVerified: false` until they accept it. See [User Invitations](/authentication/user-invitations/).
 
 **Response `201 Created`:** Returns the created user object.
 
@@ -176,8 +188,8 @@ Updates a user's email, display name and, since v1.24.0, username. The same user
 
 | Field | Required | Description |
 |---|---|---|
-| `email` | Yes | New email address |
-| `fullName` | Yes | New display name |
+| `email` | No | New email address |
+| `fullName` | No | New display name |
 | `username` | No | New username. Omit to keep the current one. |
 
 **Response `200 OK`:** Returns the updated user object.

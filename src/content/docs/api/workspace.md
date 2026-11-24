@@ -126,16 +126,17 @@ Every field is optional, and only the fields in the body change. Unknown fields 
 | Field | Constraints |
 |---|---|
 | `displayName`, `issuerUrl` | |
-| `publicBaseUrl` | An origin only (`https://host[:port]`, no path). `http` only for `localhost`. |
+| `publicBaseUrl` | An origin only (`https://host[:port]`, no path). `http` only for `localhost`, `*.localhost`, `127.0.0.1` and `[::1]`. |
 | `tokenExpirySeconds` | At least `60` |
 | `refreshTokenExpirySeconds` | At least `tokenExpirySeconds` |
 | `registrationEnabled`, `emailVerificationRequired`, `emailOtpSignupEnabled`, `corsAllowCredentials` | |
 | `signInMethods` | At least one method stays on. Turning password off, or `magicLink`/`emailOtp` on, needs SMTP ready. Password cannot be turned off on `master`. |
-| `passwordPolicy` | `minLength` 4–128, `historyCount` 0–24, `maxAgeDays` 0–365, plus the boolean rules |
+| `passwordPolicy` | `minLength` 4–128 (refused outside). `historyCount` 0–24 and `maxAgeDays` 0–365 are clamped into range. Plus the boolean rules. |
 | `mfaPolicy` | `optional`, `required`, `required_admins` |
 | `lockoutMaxAttempts` | 0–100 |
-| `lockoutDurationMinutes`, `magicLinkTtlMinutes` | 1–1440 |
-| `emailOtpLockoutThreshold` | 0–50 |
+| `lockoutDurationMinutes` | 1–1440 |
+| `magicLinkTtlMinutes` | 1–1440, clamped into range |
+| `emailOtpLockoutThreshold` | 0–50, clamped into range |
 | `maxConcurrentSessions` | 0–100. `0` removes the limit. |
 | `loginIdentifierMode` | `USERNAME`, `EMAIL`, `EITHER` |
 | `defaultLocale` | A locale the server ships or has mounted, such as `es` |

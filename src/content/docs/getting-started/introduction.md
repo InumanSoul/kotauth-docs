@@ -55,7 +55,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Custom token audience.** Each application can specify a custom `aud` claim for its JWTs, separate from the `client_id`. The resolution order is: `application.audience` → `application.clientId` → `tenant.slug`. This is useful when resource servers expect a specific audience value.
 
-**Bootstrap API keys.** The `KAUTH_BOOTSTRAP_API_KEYS` environment variable accepts a JSON array of pre-provisioned API keys. Keys are upserted idempotently on startup — existing keys are updated if their hash or scopes changed, and new keys are created. Invalid tenant slugs or unknown scopes cause a fatal startup error. Useful for infrastructure-as-code and automated provisioning.
+**Bootstrap API keys.** The `KAUTH_BOOTSTRAP_API_KEYS` environment variable accepts a JSON array of pre-provisioned API keys. Keys are upserted idempotently on startup — existing keys are updated if their hash or scopes changed, new keys are created, and a key whose entry is removed is revoked. Invalid tenant slugs or unknown scopes cause a fatal startup error. Useful for infrastructure-as-code and automated provisioning.
 
 **OIDC identity brokering.** Sign users in through any OpenID Connect provider alongside Google and GitHub, with just-in-time account creation limited to allowed email domains. See [OIDC Identity Brokering](/authentication/oidc-brokering/).
 
@@ -71,7 +71,7 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Silent SSO.** OIDC `prompt=none` checks for existing sessions without user interaction. `max_age` enforces re-authentication after a specified duration. `id_token_hint` validates session identity. The `auth_time` claim lets clients verify session age independently.
 
-**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 33 tools let you manage users, roles, groups, applications, sessions, audit logs, user attributes, and claim mappers through natural language — no HTTP requests, no SDK, no code.
+**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 56 tools let you manage users, roles, groups, applications, sessions, audit logs, user attributes, claim mappers, API keys, webhooks, resource servers and more through natural language — no HTTP requests, no SDK, no code.
 
 ## How Kotauth compares
 
