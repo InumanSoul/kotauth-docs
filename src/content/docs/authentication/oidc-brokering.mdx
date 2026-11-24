@@ -1,0 +1,61 @@
+---
+title: OIDC Identity Brokering
+description: Sign users in through any OpenID Connect provider, with optional just-in-time account creation.
+---
+
+Available since v1.23.0. Besides the built-in Google and GitHub adapters (see [Social Login](/authentication/social-login/)), a workspace can sign users in through **any OpenID Connect provider**: Microsoft Entra ID, Okta, Auth0, Keycloak, or another Kotauth. Several providers can run side by side, each with its own credentials and sign-in button label.
+
+## Add a provider
+
+In the console, open **Settings → Identity Providers** and add a provider with:
+
+- a **key**: lowercase letters, digits and hyphens, up to 32 characters. It appears in the callback path and cannot change later.
+- a **display name**, shown on the sign-in button
+- the **issuer URL**, client ID and client secret
+- scopes, which must include `openid`
+
+Endpoints are read from the issuer's discovery document. For an issuer that publishes none, pin the authorization, token and JWKS endpoints instead. The same settings are available over the [Identity Providers API](/api/identity-providers/).
+
+**Test discovery** fetches the issuer's discovery document and shows the endpoints it resolved and how many signing keys it publishes. It does not check your client credentials or callback URL; the exact callback URL to register at the provider is printed next to the result:
+
+```
+https://{your-kotauth}/t/{slug}/auth/social/{key}/callback
+```
+
+With a [custom domain](/deployment/custom-domains/), the callback is on that domain.
+
+### What Kotauth verifies
+
+- Every issuer, endpoint and JWKS URI must be `https` (loopback is allowed for local development).
+- A discovery document that names a different issuer than the one configured is refused.
+- ID tokens are checked in a fixed order: the algorithm against an allowlist before any key is fetched, then the signature, then `iss`, `aud`, `azp`, `exp`, `iat`, `nonce` and `sub`. This refuses `alg: none` and key-confusion attacks.
+- The sign-in uses PKCE with the provider, and its `state` is bound to the browser that started it.
+- The provider's signing keys are cached for ten minutes.
+
+## Linking to existing accounts
+
+On every brokered sign-in, a **verified** email address that matches a user in the same workspace links the provider identity to that user. An unverified address that matches a local user ends the sign-in instead; an administrator reconciles the two records. The admin user page lists each account's linked identities.
+
+## Just-in-time provisioning
+
+A provider can create an account on someone's first sign-in instead of sending them to the registration form. All three must hold:
+
+1. **JIT** is on for that provider.
+2. The provider asserts the email address is verified (`email_verified: true`).
+3. The address's domain is on the provider's **allowed domains** list.
+
+Domains match exactly, never by suffix, and are compared in their punycode form. **An empty list means no account is created automatically**, even with JIT on. A created account uses the email address as its username, gets the originating application's default roles, and is audited. It is badged as brokered in the admin UI.
+
+### Issuers that never send `email_verified`
+
+Some issuers, including **Microsoft Entra ID**, never send `email_verified`, so every sign-in counts as unverified. A per-provider switch, **Trust email claim** (off by default), takes that issuer's `email` as verified.
+
+:::caution
+With the switch on, a sign-in whose address matches a local user **links to and signs in as that user**, with no domain restriction. Turn it on only for an issuer whose address space you control. Configuring an identity provider should be held to the same trust as administering the workspace's users.
+:::
+
+## When a sign-in is refused
+
+The user sees that authentication at the provider succeeded but the workspace did not grant access, and why: an unverified address (which they can fix at the provider), or a domain not on the list, or an address another local account already uses (which only an administrator can fix). If self-registration is open, they fall through to the registration page instead.
+
+Each provider's page in the console lists **recent sign-in failures** with the reason, the email **domain**, and a short reference the user is shown and can quote to you. No address, subject or credential is recorded.

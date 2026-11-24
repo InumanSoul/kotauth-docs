@@ -29,7 +29,7 @@ Users are identity records within a workspace. The Users API covers listing, cre
 | Field | Type | Description |
 |---|---|---|
 | `id` | integer | Internal numeric ID |
-| `username` | string | Unique within the workspace. Pattern: `[a-zA-Z0-9._-]+` |
+| `username` | string | Unique within the workspace, stored lowercase. Letters, digits and `. _ @ + -`. Cannot equal another user's email address. |
 | `email` | string | Email address |
 | `fullName` | string | Display name |
 | `emailVerified` | boolean | Whether the email has been verified |
@@ -102,26 +102,38 @@ Creates a new user account. You can either set a password directly or send an in
 }
 ```
 
-**Request body (with invite):**
+| Field | Required | Constraints |
+|---|---|---|
+| `username` | No | Letters, digits and `. _ @ + -`, up to 255 characters. Stored lowercase; unique in the workspace and never equal to another user's email. Generated from the name or email when omitted (since v1.24.0). |
+| `email` | Yes | Valid email, unique in workspace |
+| `fullName` | Yes | Non-empty string |
+| `password` | Yes | Workspace password policy applies. To let the user choose their own password, [invite them](#invite-a-user) instead. |
 
-```json
+Unknown fields are refused with `400`.
+
+**Response `201 Created`:** Returns the created user object.
+
+## Invite a user
+
+```http
+POST /t/{slug}/api/v1/users/invite
+Content-Type: application/json
+
 {
-  "username": "bob",
   "email": "bob@example.com",
-  "fullName": "Bob Jones",
-  "sendInvite": true
+  "fullName": "Bob Jones"
 }
 ```
 
+**Required scope:** `users:write`. Requires SMTP to be configured.
+
 | Field | Required | Constraints |
 |---|---|---|
-| `username` | Yes | Pattern `[a-zA-Z0-9._-]+`, unique in workspace |
+| `username` | No | Same rules as creation. Generated when omitted. |
 | `email` | Yes | Valid email, unique in workspace |
 | `fullName` | Yes | Non-empty string |
-| `password` | Conditional | Required unless `sendInvite` is `true`. Workspace password policy applies |
-| `sendInvite` | No | When `true`, sends an invite email instead of setting a password. Requires SMTP to be configured. Default: `false` |
 
-When `sendInvite` is `true`, the created user will have `requiredActions: ["SET_PASSWORD"]` and `emailVerified: false` until they complete the invite flow.
+Creates the user without a password and emails a 72-hour invite link. The user has `requiredActions: ["SET_PASSWORD"]` and `emailVerified: false` until they accept it. See [User Invitations](/authentication/user-invitations/).
 
 **Response `201 Created`:** Returns the created user object.
 
@@ -163,7 +175,7 @@ curl https://auth.yourdomain.com/t/my-app/api/v1/users/42 \
 PUT /t/{slug}/api/v1/users/{userId}
 ```
 
-Updates a user's email and/or display name. Username changes are not supported through the API — use the admin console.
+Updates a user's email, display name and, since v1.24.0, username. The same username rules as creation apply.
 
 **Request body:**
 
@@ -176,8 +188,9 @@ Updates a user's email and/or display name. Username changes are not supported t
 
 | Field | Required | Description |
 |---|---|---|
-| `email` | Yes | New email address |
-| `fullName` | Yes | New display name |
+| `email` | No | New email address |
+| `fullName` | No | New display name |
+| `username` | No | New username. Omit to keep the current one. |
 
 **Response `200 OK`:** Returns the updated user object.
 
@@ -242,11 +255,12 @@ Resends the invite email for a user who has a pending `SET_PASSWORD` required ac
 This endpoint requires SMTP to be configured for the workspace. It will return an error if the user does not have a pending invite (i.e. `SET_PASSWORD` is not in their `requiredActions`).
 :::
 
-**Response `200 OK`**
+**Required scope:** `users:write`
+
+**Response `204 No Content`**
 
 **Error responses:**
 
 | Status | Condition |
 |---|---|
-| `400 Bad Request` | User does not have a pending invite |
-| `500 Internal Server Error` | SMTP not configured or email delivery failed |
+| `422 Unprocessable Entity` | The user has no pending invite, or SMTP is not configured |

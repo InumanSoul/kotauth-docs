@@ -54,7 +54,6 @@ Each API key carries a set of scopes that restrict which operations it may perfo
 | `groups:read` | List and retrieve groups |
 | `groups:write` | Create, update, delete groups; manage members |
 | `applications:read` | List and retrieve applications |
-| `applications:read` | List and retrieve applications |
 | `applications:write` | Create, update, delete applications; manage default roles |
 | `sessions:read` | List active sessions |
 | `sessions:write` | Revoke sessions |
@@ -64,6 +63,9 @@ Each API key carries a set of scopes that restrict which operations it may perfo
 | `claim_mappers:read` | List claim mapper configurations |
 | `claim_mappers:write` | Create, update, delete claim mappers |
 | `workspace:read` | Read workspace configuration |
+| `workspace:write` | Change workspace settings (`PATCH /workspace`) |
+| `identity_providers:read` | List and retrieve identity providers |
+| `identity_providers:write` | Create, update and delete identity providers |
 | `webhooks:read` | List webhook endpoint subscriptions |
 | `webhooks:write` | Create and delete webhook endpoints |
 | `resource_servers:read` | List resource servers and application bindings |
@@ -71,7 +73,10 @@ Each API key carries a set of scopes that restrict which operations it may perfo
 | `api_keys:read` | List API keys |
 | `api_keys:write` | Create and revoke API keys |
 | `auth:send-otp` | Send Email OTP challenges |
-| `auth:verify-otp` | Verify Email OTP codes and receive authorization codes |
+| `auth:verify-otp` | Verify Email OTP codes and the second factor (`verify-mfa`), and receive authorization codes |
+| `scim` | The [SCIM 2.0](/enterprise/scim/) endpoints |
+
+Three scopes are honored only on a key of the `master` workspace: `tenants:write` ([create a workspace](/api/tenants/)), `tenants:export` and `tenants:import` ([backup and restore](/deployment/backup-restore/)).
 
 Always issue API keys with the minimum scope required. A key used for read-only reporting should not have `write` scopes.
 

@@ -55,11 +55,23 @@ It bridges the gap between complexity (Keycloak, Okta) and convenience (Clerk, A
 
 **Custom token audience.** Each application can specify a custom `aud` claim for its JWTs, separate from the `client_id`. The resolution order is: `application.audience` → `application.clientId` → `tenant.slug`. This is useful when resource servers expect a specific audience value.
 
-**Bootstrap API keys.** The `KAUTH_BOOTSTRAP_API_KEYS` environment variable accepts a JSON array of pre-provisioned API keys. Keys are upserted idempotently on startup — existing keys are updated if their hash or scopes changed, and new keys are created. Invalid tenant slugs or unknown scopes cause a fatal startup error. Useful for infrastructure-as-code and automated provisioning.
+**Bootstrap API keys.** The `KAUTH_BOOTSTRAP_API_KEYS` environment variable accepts a JSON array of pre-provisioned API keys. Keys are upserted idempotently on startup — existing keys are updated if their hash or scopes changed, new keys are created, and a key whose entry is removed is revoked. Invalid tenant slugs or unknown scopes cause a fatal startup error. Useful for infrastructure-as-code and automated provisioning.
+
+**OIDC identity brokering.** Sign users in through any OpenID Connect provider alongside Google and GitHub, with just-in-time account creation limited to allowed email domains. See [OIDC Identity Brokering](/authentication/oidc-brokering/).
+
+**SCIM 2.0 provisioning.** Microsoft Entra ID, Okta or any SCIM client can create, update and deactivate users and groups. See [SCIM 2.0](/enterprise/scim/).
+
+**MFA on every sign-in path.** Every sign-in method asks for the second factor, users enroll during sign-in when it is required, and clients can demand it per request with `acr_values`. See [Multi-Factor Authentication](/authentication/mfa/).
+
+**Machine-to-machine access control.** Applications declare their OAuth2 grant types, and each client has an explicit scope allowlist per API. See [Client Credentials](/authentication/client-credentials/).
+
+**Custom domains.** Serve a workspace's sign-in pages, issuer and emails on its own domain, with passkeys still working. See [Custom Domains](/deployment/custom-domains/).
+
+**Provisioning without the console.** Create workspaces and configure them over the API, with bootstrap keys from the environment. See [Provisioning](/deployment/provisioning/).
 
 **Silent SSO.** OIDC `prompt=none` checks for existing sessions without user interaction. `max_age` enforces re-authentication after a specified duration. `id_token_hint` validates session identity. The `auth_time` claim lets clients verify session age independently.
 
-**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 33 tools let you manage users, roles, groups, applications, sessions, audit logs, user attributes, and claim mappers through natural language — no HTTP requests, no SDK, no code.
+**AI-native management (MCP).** The [`@kotauth/mcp`](/mcp/overview) package connects AI assistants like Claude and Cursor directly to your Kotauth instance via the Model Context Protocol. 56 tools let you manage users, roles, groups, applications, sessions, audit logs, user attributes, claim mappers, API keys, webhooks, resource servers and more through natural language — no HTTP requests, no SDK, no code.
 
 ## How Kotauth compares
 
@@ -122,7 +134,7 @@ graph TB
     Domain --> Adapters
     Adapters --> PG[(PostgreSQL)]
     Adapters --> RD[(Redis<br/>optional)]
-    Adapters --> OP[OAuth Providers<br/>Google · GitHub]
+    Adapters --> OP[Identity Providers<br/>Google · GitHub · any OIDC]
 ```
 
 ## Next steps

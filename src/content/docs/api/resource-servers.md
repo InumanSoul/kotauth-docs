@@ -132,6 +132,39 @@ DELETE /t/{slug}/api/v1/resource-servers/{id}
 
 **Response `204 No Content`**
 
+Authorizing an application on a resource server starts its scope allowlist with every scope the server declares. Scopes added to the server later are **not** granted to existing applications.
+
+---
+
+## Get an application's allowed scopes
+
+```http
+GET /t/{slug}/api/v1/applications/{appId}/authorized-resource-servers/{rsId}/scopes
+```
+
+**Required scope:** `resource_servers:read`. Since v1.29.0.
+
+```json
+{ "scopes": ["orders:read", "orders:write"] }
+```
+
+A token request gets the intersection of the scopes requested, the scopes the resource server declares, and this list. Requesting anything else fails with `invalid_scope`. `404` if the application is not authorized on that resource server.
+
+## Set an application's allowed scopes
+
+```http
+PUT /t/{slug}/api/v1/applications/{appId}/authorized-resource-servers/{rsId}/scopes
+Content-Type: application/json
+
+{ "scopes": ["orders:read"] }
+```
+
+**Required scope:** `resource_servers:write`
+
+Full replacement. The application must already be authorized on the resource server (`404` otherwise), and every scope must be declared by it (`422` otherwise). An empty list leaves the application authorized but able to request nothing on that server.
+
+**Response `204 No Content`**
+
 ---
 
 ## List authorized resource servers for an application

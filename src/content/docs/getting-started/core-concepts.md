@@ -21,6 +21,8 @@ You reference a workspace by its **slug** — a URL-safe identifier you choose w
 
 A single Kotauth instance handles as many workspaces as you need. The master workspace is reserved for platform administration.
 
+By default every workspace is served on the instance address (`KAUTH_BASE_URL`). A workspace can instead have its own **public domain**, such as `https://auth.acme.com`: its issuer, sign-in pages and emailed links then move there, keeping the `/t/{slug}` paths. See [Custom Domains](/deployment/custom-domains/).
+
 ## Application (OAuth Client)
 
 An application is an OAuth2 client registered in a workspace. It represents a piece of software — a web app, mobile app, or backend service — that authenticates users or requests tokens from Kotauth.
