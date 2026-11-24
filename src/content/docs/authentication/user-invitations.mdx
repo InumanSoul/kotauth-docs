@@ -59,19 +59,19 @@ Admins can resend an invite from the user detail page in the admin console, or w
 
 ## API usage
 
-When creating a user via the REST API, pass `sendInvite: true` in the request body and omit the `password` field:
+Invite a user with `POST /users/invite`. It takes no password:
 
 ```bash
-curl -X POST https://your-instance.com/t/acme/api/v1/users \
+curl -X POST https://your-instance.com/t/acme/api/v1/users/invite \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "alice@example.com",
-    "firstName": "Alice",
-    "lastName": "Smith",
-    "sendInvite": true
+    "email": "alice@example.com",
+    "fullName": "Alice Smith"
   }'
 ```
+
+`username` is optional and generated when omitted. The key needs the `users:write` scope, and the workspace needs SMTP.
 
 The response includes `requiredActions: ["SET_PASSWORD"]` and `emailVerified: false` until the user completes the invite flow.
 

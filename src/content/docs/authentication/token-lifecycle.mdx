@@ -13,7 +13,7 @@ Understanding how tokens work in Kotauth prevents a class of subtle integration 
 
 A short-lived RS256-signed JWT. Resource servers verify it using the workspace JWKS endpoint — no call to Kotauth per request.
 
-**Default lifetime:** the workspace's access-token lifetime, 300 seconds (5 minutes) by default. An application can override it with its own **Access token lifetime** (60 to 86400 seconds) on its edit page or `tokenExpiryOverride` in the [Applications API](/api/applications/).
+**Default lifetime:** the workspace's access-token lifetime, 3600 seconds (1 hour) by default. An application can override it with its own **Access token lifetime** (60 to 86400 seconds) on its edit page or `tokenExpiryOverride` in the [Applications API](/api/applications/).
 
 The `aud` claim is the requested `resource`, otherwise the application's `audience`, otherwise its `client_id`. Access tokens for a user also carry `acr` (when a second factor was used) and `auth_time`.
 
@@ -102,7 +102,7 @@ These settings live in the admin console per workspace (or per application for a
 
 | Setting | Default | Notes |
 |---|---|---|
-| Access token TTL | 300s (5 min) | Workspace-wide, with a per-application override (60–86400s) |
+| Access token TTL | 3600s (1 hour) | Workspace-wide, with a per-application override (60–86400s) |
 | Refresh token TTL | 86400s (24h) | Workspace-wide |
 | Email verification token | 24h | Fixed |
 | Password reset token | 1h | Fixed |
