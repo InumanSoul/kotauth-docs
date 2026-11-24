@@ -88,4 +88,4 @@ Users can view their linked social identities from the self-service portal under
 
 ## Social login and MFA
 
-If the workspace MFA policy is `required` or `required_for_admins`, users who log in via a social provider are still required to complete MFA enrollment. Social login does not bypass MFA policies.
+Social login does not bypass MFA. A user with an authenticator app is challenged after the provider sends them back, before any session is created, and a user who lacks MFA the workspace requires (`required`, or `required_admins` for an admin) sets it up during sign-in. See [Multi-Factor Authentication](/authentication/mfa/).

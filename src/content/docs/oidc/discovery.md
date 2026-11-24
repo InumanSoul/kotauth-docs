@@ -25,22 +25,32 @@ Returns the standard [OpenID Connect Discovery](https://openid.net/specs/openid-
   "userinfo_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/userinfo",
   "jwks_uri": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/certs",
   "end_session_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/logout",
-  "introspection_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/introspect",
   "revocation_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/revoke",
+  "introspection_endpoint": "https://auth.yourdomain.com/t/my-app/protocol/openid-connect/introspect",
   "response_types_supported": ["code"],
   "grant_types_supported": ["authorization_code", "client_credentials", "refresh_token"],
   "subject_types_supported": ["public"],
   "id_token_signing_alg_values_supported": ["RS256"],
-  "scopes_supported": ["openid", "profile", "email", "roles"],
-  "token_endpoint_auth_methods_supported": ["client_secret_basic", "client_secret_post"],
+  "token_endpoint_auth_methods_supported": ["client_secret_post", "client_secret_basic", "none"],
+  "scopes_supported": ["openid", "profile", "email", "orders:read"],
   "claims_supported": [
     "sub", "iss", "aud", "exp", "iat",
-    "name", "preferred_username", "email", "email_verified",
-    "realm_access", "resource_access"
+    "email", "email_verified", "name", "preferred_username",
+    "auth_time", "amr", "acr"
   ],
-  "code_challenge_methods_supported": ["S256"]
+  "acr_values_supported": ["http://schemas.openid.net/pape/policies/2007/06/multi-factor"],
+  "code_challenge_methods_supported": ["S256"],
+  "resource_indicators_supported": true,
+  "prompt_values_supported": ["none", "login", "consent", "select_account"]
 }
 ```
+
+**Notes:**
+
+- **`issuer`** is the same value the tokens carry. It is the workspace's **Issuer URL** when one is set, otherwise the workspace's [public domain](/deployment/custom-domains/) plus `/t/{slug}`, otherwise `KAUTH_BASE_URL` plus `/t/{slug}`.
+- **`scopes_supported`** lists `openid`, `profile` and `email`, plus every scope declared by the workspace's enabled [resource servers](/api/resource-servers/).
+- **`none`** in `token_endpoint_auth_methods_supported` is how public clients authenticate (no secret, PKCE required).
+- **`acr_values_supported`** advertises multi-factor step-up. See [MFA → Step-up](/authentication/mfa/#step-up-per-request).
 
 **Usage with popular libraries:**
 

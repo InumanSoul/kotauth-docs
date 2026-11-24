@@ -14,14 +14,33 @@ Each workspace sets one of three MFA policies in the admin console under **Setti
 | Policy | Behavior |
 |---|---|
 | `optional` | Users can enroll voluntarily. Not enforced at login. |
-| `required` | All users must complete MFA enrollment before accessing the app or portal. |
-| `required_for_admins` | Only users with the `admin` role are required to enroll. |
+| `required` | Every user must have a second factor. A user without one sets it up during sign-in. |
+| `required_admins` | Only users with the `admin` role are required to enroll. |
 
 Changing the policy takes effect on the next login — it does not retroactively terminate existing sessions.
 
+## Which sign-ins ask for the second factor
+
+Since v1.28.1, every sign-in method goes through the same step: password, magic link, email code, social and OIDC providers, and passkeys without user verification. A user with an authenticator app is sent to the challenge after the first factor. A passkey **with** user verification already counts as two factors and is not challenged.
+
+The email-code API follows the same rule over JSON. See [Email OTP → Second factor](/authentication/email-otp/#second-factor).
+
 ## Enrollment flow
 
-Users enroll through the self-service portal at `/t/{slug}/account/mfa`.
+### During sign-in
+
+Since v1.30.0, when the policy requires MFA (or a client [requests it](#step-up-per-request)) and the user has no second factor, sign-in continues to a setup step instead of refusing them:
+
+1. Kotauth shows a QR code for the user's authenticator app
+2. The user enters the 6-digit code; this counts as the second factor for this sign-in
+3. Kotauth shows **8 one-time recovery codes**
+4. The user continues to the application
+
+The account portal goes through the same step, so it cannot be used to skip the requirement.
+
+### From the account portal
+
+Users can also enroll at any time through the self-service portal at `/t/{slug}/account/mfa`.
 
 1. The user clicks **Set up authenticator**
 2. Kotauth generates a TOTP secret and displays a QR code
@@ -32,6 +51,34 @@ Users enroll through the self-service portal at `/t/{slug}/account/mfa`.
 :::caution
 Recovery codes are shown exactly once. They are stored as irreversible hashes. Losing all recovery codes and the authenticator device locks the user out — an admin must manually reset MFA from the admin console.
 :::
+
+## Step-up per request
+
+A client can require a second factor for one sign-in, whatever the workspace policy, by sending `acr_values` on the [authorization request](/oidc/authorization/):
+
+```
+acr_values=http://schemas.openid.net/pape/policies/2007/06/multi-factor
+```
+
+- A user with a second factor is challenged.
+- A user without one sets one up during sign-in.
+- A browser whose SSO session proved only one factor is asked **only for the second factor**, not the password again.
+- With `prompt=none`, a sign-in that would need the challenge answers `login_required`.
+
+Other `acr_values` are ignored.
+
+### How tokens say what was proven
+
+| Sign-in | `amr` |
+|---|---|
+| Password | `pwd` |
+| Email code or magic link | `otp` |
+| Social or OIDC provider | `fed` |
+| Passkey bound to one device / synced | `hwk` / `swk` |
+| Authenticator app or recovery code as second factor | adds `otp` and `mfa` |
+| Passkey with user verification | adds `mfa` |
+
+The ID token carries `amr`, and `acr` set to the multi-factor URI above when `amr` contains `mfa`; otherwise `acr` is absent. Access tokens carry `acr` and `auth_time` ([RFC 9470](https://www.rfc-editor.org/rfc/rfc9470)), so an API can check them and ask for step-up itself. A refreshed ID token keeps the original `auth_time` and `amr`.
 
 ## Login flow with MFA
 
@@ -54,6 +101,10 @@ This is independent of the IP-based rate limiting — an attacker who rotates IP
 Recovery codes are 8-character alphanumeric strings. Each code can be used exactly once. Using a recovery code logs the user in and allows them to re-enroll their authenticator.
 
 Kotauth tracks which recovery codes have been used. Admins can see the count of remaining codes in the admin console.
+
+## Factor-change emails
+
+With SMTP configured, Kotauth emails the user when an authenticator app is added or removed, an admin resets their MFA, a recovery code is used (with the count left), or a passkey is added or removed. The email says whether an administrator made the change and carries no links.
 
 ## Admin management
 

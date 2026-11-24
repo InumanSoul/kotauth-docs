@@ -31,7 +31,7 @@ Magic-link requests return the same response regardless of whether the email add
 
 Magic links authenticate the first factor only. If a user has TOTP MFA enrolled, they are still required to complete the TOTP challenge after clicking the magic link. The magic link replaces the password, not the entire authentication flow.
 
-This means magic links are compatible with any MFA policy (`optional`, `required`, or `required_for_admins`).
+This means magic links are compatible with any MFA policy (`optional`, `required`, or `required_admins`). A user who lacks MFA the workspace requires sets it up during sign-in.
 
 ## Passwordless-only mode
 
@@ -75,7 +75,7 @@ Validates the token and `KOTAUTH_AUTH_CONTEXT` cookie. On success, creates a ses
 
 | Property | Value |
 |---|---|
-| Expiry | 15 minutes |
+| Expiry | 15 minutes by default. Set it from 1 to 1440 minutes under **Security → Security policy → Magic Links**, or with `PATCH /workspace`. The page and email quote the configured window. |
 | Usage | One-time — consumed on first valid use |
 | Storage | Database with tenant scoping |
 | Invalidation | Automatic on expiry, manual on new token generation for the same email |
