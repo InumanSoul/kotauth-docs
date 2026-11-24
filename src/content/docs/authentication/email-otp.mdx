@@ -113,7 +113,7 @@ The authorization code has a 60-second TTL and is exchanged for tokens via the s
 
 ### Second factor
 
-Email OTP does not bypass MFA. When the user has TOTP enrolled, or the workspace MFA policy requires a second factor they lack, `verify-otp` does not return a code. It answers `403` instead:
+Email OTP does not bypass MFA. When the user has an authenticator app enrolled, `verify-otp` does not return a code. It answers `403` with an `mfaToken`:
 
 ```json
 {
@@ -142,12 +142,16 @@ Content-Type: application/json
 
 The `mfaToken` is valid for 5 minutes and only in the workspace that issued it. On success the response is the same `200 OK` body as `verify-otp`.
 
-| Status | `error` / detail | Meaning |
+Only the `mfa_required` response has an `error` field. The other refusals are standard problem responses whose `detail` starts with the code shown:
+
+| Status | `detail` starts with | Meaning |
 |---|---|---|
 | `401` | `invalid_mfa_token` | The token is unknown, expired, or from another workspace. Restart from `send-otp`. |
 | `422` | `invalid_mfa_code` | Wrong code. Retry with the same token. |
 | `429` | `mfa_locked` | Too many wrong codes. Wait, or use a recovery code. |
+| `429` | (rate limit) | Too many attempts for this user in a short window. Wait a few minutes. |
 | `403` | `mfa_enrollment_required` | Returned by `verify-otp`: the workspace requires MFA and the user has none enrolled. Send them through the hosted sign-in, which enrolls them. |
+| `503` | (MFA unavailable) | Returned by `verify-otp`: this server cannot complete the second factor over the API. |
 
 `verify-mfa` needs an API key with the `auth:verify-otp` scope, the same as `verify-otp`.
 

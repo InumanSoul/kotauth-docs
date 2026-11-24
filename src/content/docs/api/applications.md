@@ -208,9 +208,9 @@ Updates any of the fields below; omitted fields keep their current value. Changi
 |---|---|---|
 | `name` | No | Display name |
 | `description` | No | Optional description (pass `null` to clear) |
-| `accessType` | No | `public` or `confidential` |
+| `accessType` | No | `public`, `confidential` or `bearer_only` |
 | `redirectUris` | No | Array of allowed redirect URIs |
-| `grantTypes` | No | Omit to leave grants unchanged. An explicit array, including `[]`, replaces them. Remove `client_credentials` before demoting a confidential application to `public`. |
+| `grantTypes` | No | Omit to leave grants unchanged. An explicit array replaces them; it must name at least one grant unless the application is `bearer_only`. Remove `client_credentials` before demoting a confidential application to `public`. |
 | `audience` | No | Default `aud` of access tokens. An empty string clears it. |
 | `tokenExpiryOverride` | No | Access-token lifetime in seconds, `60` to `86400`. `0` clears it so the workspace setting applies. |
 
