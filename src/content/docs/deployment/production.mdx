@@ -125,7 +125,7 @@ Before starting in production, verify:
 - `KAUTH_BASE_URL` starts with `https://`
 - `KAUTH_SECRET_KEY` is a freshly generated 32+ byte hex string (use `java -jar kauth.jar cli generate-secret-key` or `openssl rand -hex 32`)
 - `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` is set (min 12 chars, mixed case + digit) — or capture the generated password from stdout on first boot
-- `KAUTH_TRUSTED_PROXY=true` if behind a reverse proxy (rate limiting uses `X-Forwarded-For`)
+- `KAUTH_TRUSTED_PROXY=true` behind a single reverse proxy, or `KAUTH_TRUSTED_PROXY_CIDRS` behind a CDN plus a proxy (see below)
 - `DB_URL`, `DB_USER`, `DB_PASSWORD` point to your production PostgreSQL instance — `DB_PASSWORD` is required and must not be blank
 - Database user has `CREATE`, `SELECT`, `INSERT`, `UPDATE`, `DELETE` permissions (required for Flyway migrations on first boot)
 - Port 5432 is blocked on the host firewall — the database should never be publicly reachable
@@ -185,13 +185,19 @@ docker run -d \
 
 **Set the admin password.** As of v1.14.1, there are no hardcoded default credentials. Set `KAUTH_BOOTSTRAP_ADMIN_PASSWORD` in your environment before first boot — minimum 12 characters with uppercase, lowercase, and a digit. If unset, a random password is generated and printed to stdout once.
 
-**Enable trusted proxy.** If Kotauth runs behind a reverse proxy, set `KAUTH_TRUSTED_PROXY=true` so rate limiting uses the real client IP from `X-Forwarded-For`. Leave it `false` when directly exposed.
+**Tell Kotauth which proxies to trust.** Per-IP rate limits and audit-log addresses depend on finding the real client address.
+
+- **One reverse proxy** (nginx, Caddy, Traefik, a cloud load balancer) directly in front of Kotauth: set `KAUTH_TRUSTED_PROXY=true`. Kotauth takes the last `X-Forwarded-For` entry, the one your proxy appended.
+- **A CDN in front of a reverse proxy** (for example Cloudflare in front of Traefik, as Dokploy and Coolify set it up): set `KAUTH_TRUSTED_PROXY_CIDRS` to the CDN's published ranges plus your proxy's network. Kotauth walks `X-Forwarded-For` from the right, skips every trusted address, and takes the first one outside. With only `KAUTH_TRUSTED_PROXY=true`, every client would appear to come from a CDN edge, so one abusive client could lock out everyone behind it. Behind Cloudflare you can also set `KAUTH_CLIENT_IP_HEADER=CF-Connecting-IP`.
+- **Exposed directly**: leave both unset, so forwarded headers are ignored and cannot be spoofed.
+
+See [Environment Variables](/deployment/environment-variables/#kauth_trusted_proxy_cidrs).
 
 **Configure SMTP.** Required for email verification, password resets, magic links, Email OTP, and user invitations. Set this up under **Settings → SMTP** in each workspace.
 
 **Review password policy.** The default (minimum 8 characters) may not meet your requirements. Tighten it under **Settings → Security**.
 
-**Set the MFA policy.** Decide whether MFA should be `optional`, `required`, or `required_for_admins`. For sensitive workspaces, `required` is the safe default.
+**Set the MFA policy.** Decide whether MFA should be `optional`, `required`, or `required_admins`. For sensitive workspaces, `required` is the safe default.
 
 **Provision API keys via environment.** For automated deployments, use `KAUTH_BOOTSTRAP_API_KEYS` to create API keys idempotently on startup. See [Environment Variables](/deployment/environment-variables/) and [CLI Commands](/deployment/cli/).
 
@@ -211,7 +217,7 @@ Flyway runs any pending migrations before the server begins accepting traffic. A
 To pin to a specific version, edit the `image` tag in your compose file:
 
 ```yaml
-image: ghcr.io/inumansoul/kotauth:1.19.2
+image: ghcr.io/inumansoul/kotauth:1.31.0
 ```
 
 ---

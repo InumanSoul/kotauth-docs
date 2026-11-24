@@ -125,6 +125,7 @@ export default defineConfig({
 						{ label: 'Environment Variables', slug: 'deployment/environment-variables' },
 						{ label: 'Docker', slug: 'deployment/docker' },
 						{ label: 'Production Checklist', slug: 'deployment/production' },
+						{ label: 'Custom Domains', slug: 'deployment/custom-domains' },
 						{ label: 'External Databases', slug: 'deployment/external-database' },
 						{ label: 'CLI Commands', slug: 'deployment/cli' },
 						{ label: 'Key Rotation', slug: 'deployment/key-rotation' },
